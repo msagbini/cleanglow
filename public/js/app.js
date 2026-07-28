@@ -2,6 +2,9 @@
   'use strict';
 
   /* ============ Pricing config ============ */
+  // Mirrors server/pricing.js — used here only for instant on-screen estimates.
+  // The server recomputes the real charge from the raw selections, so this
+  // copy drifting out of sync would produce a wrong *estimate*, not a wrong charge.
   const BASE_PRICE_BY_BEDROOMS = { '0': 89, '1': 99, '2': 129, '3': 169, '4': 199, '5': 249 };
   const BATHROOM_EXTRA = 15; // per bathroom beyond the first
   const PROPERTY_TYPE_LABEL = { apartment: 'Piso', house: 'Casa', studio: 'Estudio', office: 'Oficina' };
@@ -233,26 +236,61 @@
     });
   }
 
-  /* ============ Form submission ============ */
-  form.addEventListener('submit', e => {
+  /* ============ Form submission — create booking, then redirect to Stripe ============ */
+  function setSubmitting(isSubmitting) {
+    btnSubmit.disabled = isSubmitting;
+    btnSubmit.textContent = isSubmitting ? 'Redirigiendo a pago seguro…' : 'Confirmar y pagar →';
+    btnBack.disabled = isSubmitting || state.currentStep === 1;
+  }
+
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!validateStep(4)) return;
 
-    const { total } = calcPrice();
-    const email = document.getElementById('email').value;
-    const ref = 'SE-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+    const extras = Array.from(document.querySelectorAll('input[name="extras"]:checked')).map(el => el.value);
+    const payload = {
+      propertyType: state.propertyType,
+      bedrooms: els.bedrooms.value,
+      bathrooms: els.bathrooms.value,
+      sqm: document.getElementById('sqm').value || null,
+      furnished: document.getElementById('furnished').value,
+      notesProperty: document.getElementById('notesProperty').value,
+      extras,
+      keyAccess: document.getElementById('keyAccess').value,
+      bookingDate: document.getElementById('bookingDate').value,
+      bookingTime: document.getElementById('bookingTime').value,
+      urgency: state.urgency,
+      fullName: document.getElementById('fullName').value,
+      email: document.getElementById('email').value,
+      phone: document.getElementById('phone').value,
+      address: document.getElementById('address').value,
+      postcode: document.getElementById('postcode').value,
+      promoCode: els.promoCode.value || null,
+    };
 
-    document.getElementById('confirmEmail').textContent = email;
-    document.getElementById('confirmRef').textContent = ref;
-    document.getElementById('modalSummary').innerHTML = `
-      <strong>${PROPERTY_TYPE_LABEL[state.propertyType]}</strong> · ${document.getElementById('bookingDate').value} · Total: <strong>${total.toFixed(0)}€</strong>
-    `;
-    openModal('confirmModal');
+    setSubmitting(true);
+    try {
+      const bookingRes = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const bookingData = await bookingRes.json();
+      if (!bookingRes.ok) throw new Error(bookingData.error || 'No se pudo crear la reserva');
 
-    // In a real app this would POST to a backend endpoint here.
-    form.reset();
-    showStep(1);
-    updatePriceSummary();
+      const sessionRes = await fetch('/api/checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: bookingData.bookingId }),
+      });
+      const sessionData = await sessionRes.json();
+      if (!sessionRes.ok) throw new Error(sessionData.error || 'No se pudo iniciar el pago');
+
+      window.location.href = sessionData.url;
+    } catch (err) {
+      showToast(err.message || 'Ocurrió un error. Inténtalo de nuevo.');
+      setSubmitting(false);
+    }
   });
 
   /* ============ Accordion (FAQ) ============ */
@@ -281,8 +319,6 @@
     document.getElementById(id).hidden = true;
     document.body.style.overflow = '';
   }
-  document.getElementById('modalClose').addEventListener('click', () => closeModal('confirmModal'));
-  document.getElementById('modalDoneBtn').addEventListener('click', () => closeModal('confirmModal'));
   document.getElementById('legalModalClose').addEventListener('click', () => closeModal('legalModal'));
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
