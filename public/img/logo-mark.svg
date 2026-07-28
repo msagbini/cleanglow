@@ -1,0 +1,18 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CleanGlow logo">
+  <defs>
+    <linearGradient id="cgDropGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14a08d"/>
+      <stop offset="100%" stop-color="#0a5b4f"/>
+    </linearGradient>
+  </defs>
+  <path d="M100,26
+           C124,64 158,96 158,128
+           A58,58 0 1 1 42,128
+           C42,96 76,64 100,26 Z"
+        fill="url(#cgDropGrad)"/>
+  <path d="M70,150 A40,40 0 0 1 70,86" stroke="#ffffff" stroke-opacity="0.35" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M144,54
+           L149,68 L163,73 L149,78 L144,92
+           L139,78 L125,73 L139,68 Z"
+        fill="#ff8a4c"/>
+</svg>

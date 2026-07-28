@@ -1,0 +1,19 @@
+<svg width="520" height="160" viewBox="0 0 520 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CleanGlow — End of lease cleaning">
+  <defs>
+    <linearGradient id="cgDropGradLockup" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14a08d"/>
+      <stop offset="100%" stop-color="#0a5b4f"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(10, 10) scale(0.7)">
+    <path d="M100,26
+             C124,64 158,96 158,128
+             A58,58 0 1 1 42,128
+             C42,96 76,64 100,26 Z"
+          fill="url(#cgDropGradLockup)"/>
+    <path d="M70,150 A40,40 0 0 1 70,86" stroke="#ffffff" stroke-opacity="0.35" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M144,54 L149,68 L163,73 L149,78 L144,92 L139,78 L125,73 L139,68 Z" fill="#ff8a4c"/>
+  </g>
+  <text x="160" y="82" font-family="-apple-system, 'Segoe UI', Arial, sans-serif" font-size="52" font-weight="800" fill="#14211d">Clean<tspan fill="#0f7a6b">Glow</tspan></text>
+  <text x="162" y="112" font-family="-apple-system, 'Segoe UI', Arial, sans-serif" font-size="20" font-weight="500" fill="#6b7d75">End of lease cleaning</text>
+</svg>

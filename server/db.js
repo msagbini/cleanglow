@@ -41,6 +41,15 @@ db.exec(`
     updated_at TEXT
   );
   CREATE INDEX IF NOT EXISTS idx_bookings_session ON bookings (stripe_session_id);
+  CREATE TABLE IF NOT EXISTS booking_photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    booking_id TEXT NOT NULL REFERENCES bookings(id),
+    filename TEXT NOT NULL,
+    original_name TEXT,
+    size_bytes INTEGER,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_booking_photos_booking ON booking_photos (booking_id);
 `);
 
 // CREATE TABLE IF NOT EXISTS only applies the schema to a brand-new file — an
@@ -114,6 +123,28 @@ export function insertBooking(fields, amountCents) {
     fields.promoCode ?? null, fields.frequency ?? 'once', amountCents, config.business.currency
   );
   return getBooking(id);
+}
+
+const MAX_PHOTOS_PER_BOOKING = 8;
+
+export function countPhotosForBooking(bookingId) {
+  const row = db.prepare('SELECT COUNT(*) as count FROM booking_photos WHERE booking_id = ?').get(bookingId);
+  return row.count;
+}
+
+export function addBookingPhoto(bookingId, { filename, originalName, sizeBytes }) {
+  if (countPhotosForBooking(bookingId) >= MAX_PHOTOS_PER_BOOKING) {
+    throw new Error('Maximum number of photos reached for this booking');
+  }
+  db.prepare(
+    'INSERT INTO booking_photos (booking_id, filename, original_name, size_bytes) VALUES (?, ?, ?, ?)'
+  ).run(bookingId, filename, originalName ?? null, sizeBytes ?? null);
+}
+
+export function listBookingPhotos(bookingId) {
+  return db.prepare(
+    'SELECT id, filename, original_name, size_bytes, created_at FROM booking_photos WHERE booking_id = ? ORDER BY id ASC'
+  ).all(bookingId);
 }
 
 export function getBooking(id) {

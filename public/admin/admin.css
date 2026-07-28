@@ -23,3 +23,7 @@ select.status-select { padding: 6px 8px; border-radius: 6px; border: 1px solid v
 .empty-state { text-align: center; padding: 60px 20px; color: var(--color-muted); }
 .loading-state { text-align: center; padding: 40px; color: var(--color-muted); }
 .muted-text { color: var(--color-muted); }
+.photos-btn { margin-top: 6px; }
+.photos-modal-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.photos-modal-grid img { width: 140px; height: 140px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--color-border); }
+.photos-modal-empty { color: var(--color-muted); margin-top: 16px; }

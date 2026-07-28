@@ -14,7 +14,9 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{SITE_TITLE}}">
 <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>{{SITE_ICON}}</text></svg>">
+<link rel="icon" href="{{SITE_ICON_HREF}}">
+<meta property="og:image" content="{{SITE_OG_IMAGE}}">
+<meta name="twitter:image" content="{{SITE_OG_IMAGE}}">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -58,6 +60,7 @@
         <a href="#pricing" class="btn btn-ghost btn-lg">See pricing</a>
       </div>
       <ul class="hero-trust" id="heroTrust"></ul>
+      <p class="hero-guarantee-footnote" id="heroGuaranteeFootnote"></p>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-card">
@@ -170,6 +173,11 @@
 
             <label class="field-label" for="notesProperty">Notes about the property (optional)</label>
             <textarea id="notesProperty" name="notesProperty" rows="3" placeholder="e.g. pets on site, mould in the bathroom, limited access due to works..."></textarea>
+
+            <label class="field-label" for="propertyPhotos">Photos of the property's current condition (optional)</label>
+            <p class="field-hint">Up to 8 photos (JPEG, PNG or WEBP, 8MB each). This helps our team quote accurately and gives us a record of the starting condition.</p>
+            <input type="file" id="propertyPhotos" name="propertyPhotos" accept="image/jpeg,image/png,image/webp" multiple>
+            <div class="photo-preview-grid" id="photoPreviewGrid"></div>
           </fieldset>
 
           <!-- STEP 2: EXTRAS -->

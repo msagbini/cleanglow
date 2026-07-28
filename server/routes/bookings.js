@@ -1,8 +1,33 @@
 import { Router } from 'express';
-import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError } from '../db.js';
+import multer from 'multer';
+import crypto from 'node:crypto';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto } from '../db.js';
 import { computeAmountCents, isValidExtraKey, isValidFrequency, config } from '../config.js';
 
 const router = Router();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
+fs.mkdirSync(uploadsDir, { recursive: true });
+
+const ALLOWED_PHOTO_TYPES = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadsDir),
+    filename: (req, file, cb) => cb(null, `${crypto.randomUUID()}${ALLOWED_PHOTO_TYPES[file.mimetype]}`),
+  }),
+  limits: { fileSize: 8 * 1024 * 1024, files: 8 },
+  fileFilter: (req, file, cb) => {
+    if (!ALLOWED_PHOTO_TYPES[file.mimetype]) {
+      return cb(new Error('Only JPEG, PNG or WEBP images are allowed'));
+    }
+    cb(null, true);
+  },
+});
 
 const REQUIRED_FIELDS = [
   'propertyType', 'bedrooms', 'bathrooms', 'bookingDate', 'bookingTime', 'urgency',
@@ -79,6 +104,34 @@ router.post('/', (req, res) => {
     bookingId: booking.id,
     amount: amountCents / 100,
     currency: booking.currency,
+  });
+});
+
+// Uploading property-condition photos is a nice-to-have that must never block
+// or delay a booking/payment — failures here are reported but non-fatal on the
+// client side, and this endpoint only accepts photos for bookings that already
+// exist (created via POST / above).
+router.post('/:id/photos', (req, res) => {
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+  upload.array('photos', 8)(req, res, err => {
+    if (err) {
+      return res.status(400).json({ error: err.message || 'Could not upload photos' });
+    }
+    const files = req.files || [];
+    try {
+      for (const file of files) {
+        addBookingPhoto(booking.id, {
+          filename: file.filename,
+          originalName: file.originalname,
+          sizeBytes: file.size,
+        });
+      }
+    } catch (dbErr) {
+      return res.status(400).json({ error: dbErr.message });
+    }
+    res.status(201).json({ uploaded: files.length });
   });
 });
 

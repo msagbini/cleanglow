@@ -106,7 +106,8 @@ input, select, textarea { font-family: inherit; }
 }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 16px; }
 .logo { display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 700; color: var(--color-ink); flex-shrink: 0; }
-.logo-mark { font-size: 1.4rem; }
+.logo-mark { font-size: 1.4rem; display: inline-flex; align-items: center; }
+.logo-mark img { height: 32px; width: auto; display: block; }
 .main-nav { display: flex; gap: 28px; }
 .main-nav a { font-weight: 500; font-size: .95rem; color: var(--color-body); transition: color .15s; }
 .main-nav a:hover { color: var(--color-primary); }
@@ -131,6 +132,8 @@ input, select, textarea { font-family: inherit; }
 .hero-copy > p { font-size: 1.08rem; max-width: 520px; }
 .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin: 26px 0; }
 .hero-trust { display: flex; gap: 22px; flex-wrap: wrap; font-size: .88rem; color: var(--color-muted); font-weight: 500; }
+.hero-guarantee-footnote { font-size: .76rem; color: var(--color-muted); margin-top: 14px; max-width: 520px; }
+.hero-guarantee-footnote a { color: var(--color-primary-text); font-weight: 600; text-decoration: underline; }
 
 .hero-visual { display: flex; justify-content: center; }
 .hero-card {
@@ -185,6 +188,8 @@ input, select, textarea { font-family: inherit; }
 }
 .guarantee-card h3 { color: #fff; }
 .guarantee-card ul { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; font-size: .92rem; }
+.guarantee-disclaimer { margin-top: 18px; font-size: .78rem; color: rgba(255,255,255,.8); border-top: 1px solid rgba(255,255,255,.25); padding-top: 14px; }
+.guarantee-disclaimer a { color: #fff; font-weight: 600; text-decoration: underline; }
 
 /* ---------- Pricing ---------- */
 .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -266,6 +271,20 @@ input:invalid:not(:placeholder-shown):required { border-color: var(--color-dange
 .extra-icon { font-size: 1.1rem; }
 .extra-name { font-size: .86rem; font-weight: 600; color: var(--color-ink); }
 .extra-price { font-size: .8rem; color: var(--color-primary-text); font-weight: 700; }
+
+input[type=file] {
+  width: 100%; padding: 10px 12px; border: 1.5px dashed var(--color-border); border-radius: var(--radius-sm);
+  font-size: .88rem; color: var(--color-body); background: var(--color-surface); cursor: pointer;
+}
+input[type=file]:focus { outline: none; border-color: var(--color-primary); }
+.photo-preview-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.photo-preview-grid:empty { margin-top: 0; }
+.photo-thumb { position: relative; width: 76px; height: 76px; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--color-border); }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-thumb .photo-remove {
+  position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: none;
+  background: rgba(0,0,0,.6); color: #fff; font-size: .75rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
 
 .checkbox-row { margin-top: 18px; }
 .checkbox-line { display: flex; align-items: flex-start; gap: 10px; font-size: .88rem; color: var(--color-body); }
@@ -356,6 +375,9 @@ input:invalid:not(:placeholder-shown):required { border-color: var(--color-dange
 .modal-ref { font-size: .85rem; color: var(--color-muted); }
 .modal-body { text-align: left; font-size: .9rem; color: var(--color-body); max-height: 50vh; overflow-y: auto; }
 .modal-body h4 { margin-top: 18px; font-size: .95rem; }
+.modal-body p { margin: 10px 0; }
+.modal-body ul { margin: 10px 0; padding-left: 20px; list-style: disc; }
+.modal-body li { margin: 6px 0; }
 
 /* ---------- Back to top ---------- */
 .back-to-top {

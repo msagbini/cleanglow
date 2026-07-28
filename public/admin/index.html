@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin panel</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧽</text></svg>">
+<link rel="icon" href="/img/logo-mark.svg">
 <link rel="stylesheet" href="../css/styles.css">
 <link rel="stylesheet" href="admin.css">
 </head>
@@ -46,6 +46,14 @@
     </table>
     <div class="loading-state" id="loadingState">Loading bookings…</div>
     <div class="empty-state" id="emptyState" hidden>No bookings match this filter.</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="photosModal" hidden>
+  <div class="modal">
+    <button type="button" class="modal-close" id="photosModalClose" aria-label="Close">✕</button>
+    <h2>Property condition photos — <span id="photosModalBookingId"></span></h2>
+    <div class="photos-modal-grid" id="photosModalGrid"></div>
   </div>
 </div>
 

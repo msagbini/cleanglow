@@ -9,7 +9,9 @@
     frequency: 'once',
     currentStep: 1,
     promoDiscount: 0,
+    photos: [],
   };
+  const MAX_PHOTOS = 8;
 
   const form = document.getElementById('bookingForm');
   const steps = Array.from(document.querySelectorAll('.form-step'));
@@ -38,13 +40,26 @@
     root.setProperty('--color-accent', theme.accent);
   }
 
+  function setLogoMark(el, business) {
+    if (!el) return;
+    if (business.logoUrl) {
+      el.textContent = '';
+      const img = document.createElement('img');
+      img.src = business.logoUrl;
+      img.alt = `${business.name} logo`;
+      el.appendChild(img);
+    } else {
+      el.textContent = business.logoEmoji;
+    }
+  }
+
   function renderBranding(cfg) {
     const { business } = cfg;
     document.title = `${business.name} | Book your service online`;
 
-    document.getElementById('logoMark').textContent = business.logoEmoji;
+    setLogoMark(document.getElementById('logoMark'), business);
     document.getElementById('logoText').textContent = business.name;
-    document.getElementById('footerLogoMark').textContent = business.logoEmoji;
+    setLogoMark(document.getElementById('footerLogoMark'), business);
     document.getElementById('footerLogoText').textContent = business.name;
 
     const telHref = `tel:${business.phone}`;
@@ -94,6 +109,11 @@
     document.getElementById('heroTrust').innerHTML = business.heroTrust
       .map(item => `<li>${item}</li>`).join('');
 
+    const heroFootnote = document.getElementById('heroGuaranteeFootnote');
+    if (heroFootnote && business.guaranteeFootnote) {
+      heroFootnote.innerHTML = `${business.guaranteeFootnote} <a href="#" data-modal="terms">Guarantee Terms</a>`;
+    }
+
     const sampleSize = booking.sizeField.options[Math.min(2, booking.sizeField.options.length - 1)];
     const sampleExtras = booking.extras.slice(0, 2);
     const sampleType = booking.serviceTypes[0];
@@ -126,10 +146,14 @@
     document.getElementById('checklistColumns').innerHTML = checklist.columns.map(col => `
       <ul class="checklist">${col.map(item => `<li>✔ ${item}</li>`).join('')}</ul>
     `).join('');
+    const disclaimer = checklist.guarantee.disclaimer
+      ? `<p class="guarantee-disclaimer">${checklist.guarantee.disclaimer} <a href="#" data-modal="terms">Guarantee Terms</a></p>`
+      : '';
     document.getElementById('guaranteeCard').innerHTML = `
       <h3>${checklist.guarantee.title}</h3>
       <p>${checklist.guarantee.description}</p>
       <ul>${checklist.guarantee.points.map(p => `<li>✅ ${p}</li>`).join('')}</ul>
+      ${disclaimer}
     `;
   }
 
@@ -215,8 +239,15 @@
     legalContent.terms.body = `<p>By booking a service with ${business.name} you agree to the following terms:</p>
       <h4>1. Bookings and payment</h4><p>The price shown is an estimate based on the details you provide. The final amount is confirmed after the team's initial inspection.</p>
       <h4>2. Cancellations</h4><p>You can cancel or reschedule for free up to 24 hours before your appointment. Later cancellations may incur a 20% fee.</p>
-      <h4>3. Re-clean guarantee</h4><p>We offer a free re-clean within ${business.recleanWindowHours} hours if any agreed checklist item isn't up to standard.</p>
-      <h4>4. Property access</h4><p>The customer is responsible for providing a valid access method for the booked time slot.</p>`;
+      <h4>3. Bond-Back & Re-clean Guarantee</h4>
+      <p><strong>What we guarantee:</strong> if your property manager or landlord flags an item from your <em>agreed checklist</em> that wasn't completed to a professional standard, we will re-clean that item at no charge — as many times as it takes to meet the standard — provided:</p>
+      <ul>
+        <li>it is reported to us in writing (email, or a note on your property condition/exit report) within ${business.recleanWindowHours} hours of the clean; and</li>
+        <li>you or your property manager give our team reasonable access to carry out the re-clean.</li>
+      </ul>
+      <p><strong>What "100% bond-back guarantee" means — and doesn't mean:</strong> it describes our commitment to re-clean checklist items until they meet a professional standard. It is <strong>not</strong> a guarantee of the bond amount itself. Whether your bond is returned in full is a decision made by your landlord, property manager, or (if disputed) the relevant tenancy authority, based on factors outside our control — for example property damage, unpaid rent, garden/lawn condition, or missing items.</p>
+      <p><strong>What isn't covered:</strong> pre-existing damage, fair wear and tear, mould, odours or staining caused by conditions that existed before our service, items outside the checklist agreed at booking, and re-clean requests made after the ${business.recleanWindowHours}-hour reporting window or where access wasn't provided.</p>
+      <h4>4. Property access</h4><p>The customer is responsible for providing a valid access method for the booked time slot, and for the re-clean visit described above if one is requested.</p>`;
     legalContent.privacy.body = `<p>Your personal data is used only to manage your booking and communicate with you about the service.</p>
       <h4>Data we collect</h4><p>Name, email, phone number and the address of the property to be cleaned.</p>
       <h4>How we use it</h4><p>We don't share your data with third parties other than the team assigned to your service.</p>
@@ -455,6 +486,62 @@
     btnBack.disabled = isSubmitting || state.currentStep === 1;
   }
 
+  /* ============ Property condition photos ============ */
+  const photoInput = document.getElementById('propertyPhotos');
+  const photoPreviewGrid = document.getElementById('photoPreviewGrid');
+
+  function renderPhotoPreviews() {
+    photoPreviewGrid.innerHTML = '';
+    state.photos.forEach((file, index) => {
+      const thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.alt = file.name;
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'photo-remove';
+      removeBtn.setAttribute('aria-label', `Remove ${file.name}`);
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', () => {
+        state.photos.splice(index, 1);
+        renderPhotoPreviews();
+      });
+      thumb.append(img, removeBtn);
+      photoPreviewGrid.appendChild(thumb);
+    });
+  }
+
+  if (photoInput) {
+    photoInput.addEventListener('change', () => {
+      const incoming = Array.from(photoInput.files || []);
+      const room = MAX_PHOTOS - state.photos.length;
+      if (incoming.length > room) {
+        showToast(`You can upload up to ${MAX_PHOTOS} photos. Only the first ${room} were added.`);
+      }
+      state.photos.push(...incoming.slice(0, Math.max(room, 0)));
+      photoInput.value = '';
+      renderPhotoPreviews();
+    });
+  }
+
+  async function uploadPropertyPhotos(bookingId) {
+    if (!state.photos.length) return;
+    const formData = new FormData();
+    state.photos.forEach(file => formData.append('photos', file));
+    try {
+      const res = await fetch(`/api/bookings/${encodeURIComponent(bookingId)}/photos`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        console.warn('Photo upload failed, continuing without photos');
+      }
+    } catch {
+      console.warn('Photo upload failed, continuing without photos');
+    }
+  }
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!validateStep(4)) return;
@@ -490,6 +577,8 @@
       });
       const bookingData = await bookingRes.json();
       if (!bookingRes.ok) throw new Error(bookingData.error || 'Could not create the booking');
+
+      await uploadPropertyPhotos(bookingData.bookingId);
 
       const sessionRes = await fetch('/api/checkout-session', {
         method: 'POST',
@@ -541,15 +630,18 @@
     terms: { title: 'Terms & Conditions', body: '' },
     privacy: { title: 'Privacy Policy', body: '' },
   };
-  document.querySelectorAll('[data-modal]').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      const key = link.dataset.modal;
-      const content = legalContent[key];
-      document.getElementById('legalTitle').textContent = content.title;
-      document.getElementById('legalBody').innerHTML = content.body;
-      openModal('legalModal');
-    });
+  // Delegated on document (rather than bound per-element at load) because some
+  // [data-modal] links — e.g. the guarantee footnotes — are injected later,
+  // once /api/config has loaded.
+  document.addEventListener('click', e => {
+    const link = e.target.closest('[data-modal]');
+    if (!link) return;
+    e.preventDefault();
+    const key = link.dataset.modal;
+    const content = legalContent[key];
+    document.getElementById('legalTitle').textContent = content.title;
+    document.getElementById('legalBody').innerHTML = content.body;
+    openModal('legalModal');
   });
 
   /* ============ Toast ============ */

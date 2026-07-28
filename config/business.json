@@ -2,14 +2,16 @@
   "business": {
     "name": "CleanGlow",
     "logoEmoji": "🧽",
-    "badgeText": "✔ 100% Bond Back Guarantee",
-    "heroTitleHtml": "End of lease cleaning that <span class=\"accent\">gets your bond back</span>, without the stress.",
+    "logoUrl": "/img/logo-mark.svg",
+    "ogImageUrl": "/img/og-banner.png",
+    "badgeText": "✔ 100% Bond Back Guarantee*",
+    "heroTitleHtml": "End of lease cleaning that <span class=\"accent\">helps you get your bond back</span>, without the stress.",
     "heroDescription": "Professional teams, full liability insurance, and a checklist approved by property managers. Book in 3 minutes and get an instant quote.",
-    "tagline": "End of lease cleaning with a 100% bond-back guarantee",
-    "seoDescription": "Book your end of lease clean online with a 100% bond-back guarantee. Instant quotes, a full inspection checklist, and vetted professional cleaners in Melbourne.",
-    "footerDescription": "Professional end of lease cleaning with a 100% bond-back guarantee.",
-    "phone": "+61390000000",
-    "phoneDisplay": "(03) 9000 0000",
+    "tagline": "End of lease cleaning with a 100% bond-back guarantee*",
+    "seoDescription": "Book your end of lease clean online with a 100% bond-back guarantee (conditions apply). Instant quotes, a full inspection checklist, and vetted professional cleaners in Melbourne.",
+    "footerDescription": "Professional end of lease cleaning with a 100% bond-back guarantee.* See our guarantee terms for details.",
+    "phone": "+61420576710",
+    "phoneDisplay": "0420 576 710",
     "email": "hello@cleanglow.com.au",
     "hours": "Mon–Sat, 8:00am–8:00pm",
     "serviceAreas": ["Melbourne CBD", "St Kilda", "Richmond", "Fitzroy", "Brunswick", "South Yarra"],
@@ -17,18 +19,19 @@
     "currency": "aud",
     "currencySymbol": "$",
     "currencyCode": "AUD",
-    "abn": "",
+    "abn": "49 738 164 579",
     "gstRegistered": false,
     "gstRate": 0.10,
     "insuranceAmount": "$20M",
     "recleanWindowHours": 72,
     "heroTrust": [
       "🛡️ Fully insured & police-checked cleaners",
-      "✅ 100% bond-back guarantee",
+      "✅ 100% bond-back guarantee*",
       "♻️ Free re-clean within 72 hours"
     ],
+    "guaranteeFootnote": "*Bond-back guarantee means we'll re-clean any agreed checklist item for free until it meets a professional standard. It doesn't guarantee the bond amount itself, which is decided by your landlord or property manager. Conditions apply —",
     "stats": [
-      { "value": "100%", "label": "bond-back guarantee" },
+      { "value": "100%", "label": "bond-back guarantee*" },
       { "value": "Insured", "label": "public liability cover" },
       { "value": "24-48h", "label": "average availability" },
       { "value": "72h", "label": "free re-clean window" }
@@ -121,9 +124,10 @@
       ["Oven, cooktop and rangehood", "Fridge and freezer", "Interior windows and tracks", "Vacuumed and mopped floors", "Balcony, patio or courtyard", "Cobwebs and high dusting"]
     ],
     "guarantee": {
-      "title": "🛡️ Bond-Back Guarantee",
-      "description": "If your landlord or agent isn't satisfied with any checklist item, we'll re-clean it for free within 72 hours. No fine print.",
-      "points": ["Insured & vetted cleaning teams", "Itemised invoice for your property manager", "Before/after photos included"]
+      "title": "🛡️ Bond-Back Guarantee*",
+      "description": "If your landlord or agent flags an item from your agreed checklist, we'll re-clean it for free — as many times as it takes to meet a professional standard. Report it within 72 hours and give us access, and we'll be there.",
+      "points": ["Insured & vetted cleaning teams", "Itemised invoice for your property manager", "Before/after photos included"],
+      "disclaimer": "*Covers re-cleaning of agreed checklist items reported within the window above. Doesn't cover pre-existing damage, fair wear and tear, or the landlord's final bond decision —"
     }
   },
   "pricingTiers": [

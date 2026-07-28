@@ -12,6 +12,7 @@
     "express": "^4.19.2",
     "express-rate-limit": "^8.6.1",
     "helmet": "^8.3.0",
+    "multer": "^2.2.0",
     "nodemailer": "^9.0.3",
     "stripe": "^17.3.1"
   }

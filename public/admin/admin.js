@@ -71,6 +71,7 @@
             ).join('')}
           </select>
           ${b.stripe_subscription_id && b.status !== 'cancelled' ? `<button type="button" class="btn btn-ghost btn-sm cancel-sub-btn" data-id="${b.id}">Cancel subscription</button>` : ''}
+          <br><button type="button" class="btn btn-ghost btn-sm photos-btn" data-id="${b.id}">📷 Photos</button>
         </td>
       </tr>
     `).join('');
@@ -82,7 +83,47 @@
     return div.innerHTML;
   }
 
+  const photosModal = document.getElementById('photosModal');
+  const photosModalGrid = document.getElementById('photosModalGrid');
+  const photosModalBookingId = document.getElementById('photosModalBookingId');
+
+  async function openPhotosModal(bookingId) {
+    photosModalBookingId.textContent = bookingId;
+    photosModalGrid.innerHTML = '<p class="muted-text">Loading…</p>';
+    photosModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    try {
+      const res = await fetch(`/api/admin/bookings/${encodeURIComponent(bookingId)}/photos`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not load photos');
+      if (!data.photos.length) {
+        photosModalGrid.innerHTML = '<p class="photos-modal-empty">No photos were uploaded for this booking.</p>';
+        return;
+      }
+      photosModalGrid.innerHTML = data.photos.map(p =>
+        `<a href="${p.url}" target="_blank" rel="noopener"><img src="${p.url}" alt="Property photo"></a>`
+      ).join('');
+    } catch (err) {
+      photosModalGrid.innerHTML = `<p class="photos-modal-empty">${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  function closePhotosModal() {
+    photosModal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('photosModalClose').addEventListener('click', closePhotosModal);
+  photosModal.addEventListener('click', e => {
+    if (e.target === photosModal) closePhotosModal();
+  });
+
   tbody.addEventListener('click', async e => {
+    const photosBtn = e.target.closest('.photos-btn');
+    if (photosBtn) {
+      openPhotosModal(photosBtn.dataset.id);
+      return;
+    }
     const btn = e.target.closest('.cancel-sub-btn');
     if (!btn) return;
     if (!confirm('Cancel this recurring subscription? The customer will not be billed again.')) return;

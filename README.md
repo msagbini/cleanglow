@@ -194,9 +194,31 @@ la misma garantía.
 | `GET` | `/api/bookings/availability` | Disponibilidad por franja para una fecha (`?date=YYYY-MM-DD`) |
 | `POST` | `/api/bookings` | Crea una reserva (`pending_payment`) y calcula el precio |
 | `GET` | `/api/bookings/:id` | Consulta el estado de una reserva |
+| `POST` | `/api/bookings/:id/photos` | Sube fotos del estado de la propiedad (multipart, hasta 8 fotos, 8MB c/u) |
 | `POST` | `/api/checkout-session` | Crea la sesión de pago de Stripe (pago único o suscripción) |
 | `GET` | `/api/checkout-session/:sessionId/confirm` | Verifica el pago al volver de Stripe |
 | `POST` | `/api/webhook` | Webhook de Stripe (fuente de verdad del estado de pago) |
 | `GET` | `/api/admin/bookings` | *(Basic Auth)* Lista reservas, con filtro `?status=` |
 | `PATCH` | `/api/admin/bookings/:id/status` | *(Basic Auth)* Cambia el estado de una reserva |
 | `POST` | `/api/admin/bookings/:id/cancel-subscription` | *(Basic Auth)* Cancela la suscripción de Stripe de una reserva |
+| `GET` | `/api/admin/bookings/:id/photos` | *(Basic Auth)* Lista las fotos subidas para una reserva |
+| `GET` | `/api/admin/bookings/:id/photos/:filename` | *(Basic Auth)* Sirve una foto subida |
+
+### Fotos del estado de la propiedad
+
+En el paso 1 del formulario, el cliente puede adjuntar hasta 8 fotos (JPEG, PNG o WEBP,
+8MB cada una) del estado de la propiedad antes de la limpieza. Las fotos se suben **después**
+de crear la reserva y de forma no bloqueante: si la subida falla (red lenta, archivo raro,
+etc.) la reserva y el pago siguen su curso igual — nunca se pierde una venta por un problema
+con las fotos. Se guardan en `server/data/uploads/` (fuera del control de versiones) y solo
+son visibles desde el panel de administración (`/admin` → botón "📷 Photos" en cada fila),
+protegidas por el mismo Basic Auth que el resto del panel.
+
+### Garantía "100% Bond Back" con condiciones
+
+El texto de la garantía en el sitio ahora incluye un asterisco y un enlace a "Guarantee
+Terms" (los mismos Términos y Condiciones del checkout) que explican, en lenguaje simple:
+qué cubre el re-clean gratuito, que la devolución del bond la decide el arrendador/agente
+(no nosotros), y qué queda excluido (daños preexistentes, desgaste normal, etc.). Esto es
+texto de sentido común pensado para no dejar promesas absolutas sin condiciones — no
+reemplaza una revisión legal profesional si más adelante querés confirmarlo con un abogado.

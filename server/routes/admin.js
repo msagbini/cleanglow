@@ -1,6 +1,12 @@
 import { Router } from 'express';
-import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus } from '../db.js';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos } from '../db.js';
 import { getStripe } from './payments.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
 
 const router = Router();
 
@@ -41,6 +47,42 @@ router.post('/bookings/:id/cancel-subscription', async (req, res) => {
 
   const updated = markBookingStatus(req.params.id, 'cancelled');
   res.json(updated);
+});
+
+router.get('/bookings/:id/photos', (req, res) => {
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  const photos = listBookingPhotos(req.params.id).map(p => ({
+    id: p.id,
+    originalName: p.original_name,
+    sizeBytes: p.size_bytes,
+    createdAt: p.created_at,
+    url: `/api/admin/bookings/${req.params.id}/photos/${encodeURIComponent(p.filename)}`,
+  }));
+  res.json({ photos });
+});
+
+// Filenames are server-generated UUIDs (see routes/bookings.js), but we still
+// validate the shape here and resolve+contain the path before serving, since
+// this reads straight off disk under an authenticated route.
+const SAFE_FILENAME_RE = /^[a-f0-9-]+\.(jpg|png|webp)$/;
+
+router.get('/bookings/:id/photos/:filename', (req, res) => {
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  const { filename } = req.params;
+  if (!SAFE_FILENAME_RE.test(filename)) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+  const photos = listBookingPhotos(req.params.id);
+  if (!photos.some(p => p.filename === filename)) {
+    return res.status(404).json({ error: 'Photo not found for this booking' });
+  }
+  const filePath = path.join(uploadsDir, filename);
+  if (!filePath.startsWith(uploadsDir) || !fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+  res.sendFile(filePath);
 });
 
 export default router;
