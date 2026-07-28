@@ -71,11 +71,11 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 
 const port = process.env.PORT || 4242;
 app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
   if (!process.env.STRIPE_SECRET_KEY) {
-    console.warn('⚠️  STRIPE_SECRET_KEY no está definida — el pago no funcionará hasta que la configures en .env');
+    console.warn('⚠️  STRIPE_SECRET_KEY is not set — payments won\'t work until you configure it in .env');
   }
   if (!process.env.ADMIN_USER || !process.env.ADMIN_PASS) {
-    console.warn('⚠️  ADMIN_USER/ADMIN_PASS no definidas — el panel /admin está deshabilitado hasta que las configures en .env');
+    console.warn('⚠️  ADMIN_USER/ADMIN_PASS not set — the /admin panel is disabled until you configure them in .env');
   }
 });

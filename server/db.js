@@ -31,9 +31,11 @@ db.exec(`
     address TEXT NOT NULL,
     postcode TEXT NOT NULL,
     promo_code TEXT,
+    frequency TEXT NOT NULL DEFAULT 'once',
     amount_cents INTEGER NOT NULL,
     currency TEXT NOT NULL DEFAULT 'eur',
     stripe_session_id TEXT,
+    stripe_subscription_id TEXT,
     notified_at TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT
@@ -41,14 +43,58 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_bookings_session ON bookings (stripe_session_id);
 `);
 
+// CREATE TABLE IF NOT EXISTS only applies the schema to a brand-new file — an
+// existing bookings.sqlite from before these columns existed needs them added
+// explicitly. SQLite has no "ADD COLUMN IF NOT EXISTS", so probe and ignore
+// the "duplicate column" error when it's already there.
+for (const ddl of [
+  'ALTER TABLE bookings ADD COLUMN frequency TEXT NOT NULL DEFAULT \'once\'',
+  'ALTER TABLE bookings ADD COLUMN stripe_subscription_id TEXT',
+]) {
+  try { db.exec(ddl); } catch { /* column already exists */ }
+}
+
+// Derives a short reference prefix from the business name (e.g. "CleanGlow" -> "CG")
+// so booking references stay branded without needing a separate config field.
+function deriveReferencePrefix(name) {
+  const words = name.match(/[A-Z][a-z]*|[a-z]+/g) || [];
+  const initials = words.slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  return initials || 'BK';
+}
+const REFERENCE_PREFIX = deriveReferencePrefix(config.business.name);
+
 function generateReference() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return `SE-${code}`;
+  return `${REFERENCE_PREFIX}-${code}`;
 }
 
+// Bookings in these statuses occupy a time slot; cancelled/expired ones free it up.
+const ACTIVE_SLOT_STATUSES = ['pending_payment', 'paid', 'completed'];
+
+export function countActiveBookingsForSlot(date, time) {
+  const placeholders = ACTIVE_SLOT_STATUSES.map(() => '?').join(',');
+  const row = db.prepare(
+    `SELECT COUNT(*) as count FROM bookings WHERE booking_date = ? AND booking_time = ? AND status IN (${placeholders})`
+  ).get(date, time, ...ACTIVE_SLOT_STATUSES);
+  return row.count;
+}
+
+export function isSlotAvailable(date, time) {
+  return countActiveBookingsForSlot(date, time) < (config.booking.maxConcurrentBookingsPerSlot ?? 1);
+}
+
+export class SlotUnavailableError extends Error {}
+
+// The availability check and the insert run in the same synchronous call, with
+// no `await` in between — node:sqlite is synchronous and Node is single-threaded,
+// so nothing else can interleave and double-book the slot between the two.
 export function insertBooking(fields, amountCents) {
+  if (!isSlotAvailable(fields.bookingDate, fields.bookingTime)) {
+    throw new SlotUnavailableError('This time slot is no longer available');
+  }
+
   let id = generateReference();
   const findStmt = db.prepare('SELECT id FROM bookings WHERE id = ?');
   while (findStmt.get(id)) id = generateReference();
@@ -57,15 +103,15 @@ export function insertBooking(fields, amountCents) {
     INSERT INTO bookings (
       id, property_type, bedrooms, bathrooms, sqm, furnished, notes_property,
       extras, key_access, booking_date, booking_time, urgency,
-      full_name, email, phone, address, postcode, promo_code, amount_cents, currency
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      full_name, email, phone, address, postcode, promo_code, frequency, amount_cents, currency
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
     id, fields.propertyType, fields.bedrooms, fields.bathrooms, fields.sqm ?? null,
     fields.furnished ?? null, fields.notesProperty ?? null, JSON.stringify(fields.extras ?? []),
     fields.keyAccess ?? null, fields.bookingDate, fields.bookingTime, fields.urgency,
     fields.fullName, fields.email, fields.phone, fields.address, fields.postcode,
-    fields.promoCode ?? null, amountCents, config.business.currency
+    fields.promoCode ?? null, fields.frequency ?? 'once', amountCents, config.business.currency
   );
   return getBooking(id);
 }
@@ -83,6 +129,11 @@ export function getBookingBySessionId(sessionId) {
 export function attachStripeSession(id, sessionId) {
   db.prepare(`UPDATE bookings SET stripe_session_id = ?, updated_at = datetime('now') WHERE id = ?`)
     .run(sessionId, id);
+}
+
+export function attachStripeSubscription(id, subscriptionId) {
+  db.prepare(`UPDATE bookings SET stripe_subscription_id = ?, updated_at = datetime('now') WHERE id = ?`)
+    .run(subscriptionId, id);
 }
 
 export function markBookingStatus(id, status) {

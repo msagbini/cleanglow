@@ -9,7 +9,7 @@ const template = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.htm
 export function renderIndexHtml(baseUrl) {
   const { business } = config;
   const replacements = {
-    '{{SITE_TITLE}}': `${business.name} | Reserva tu servicio online`,
+    '{{SITE_TITLE}}': `${business.name} | Book your service online`,
     '{{SITE_DESCRIPTION}}': business.seoDescription || business.heroDescription,
     '{{SITE_URL}}': baseUrl,
     '{{SITE_NAME}}': business.name,

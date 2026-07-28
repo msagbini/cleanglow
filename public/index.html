@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,18 +28,18 @@
     </a>
 
     <nav class="main-nav" id="mainNav">
-      <a href="#servicios">Servicios</a>
+      <a href="#services">Services</a>
       <a href="#checklist">Checklist</a>
-      <a href="#precios">Precios</a>
-      <a href="#opiniones">Opiniones</a>
-      <a href="#faq">Preguntas</a>
-      <a href="#contacto">Contacto</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
     </nav>
 
     <div class="header-actions">
-      <a href="tel:+34900123456" class="phone-link" id="headerPhoneLink">📞 900 123 456</a>
-      <a href="#booking" class="btn btn-primary btn-sm">Reservar ahora</a>
-      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+      <a href="tel:+61390000000" class="phone-link" id="headerPhoneLink">📞 (03) 9000 0000</a>
+      <a href="#booking" class="btn btn-primary btn-sm">Book now</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -50,19 +50,19 @@
 <section class="hero">
   <div class="container hero-inner">
     <div class="hero-copy">
-      <span class="badge" id="heroBadge">✔ Garantía 100%</span>
-      <h1 id="heroTitle">Reserva tu servicio en minutos.</h1>
-      <p id="heroDescription">Cargando…</p>
+      <span class="badge" id="heroBadge">✔ 100% Guarantee</span>
+      <h1 id="heroTitle">Book your service in minutes.</h1>
+      <p id="heroDescription">Loading…</p>
       <div class="hero-cta">
-        <a href="#booking" class="btn btn-primary btn-lg">Reservar ahora</a>
-        <a href="#precios" class="btn btn-ghost btn-lg">Ver precios</a>
+        <a href="#booking" class="btn btn-primary btn-lg">Book now</a>
+        <a href="#pricing" class="btn btn-ghost btn-lg">See pricing</a>
       </div>
       <ul class="hero-trust" id="heroTrust"></ul>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-card">
         <div id="heroCardRows"></div>
-        <span class="hero-card-tag">Presupuesto instantáneo</span>
+        <span class="hero-card-tag">Instant quote</span>
       </div>
     </div>
   </div>
@@ -73,13 +73,13 @@
   <div class="container trust-strip-inner" id="trustStrip"></div>
 </section>
 
-<!-- ===================== SERVICIOS ===================== -->
-<section id="servicios" class="section">
+<!-- ===================== SERVICES ===================== -->
+<section id="services" class="section">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Servicios</span>
-      <h2>Todo lo que necesitas para entregar las llaves tranquilo</h2>
-      <p>Elige la limpieza estándar o combínala con extras. Todos los servicios cumplen el checklist estándar de las principales inmobiliarias y agencias de alquiler.</p>
+      <span class="eyebrow">Services</span>
+      <h2>Everything you need to hand back the keys with confidence</h2>
+      <p>Choose the standard clean or combine it with extras. Every service meets the standard checklist used by leading property managers and agencies.</p>
     </div>
     <div class="cards-grid" id="servicesGrid"></div>
   </div>
@@ -89,22 +89,22 @@
 <section id="checklist" class="section section-alt">
   <div class="container checklist-grid">
     <div>
-      <span class="eyebrow">Checklist de fin de contrato</span>
-      <h2>Lo que revisa tu casero, lo revisamos nosotros primero</h2>
-      <p id="checklistIntro">Cargando…</p>
+      <span class="eyebrow">End of lease checklist</span>
+      <h2>Whatever your landlord checks, we check first</h2>
+      <p id="checklistIntro">Loading…</p>
       <div class="checklist-columns" id="checklistColumns"></div>
     </div>
     <div class="guarantee-card" id="guaranteeCard"></div>
   </div>
 </section>
 
-<!-- ===================== PRECIOS ===================== -->
-<section id="precios" class="section">
+<!-- ===================== PRICING ===================== -->
+<section id="pricing" class="section">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Precios</span>
-      <h2>Precios claros, sin sorpresas</h2>
-      <p>El precio final depende del tamaño de la vivienda y los extras elegidos. Calcula tu presupuesto exacto en el formulario de reserva más abajo.</p>
+      <span class="eyebrow">Pricing</span>
+      <h2>Clear pricing, no surprises</h2>
+      <p>The final price depends on the size of the property and the extras you choose. Get your exact quote in the booking form below.</p>
     </div>
     <div class="pricing-grid" id="pricingGrid"></div>
   </div>
@@ -114,19 +114,19 @@
 <section id="booking" class="section section-booking">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Reserva online</span>
-      <h2>Reserva tu limpieza en 5 pasos</h2>
-      <p>El precio se actualiza automáticamente según tus elecciones.</p>
+      <span class="eyebrow">Book online</span>
+      <h2>Book your clean in 5 steps</h2>
+      <p>The price updates automatically as you make your selections.</p>
     </div>
 
     <div class="booking-wrap">
       <!-- progress -->
       <ol class="progress-bar" id="progressBar">
-        <li class="step-dot active" data-step="1"><span>1</span>Vivienda</li>
+        <li class="step-dot active" data-step="1"><span>1</span>Property</li>
         <li class="step-dot" data-step="2"><span>2</span>Extras</li>
-        <li class="step-dot" data-step="3"><span>3</span>Fecha</li>
-        <li class="step-dot" data-step="4"><span>4</span>Datos</li>
-        <li class="step-dot" data-step="5"><span>5</span>Confirmar</li>
+        <li class="step-dot" data-step="3"><span>3</span>Date</li>
+        <li class="step-dot" data-step="4"><span>4</span>Details</li>
+        <li class="step-dot" data-step="5"><span>5</span>Confirm</li>
       </ol>
 
       <div class="booking-panel">
@@ -134,166 +134,170 @@
 
           <!-- STEP 1: PROPERTY -->
           <fieldset class="form-step active" data-step="1">
-            <legend>Cuéntanos sobre la vivienda</legend>
+            <legend>Tell us about the property</legend>
 
-            <label class="field-label">Tipo de propiedad</label>
+            <label class="field-label">How often?</label>
+            <div class="pill-group" data-name="frequency" id="frequencyPills"></div>
+
+            <label class="field-label">Property type</label>
             <div class="pill-group" data-name="propertyType" id="propertyTypePills"></div>
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="bedrooms" id="sizeFieldLabel">Habitaciones</label>
+                <label class="field-label" for="bedrooms" id="sizeFieldLabel">Bedrooms</label>
                 <select id="bedrooms" name="bedrooms"></select>
               </div>
               <div class="field">
-                <label class="field-label" for="bathrooms" id="secondaryFieldLabel">Baños</label>
+                <label class="field-label" for="bathrooms" id="secondaryFieldLabel">Bathrooms</label>
                 <select id="bathrooms" name="bathrooms"></select>
               </div>
             </div>
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="sqm">Superficie aproximada (m²)</label>
-                <input type="number" id="sqm" name="sqm" min="15" max="500" placeholder="Ej: 75">
+                <label class="field-label" for="sqm">Approximate size (m²)</label>
+                <input type="number" id="sqm" name="sqm" min="15" max="500" placeholder="e.g. 75">
               </div>
               <div class="field">
-                <label class="field-label" for="furnished">Estado de la vivienda</label>
+                <label class="field-label" for="furnished">Property condition</label>
                 <select id="furnished" name="furnished">
-                  <option value="furnished">Amueblada</option>
-                  <option value="empty" selected>Vacía</option>
-                  <option value="renovation">Post-reforma / obra</option>
+                  <option value="furnished">Furnished</option>
+                  <option value="empty" selected>Empty</option>
+                  <option value="renovation">Post-renovation / construction</option>
                 </select>
               </div>
             </div>
 
-            <label class="field-label" for="notesProperty">Notas sobre la vivienda (opcional)</label>
-            <textarea id="notesProperty" name="notesProperty" rows="3" placeholder="Ej: mascotas en casa, moho en el baño, acceso limitado por obras..."></textarea>
+            <label class="field-label" for="notesProperty">Notes about the property (optional)</label>
+            <textarea id="notesProperty" name="notesProperty" rows="3" placeholder="e.g. pets on site, mould in the bathroom, limited access due to works..."></textarea>
           </fieldset>
 
           <!-- STEP 2: EXTRAS -->
           <fieldset class="form-step" data-step="2">
-            <legend>Añade extras a tu limpieza</legend>
-            <p class="field-hint">Selecciona todos los que necesites. Recomendamos los extras marcados si quieres maximizar la devolución de tu fianza.</p>
+            <legend>Add extras to your clean</legend>
+            <p class="field-hint">Select as many as you need. We recommend the extras below if you want to maximise your bond return.</p>
 
             <div class="extras-grid" id="extrasGrid"></div>
 
-            <label class="field-label" for="keyAccess">¿Cómo accederemos a la vivienda?</label>
+            <label class="field-label" for="keyAccess">How will we access the property?</label>
             <select id="keyAccess" name="keyAccess"></select>
           </fieldset>
 
           <!-- STEP 3: DATE -->
           <fieldset class="form-step" data-step="3">
-            <legend>Elige fecha y hora</legend>
+            <legend>Choose a date and time</legend>
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="bookingDate">Fecha de la limpieza</label>
+                <label class="field-label" for="bookingDate">Cleaning date</label>
                 <input type="date" id="bookingDate" name="bookingDate" required>
               </div>
               <div class="field">
-                <label class="field-label" for="bookingTime">Franja horaria</label>
+                <label class="field-label" for="bookingTime">Time slot</label>
                 <select id="bookingTime" name="bookingTime"></select>
               </div>
             </div>
 
-            <label class="field-label">Urgencia</label>
+            <label class="field-label">Urgency</label>
             <div class="pill-group" data-name="urgency" id="urgencyPills"></div>
 
             <div class="checkbox-row">
               <label class="checkbox-line">
                 <input type="checkbox" id="reCleanReminder" name="reCleanReminder" checked>
-                Avísame por email si mi casero/agencia no aprueba algún punto (re-limpieza gratis en <span id="recleanWindowHours">72</span>h)
+                Email me if my landlord/agent isn't satisfied with anything (free re-clean within <span id="recleanWindowHours">72</span>h)
               </label>
             </div>
           </fieldset>
 
           <!-- STEP 4: CONTACT -->
           <fieldset class="form-step" data-step="4">
-            <legend>Tus datos de contacto</legend>
+            <legend>Your contact details</legend>
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="fullName">Nombre completo *</label>
-                <input type="text" id="fullName" name="fullName" required placeholder="Nombre y apellidos">
+                <label class="field-label" for="fullName">Full name *</label>
+                <input type="text" id="fullName" name="fullName" required placeholder="First and last name">
               </div>
               <div class="field">
                 <label class="field-label" for="email">Email *</label>
-                <input type="email" id="email" name="email" required placeholder="tu@email.com">
+                <input type="email" id="email" name="email" required placeholder="you@email.com">
               </div>
             </div>
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="phone">Teléfono *</label>
-                <input type="tel" id="phone" name="phone" required placeholder="600 000 000">
+                <label class="field-label" for="phone">Phone *</label>
+                <input type="tel" id="phone" name="phone" required placeholder="0400 000 000">
               </div>
               <div class="field">
-                <label class="field-label" for="postcode">Código postal *</label>
-                <input type="text" id="postcode" name="postcode" required placeholder="28001">
+                <label class="field-label" for="postcode">Postcode *</label>
+                <input type="text" id="postcode" name="postcode" required placeholder="3000">
               </div>
             </div>
 
-            <label class="field-label" for="address">Dirección completa *</label>
-            <input type="text" id="address" name="address" required placeholder="Calle, número, piso, ciudad">
+            <label class="field-label" for="address">Full address *</label>
+            <input type="text" id="address" name="address" required placeholder="Street, number, unit, suburb">
 
-            <label class="field-label" for="promoCode">Código promocional (opcional)</label>
-            <input type="text" id="promoCode" name="promoCode" placeholder="Ej: BIENVENIDO10">
+            <label class="field-label" for="promoCode">Promo code (optional)</label>
+            <input type="text" id="promoCode" name="promoCode" placeholder="e.g. WELCOME10">
 
             <div class="checkbox-row">
               <label class="checkbox-line">
                 <input type="checkbox" id="terms" name="terms" required>
-                Acepto los <a href="#" data-modal="terms">términos y condiciones</a> y la <a href="#" data-modal="privacy">política de privacidad</a> *
+                I agree to the <a href="#" data-modal="terms">terms & conditions</a> and <a href="#" data-modal="privacy">privacy policy</a> *
               </label>
             </div>
           </fieldset>
 
           <!-- STEP 5: REVIEW -->
           <fieldset class="form-step" data-step="5">
-            <legend>Revisa y confirma tu reserva</legend>
+            <legend>Review and confirm your booking</legend>
             <div class="review-box" id="reviewBox">
               <!-- filled dynamically -->
             </div>
           </fieldset>
 
           <div class="form-nav">
-            <button type="button" class="btn btn-ghost" id="btnBack" disabled>← Atrás</button>
-            <button type="button" class="btn btn-primary" id="btnNext">Siguiente →</button>
-            <button type="submit" class="btn btn-success" id="btnSubmit" hidden>Confirmar y pagar →</button>
+            <button type="button" class="btn btn-ghost" id="btnBack" disabled>← Back</button>
+            <button type="button" class="btn btn-primary" id="btnNext">Next →</button>
+            <button type="submit" class="btn btn-success" id="btnSubmit" hidden>Confirm and pay →</button>
           </div>
         </form>
 
         <!-- LIVE PRICE SUMMARY -->
         <aside class="price-summary" id="priceSummary">
-          <h3>Tu presupuesto</h3>
+          <h3>Your quote</h3>
           <div class="summary-line"><span id="sumPropertyLabel">…</span><span id="sumBase">—</span></div>
           <ul class="summary-extras" id="sumExtrasList"></ul>
-          <div class="summary-line" id="sumUrgencyLine" hidden><span>Urgencia</span><span id="sumUrgency">+0</span></div>
-          <div class="summary-line summary-total"><span>Total estimado</span><span id="sumTotal">—</span></div>
-          <p class="summary-note">IVA incluido. Precio final confirmado tras revisión de las notas de la vivienda.</p>
+          <div class="summary-line" id="sumUrgencyLine" hidden><span>Urgency</span><span id="sumUrgency">+0</span></div>
+          <div class="summary-line" id="sumFrequencyLine" hidden><span>Frequency discount</span><span id="sumFrequencyDiscount">−0</span></div>
+          <div class="summary-line summary-total"><span id="sumTotalLabel">Estimated total</span><span id="sumTotal">—</span></div>
+          <p class="summary-note" id="sumTaxNote">Final price confirmed after reviewing your property notes.</p>
         </aside>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== TESTIMONIOS ===================== -->
-<section id="opiniones" class="section section-alt">
+<!-- ===================== REVIEWS ===================== -->
+<section id="reviews" class="section section-alt">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Opiniones</span>
-      <h2>Inquilinos que recuperaron su fianza</h2>
+      <span class="eyebrow">Reviews</span>
+      <h2>Renters who got their bond back</h2>
     </div>
     <div class="testimonials-grid">
       <blockquote class="testimonial">
-        <p>"Reservé un jueves y el viernes ya tenía el piso impecable. Mi casera no puso ninguna pega y recuperé el 100% de la fianza."</p>
-        <footer>— Laura M., Madrid</footer>
+        <p>"Booked on a Thursday and the apartment was spotless by Friday. My property manager had no issues and I got 100% of my bond back."</p>
+        <footer>— Laura M., Richmond</footer>
       </blockquote>
       <blockquote class="testimonial">
-        <p>"El checklist es una pasada, sabían exactamente qué revisaba la inmobiliaria. Precio cerrado desde el principio, sin sorpresas."</p>
-        <footer>— Javier R., Barcelona</footer>
+        <p>"The checklist is on point — they knew exactly what the agent would check. Price was locked in from the start, no surprises."</p>
+        <footer>— James R., St Kilda</footer>
       </blockquote>
       <blockquote class="testimonial">
-        <p>"Tuvimos un problema con una mancha en la pared y volvieron gratis al día siguiente. Servicio muy profesional."</p>
-        <footer>— Aitana P., Valencia</footer>
+        <p>"We had an issue with a mark on the wall and they came back free of charge the next day. Very professional service."</p>
+        <footer>— Aisha P., South Yarra</footer>
       </blockquote>
     </div>
   </div>
@@ -303,33 +307,33 @@
 <section id="faq" class="section">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Preguntas frecuentes</span>
-      <h2>Todo lo que debes saber</h2>
+      <span class="eyebrow">Frequently asked questions</span>
+      <h2>Everything you need to know</h2>
     </div>
     <div class="accordion" id="faqAccordion">
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">¿Qué pasa si mi casero no queda satisfecho?</button>
-        <div class="accordion-panel"><p>Ofrecemos una garantía de re-limpieza gratuita dentro de las 72 horas posteriores al servicio si algún punto del checklist no cumple los estándares de tu casero o agencia.</p></div>
+        <button class="accordion-trigger" aria-expanded="false">What happens if my landlord isn't satisfied?</button>
+        <div class="accordion-panel"><p>We offer a free re-clean guarantee within 72 hours of the service if any checklist item doesn't meet your landlord's or agent's standards.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">¿Necesito estar presente durante la limpieza?</button>
-        <div class="accordion-panel"><p>No es obligatorio. Puedes indicarnos una caja de llaves, coordinar con un vecino/portero o con tu agencia inmobiliaria en el paso de reserva.</p></div>
+        <button class="accordion-trigger" aria-expanded="false">Do I need to be there during the clean?</button>
+        <div class="accordion-panel"><p>It's not required. You can arrange a lockbox, coordinate with a neighbour/building manager, or with your property manager during booking.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">¿Traéis vuestros propios productos y equipo?</button>
-        <div class="accordion-panel"><p>Sí, nuestros equipos llegan con todos los productos, maquinaria y equipo de protección necesarios. Solo necesitamos acceso a agua y electricidad.</p></div>
+        <button class="accordion-trigger" aria-expanded="false">Do you bring your own products and equipment?</button>
+        <div class="accordion-panel"><p>Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">¿Cuánto tiempo dura la limpieza?</button>
-        <div class="accordion-panel"><p>Depende del tamaño de la vivienda y los extras contratados. Como referencia, un piso de 2 habitaciones suele tardar entre 3 y 5 horas.</p></div>
+        <button class="accordion-trigger" aria-expanded="false">How long does the clean take?</button>
+        <div class="accordion-panel"><p>It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">¿Puedo cancelar o cambiar la fecha?</button>
-        <div class="accordion-panel"><p>Sí, puedes reprogramar o cancelar tu reserva de forma gratuita hasta 24 horas antes de la cita.</p></div>
+        <button class="accordion-trigger" aria-expanded="false">Can I cancel or change the date?</button>
+        <div class="accordion-panel"><p>Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">¿El precio incluye IVA?</button>
-        <div class="accordion-panel"><p>Sí, todos los precios mostrados en el presupuesto ya incluyen IVA. No hay cargos ocultos.</p></div>
+        <button class="accordion-trigger" aria-expanded="false">Does the price include GST?</button>
+        <div class="accordion-panel"><p>Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees.</p></div>
       </div>
     </div>
   </div>
@@ -338,14 +342,14 @@
 <!-- ===================== CTA FINAL ===================== -->
 <section class="cta-final">
   <div class="container cta-final-inner">
-    <h2>¿Listo para entregar las llaves sin preocupaciones?</h2>
-    <p>Reserva ahora y asegura tu franja horaria preferida.</p>
-    <a href="#booking" class="btn btn-primary btn-lg">Reservar mi limpieza de fin de contrato</a>
+    <h2>Ready to hand back the keys with confidence?</h2>
+    <p>Book now to lock in your preferred time slot.</p>
+    <a href="#booking" class="btn btn-primary btn-lg">Book my end of lease clean</a>
   </div>
 </section>
 
 <!-- ===================== FOOTER ===================== -->
-<footer id="contacto" class="site-footer">
+<footer id="contact" class="site-footer">
   <div class="container footer-grid">
     <div class="footer-brand">
       <a href="#top" class="logo"><span class="logo-mark" id="footerLogoMark">🧽</span><span class="logo-text" id="footerLogoText">Business</span></a>
@@ -353,27 +357,27 @@
       <div class="footer-social" id="footerSocial"></div>
     </div>
     <div class="footer-col">
-      <h4>Empresa</h4>
-      <a href="#servicios">Servicios</a>
+      <h4>Company</h4>
+      <a href="#services">Services</a>
       <a href="#checklist">Checklist</a>
-      <a href="#opiniones">Opiniones</a>
-      <a href="#faq">Preguntas frecuentes</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
     </div>
     <div class="footer-col" id="footerServiceAreas">
-      <h4>Zonas de servicio</h4>
+      <h4>Service areas</h4>
     </div>
     <div class="footer-col">
-      <h4>Contacto</h4>
-      <a href="tel:+34900123456" id="footerPhoneLink">📞 900 123 456</a>
-      <a href="mailto:hola@spotlessexit.com" id="footerEmailLink">✉️ hola@spotlessexit.com</a>
+      <h4>Contact</h4>
+      <a href="tel:+61390000000" id="footerPhoneLink">📞 (03) 9000 0000</a>
+      <a href="mailto:hello@spotlessexit.com.au" id="footerEmailLink">✉️ hello@spotlessexit.com.au</a>
       <span id="footerHours">🕐</span>
     </div>
   </div>
   <div class="container footer-bottom">
-    <span id="footerCopyright">© 2026. Todos los derechos reservados.</span>
+    <span id="footerCopyright">© 2026. All rights reserved.</span>
     <div class="footer-legal">
-      <a href="#" data-modal="privacy">Privacidad</a>
-      <a href="#" data-modal="terms">Términos</a>
+      <a href="#" data-modal="privacy">Privacy</a>
+      <a href="#" data-modal="terms">Terms</a>
       <a href="#">Cookies</a>
     </div>
   </div>
@@ -382,13 +386,13 @@
 <!-- ===================== LEGAL MODAL ===================== -->
 <div class="modal-overlay" id="legalModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
-    <button class="modal-close" id="legalModalClose" aria-label="Cerrar">✕</button>
-    <h3 id="legalTitle">Título</h3>
+    <button class="modal-close" id="legalModalClose" aria-label="Close">✕</button>
+    <h3 id="legalTitle">Title</h3>
     <div class="modal-body" id="legalBody"></div>
   </div>
 </div>
 
-<button class="back-to-top" id="backToTop" aria-label="Volver arriba" hidden>↑</button>
+<button class="back-to-top" id="backToTop" aria-label="Back to top" hidden>↑</button>
 
 <script src="js/app.js"></script>
 </body>

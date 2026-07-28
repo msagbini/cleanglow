@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { config } from './config.js';
+import { config, computeGstComponentCents } from './config.js';
 
 let transporter = null;
 if (process.env.SMTP_HOST) {
@@ -13,54 +13,63 @@ if (process.env.SMTP_HOST) {
 
 function send(mail) {
   if (!transporter) {
-    console.log(`[email:noop] SMTP no configurado. Para: ${mail.to} — ${mail.subject}\n${mail.text}`);
+    console.log(`[email:noop] SMTP not configured. To: ${mail.to} — ${mail.subject}\n${mail.text}`);
     return Promise.resolve();
   }
   return transporter.sendMail({
     from: process.env.EMAIL_FROM || `${config.business.name} <no-reply@example.com>`,
     ...mail,
-  }).catch(err => console.error('[email] Fallo al enviar:', err.message));
+  }).catch(err => console.error('[email] Failed to send:', err.message));
 }
 
 function bookingSummaryLines(booking) {
-  const amount = `${(booking.amount_cents / 100).toFixed(2)}${config.business.currencySymbol}`;
-  return [
-    `Referencia: ${booking.id}`,
-    `Servicio: ${booking.property_type} · ${booking.bedrooms} hab. · ${booking.bathrooms} baño(s)`,
-    `Extras: ${booking.extras.join(', ') || 'ninguno'}`,
-    `Fecha: ${booking.booking_date} · franja ${booking.booking_time} · urgencia: ${booking.urgency}`,
+  const symbol = config.business.currencySymbol;
+  const amount = `${symbol}${(booking.amount_cents / 100).toFixed(2)}`;
+  const lines = [
+    `Reference: ${booking.id}`,
+    `Service: ${booking.property_type} · ${booking.bedrooms} bed · ${booking.bathrooms} bath(s)`,
+    `Extras: ${booking.extras.join(', ') || 'none'}`,
+    `Date: ${booking.booking_date} · ${booking.booking_time} slot · urgency: ${booking.urgency}`,
     `Total: ${amount}`,
   ];
+  const gstCents = computeGstComponentCents(booking.amount_cents);
+  if (gstCents > 0) {
+    lines.push(`(includes ${symbol}${(gstCents / 100).toFixed(2)} GST)`);
+  }
+  if (config.business.abn) {
+    lines.push(`ABN: ${config.business.abn}`);
+  }
+  return lines;
 }
 
 export async function notifyPaidBooking(booking) {
   const lines = [
-    `Cliente: ${booking.full_name} (${booking.email}, ${booking.phone})`,
-    `Dirección: ${booking.address}, ${booking.postcode}`,
+    `Customer: ${booking.full_name} (${booking.email}, ${booking.phone})`,
+    `Address: ${booking.address}, ${booking.postcode}`,
     ...bookingSummaryLines(booking),
   ];
   await send({
     to: process.env.NOTIFY_EMAIL_TO || process.env.SMTP_USER,
-    subject: `Nueva reserva pagada — ${booking.id}`,
+    subject: `New paid booking — ${booking.id}`,
     text: lines.join('\n'),
   });
 }
 
 export async function sendCustomerConfirmation(booking) {
   const lines = [
-    `Hola ${booking.full_name},`,
+    `Hi ${booking.full_name},`,
     '',
-    `Tu reserva con ${config.business.name} ha sido confirmada y el pago procesado correctamente.`,
+    `Your booking with ${config.business.name} has been confirmed and payment processed successfully.`,
     '',
     ...bookingSummaryLines(booking),
     '',
-    `Nos pondremos en contacto contigo para coordinar el acceso a ${booking.address}.`,
+    `We'll be in touch to coordinate access to ${booking.address}.`,
     '',
     `— ${config.business.name}`,
   ];
   await send({
     to: booking.email,
-    subject: `Reserva confirmada — ${booking.id}`,
+    subject: `Booking confirmed — ${booking.id}`,
     text: lines.join('\n'),
   });
 }

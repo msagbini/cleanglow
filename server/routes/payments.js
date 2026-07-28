@@ -1,19 +1,25 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
 import {
-  getBooking, getBookingBySessionId, attachStripeSession, markBookingStatus, markNotified,
+  getBooking, getBookingBySessionId, attachStripeSession, attachStripeSubscription,
+  markBookingStatus, markNotified,
 } from '../db.js';
+import { getFrequencyOption } from '../config.js';
 import { notifyPaidBooking, sendCustomerConfirmation } from '../email.js';
 import { publicView } from './bookings.js';
 
 const router = Router();
 
-function getStripe() {
+export function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) return null;
   return new Stripe(process.env.STRIPE_SECRET_KEY);
 }
 
-async function markPaidOnce(booking) {
+async function markPaidOnce(booking, subscriptionId) {
+  if (subscriptionId && !booking.stripe_subscription_id) {
+    attachStripeSubscription(booking.id, subscriptionId);
+    booking = { ...booking, stripe_subscription_id: subscriptionId };
+  }
   if (booking.status === 'paid') return booking;
   const paid = markBookingStatus(booking.id, 'paid');
   if (!paid.notified_at) {
@@ -26,32 +32,36 @@ async function markPaidOnce(booking) {
 router.post('/checkout-session', async (req, res) => {
   const stripe = getStripe();
   if (!stripe) {
-    return res.status(500).json({ error: 'Stripe no está configurado en el servidor (falta STRIPE_SECRET_KEY).' });
+    return res.status(500).json({ error: 'Stripe is not configured on the server (STRIPE_SECRET_KEY is missing).' });
   }
 
   const booking = getBooking(req.body?.bookingId);
-  if (!booking) return res.status(404).json({ error: 'Reserva no encontrada' });
-  if (booking.status === 'paid') return res.status(409).json({ error: 'Esta reserva ya fue pagada' });
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  if (booking.status === 'paid') return res.status(409).json({ error: 'This booking has already been paid' });
 
   const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const frequency = getFrequencyOption(booking.frequency);
+  const isRecurring = booking.frequency !== 'once' && !!frequency.stripeInterval;
+
+  const priceData = {
+    currency: booking.currency,
+    unit_amount: booking.amount_cents,
+    product_data: {
+      name: `End of Lease Clean — Booking ${booking.id}`,
+      description: `${booking.booking_date} · ${booking.booking_time} slot${isRecurring ? ` · billed ${frequency.label.toLowerCase()}` : ''}`,
+    },
+  };
+  if (isRecurring) {
+    priceData.recurring = { interval: frequency.stripeInterval.unit, interval_count: frequency.stripeInterval.count };
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
+      mode: isRecurring ? 'subscription' : 'payment',
       payment_method_types: ['card'],
       customer_email: booking.email,
-      line_items: [{
-        price_data: {
-          currency: booking.currency,
-          unit_amount: booking.amount_cents,
-          product_data: {
-            name: `Limpieza de fin de contrato — Reserva ${booking.id}`,
-            description: `${booking.booking_date} · franja ${booking.booking_time}`,
-          },
-        },
-        quantity: 1,
-      }],
-      metadata: { bookingId: booking.id },
+      line_items: [{ price_data: priceData, quantity: 1 }],
+      metadata: { bookingId: booking.id, frequency: booking.frequency },
       success_url: `${baseUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/index.html#booking`,
     });
@@ -59,8 +69,8 @@ router.post('/checkout-session', async (req, res) => {
     attachStripeSession(booking.id, session.id);
     res.json({ url: session.url });
   } catch (err) {
-    console.error('[stripe] Error creando checkout session:', err.message);
-    res.status(502).json({ error: 'No se pudo iniciar el pago con Stripe. Inténtalo de nuevo.' });
+    console.error('[stripe] Error creating checkout session:', err.message);
+    res.status(502).json({ error: 'Could not start the payment with Stripe. Please try again.' });
   }
 });
 
@@ -69,21 +79,21 @@ router.post('/checkout-session', async (req, res) => {
 // (e.g. the customer closes the tab before the redirect completes).
 router.get('/checkout-session/:sessionId/confirm', async (req, res) => {
   const stripe = getStripe();
-  if (!stripe) return res.status(500).json({ error: 'Stripe no está configurado en el servidor.' });
+  if (!stripe) return res.status(500).json({ error: 'Stripe is not configured on the server.' });
 
   try {
     const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
     const booking = getBookingBySessionId(session.id);
-    if (!booking) return res.status(404).json({ error: 'Reserva no encontrada para esta sesión' });
+    if (!booking) return res.status(404).json({ error: 'No booking found for this session' });
 
     if (session.payment_status === 'paid') {
-      const paid = await markPaidOnce(booking);
+      const paid = await markPaidOnce(booking, session.subscription || null);
       return res.json({ ...publicView(paid), paymentStatus: session.payment_status });
     }
     res.json({ ...publicView(booking), paymentStatus: session.payment_status });
   } catch (err) {
-    console.error('[stripe] Error confirmando sesión:', err.message);
-    res.status(502).json({ error: 'No se pudo verificar el pago.' });
+    console.error('[stripe] Error confirming session:', err.message);
+    res.status(502).json({ error: 'Could not verify the payment.' });
   }
 });
 
@@ -101,7 +111,7 @@ export async function webhookHandler(req, res) {
       ? stripe.webhooks.constructEvent(req.body, signature, process.env.STRIPE_WEBHOOK_SECRET)
       : JSON.parse(req.body.toString('utf8'));
   } catch (err) {
-    console.error('[stripe] Firma de webhook inválida:', err.message);
+    console.error('[stripe] Invalid webhook signature:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -111,7 +121,7 @@ export async function webhookHandler(req, res) {
       case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object;
         const booking = getBookingBySessionId(session.id);
-        if (booking && session.payment_status === 'paid') await markPaidOnce(booking);
+        if (booking && session.payment_status === 'paid') await markPaidOnce(booking, session.subscription || null);
         break;
       }
       case 'checkout.session.expired': {
@@ -125,7 +135,7 @@ export async function webhookHandler(req, res) {
     }
     res.json({ received: true });
   } catch (err) {
-    console.error('[stripe] Error procesando webhook:', err.message);
+    console.error('[stripe] Error processing webhook:', err.message);
     res.status(500).end();
   }
 }

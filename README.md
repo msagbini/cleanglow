@@ -1,8 +1,10 @@
 # Plataforma de reservas con pago online
 
-Sitio de reservas de servicios a domicilio (por defecto configurado como limpieza de fin
-de contrato): guarda las reservas en base de datos, cobra el servicio con Stripe Checkout
-antes de confirmarlas, y trae panel de administración, emails de confirmación y modo oscuro.
+Sitio de reservas de servicios a domicilio (configurado por defecto como limpieza de fin
+de contrato para el mercado australiano — AUD, GST, ABN): guarda las reservas en base de
+datos, evita dobles reservas en el mismo horario, cobra con Stripe (pagos únicos o
+suscripciones recurrentes), y trae panel de administración, emails de confirmación y modo
+oscuro.
 
 **Todo el catálogo del negocio — marca, colores, tipos de servicio, precios y extras — vive
 en un único archivo (`config/business.json`)**, así que reconfigurar el sitio para otro
@@ -17,15 +19,16 @@ hacemos X, con extras opcionales") es editar ese archivo, no tocar código. Ver
   el cliente a partir de `GET /api/config`.
 - **Backend** en `server/` — Node.js + Express.
 - **Base de datos**: SQLite embebida (`server/data/bookings.sqlite`, se crea sola al arrancar).
-- **Pagos**: Stripe Checkout (página de pago alojada por Stripe, no manejamos tarjetas nosotros).
+- **Pagos**: Stripe Checkout — modo pago único para servicios puntuales, modo suscripción
+  para limpiezas recurrentes (semanal/quincenal/mensual).
 - **Seguridad**: `helmet` con Content-Security-Policy estricta (sin scripts/estilos inline
   en ninguna página), rate limiting en los endpoints de creación de reservas/pago, panel
   admin protegido con HTTP Basic Auth.
 
 El precio final **siempre se calcula en el servidor** (`server/config.js`) a partir de las
-selecciones del cliente (tamaño, extras, urgencia...) usando el mismo `config/business.json`
-que ve el frontend — nunca se confía en un importe enviado desde el navegador, para evitar
-que alguien manipule el precio antes de pagar.
+selecciones del cliente (tamaño, extras, urgencia, frecuencia...) usando el mismo
+`config/business.json` que ve el frontend — nunca se confía en un importe enviado desde el
+navegador, para evitar que alguien manipule el precio antes de pagar.
 
 ## Puesta en marcha
 
@@ -58,13 +61,16 @@ confirmar una reserva el servidor devuelve un error claro en vez de iniciar el p
 Edita `config/business.json` — no hace falta tocar HTML/CSS/JS/backend. Secciones principales:
 
 - **`business`**: nombre, emoji/logo, textos del hero, colores de marca (`theme`), teléfono,
-  email, horario, zonas de servicio, redes sociales, símbolo de moneda.
-- **`booking.serviceTypes`**: los "tipos de propiedad" (ej. Piso/Casa/Estudio) — cámbialos
+  email, horario, zonas de servicio, redes sociales, moneda (`currency`/`currencySymbol`),
+  ABN y registro de GST (ver [GST, ABN y moneda](#gst-abn-y-moneda)).
+- **`booking.serviceTypes`**: los "tipos de propiedad" (ej. Apartment/House/Studio) — cámbialos
   por tus categorías de servicio.
 - **`booking.sizeField` / `booking.secondaryField`**: los dos selectores que determinan el
   precio base (hoy "habitaciones" y "baños") — renómbralos y ajusta precios para tu modelo
   (ej. "tamaño del jardín" y "número de árboles").
 - **`booking.extras`**: la grilla de add-ons opcionales con su precio.
+- **`booking.frequencyOptions`**: las opciones de recurrencia (única vez, semanal, etc.) con
+  su descuento — ver [Limpiezas recurrentes](#limpiezas-recurrentes-suscripciones).
 - **`servicesShowcase`, `checklist`, `pricingTiers`**: las tarjetas de la página principal.
 
 Los testimonios, FAQ y el texto del CTA final son contenido editorial real — se editan
@@ -72,12 +78,65 @@ directamente en `public/index.html`.
 
 Tras editar el JSON, reinicia el servidor; no requiere build ni redeploy de assets.
 
+⚠️ **Los testimonios y las estadísticas de la franja de confianza son contenido de ejemplo.**
+Reemplázalos por datos reales antes de publicar el sitio — mostrar reseñas o cifras de
+actividad inventadas puede constituir publicidad engañosa bajo la Australian Consumer Law.
+
+## GST, ABN y moneda
+
+El sitio está configurado en AUD por defecto. En `config/business.json`:
+
+- **`abn`**: tu ABN. Se muestra en el footer, los emails y la página de confirmación solo si
+  no está vacío.
+- **`gstRegistered`**: `false` por defecto. Solo ponlo en `true` una vez que estés
+  efectivamente registrado para GST (no es obligatorio por debajo de $75,000 AUD de
+  facturación anual). En `true`, el sitio muestra el desglose del GST incluido en el precio
+  (los precios ya son GST-inclusive, como exige la ley australiana para precios al
+  consumidor — nunca se suma GST encima).
+- **`gstRate`**: 0.10 (10%), el estándar actual.
+
+Esto no reemplaza asesoría contable/legal real — son cálculos mecánicos, no una
+determinación de si debes registrarte para GST o qué estructura de negocio te conviene.
+
+## Evitar dobles reservas
+
+El sitio valida disponibilidad por fecha + franja horaria antes de cada reserva:
+
+- `GET /api/bookings/availability?date=YYYY-MM-DD` devuelve qué franjas de ese día ya están
+  completas. El frontend deshabilita esas opciones en el selector con la etiqueta
+  "Fully booked" y elige automáticamente la siguiente franja libre si la seleccionada deja
+  de estar disponible.
+- El servidor vuelve a validar al crear la reserva (nunca confía solo en el frontend) y
+  responde `409` si la franja se ocupó justo antes. La verificación y la escritura ocurren
+  en la misma llamada síncrona a SQLite, sin `await` en el medio, así que no hay ventana de
+  condición de carrera entre dos reservas simultáneas.
+- `config.booking.maxConcurrentBookingsPerSlot` (por defecto `1`) controla cuántas reservas
+  activas caben en la misma franja — súbelo si tienes más de un equipo trabajando en
+  simultáneo.
+
+## Limpiezas recurrentes (suscripciones)
+
+Además de "única vez", `config.booking.frequencyOptions` define frecuencias recurrentes
+(semanal, quincenal, mensual) con un descuento por visita. Al reservar con una frecuencia
+recurrente, el sitio crea una **suscripción de Stripe** en vez de un pago único: Stripe cobra
+automáticamente el precio con descuento en cada ciclo (semana/quincena/mes), sin que el
+cliente tenga que volver a pagar manualmente.
+
+Lo que Stripe automatiza es **el cobro recurrente**, no la agenda de cada visita futura —
+coordinar la fecha/hora exacta de cada limpieza sigue siendo una conversación con el
+cliente (igual que hacen la mayoría de los servicios de limpieza recurrente en la práctica).
+
+Desde el panel de administración podés cancelar la suscripción de un cliente en cualquier
+momento (botón "Cancel subscription" en las filas con una suscripción activa) — esto cancela
+la suscripción en Stripe y marca la reserva como cancelada.
+
 ## Panel de administración
 
 En `/admin` (protegido con `ADMIN_USER`/`ADMIN_PASS` de `.env`, autenticación HTTP Basic).
-Lista todas las reservas con filtro por estado, muestra totales y permite cambiar el estado
-de cada una (pendiente de pago → pagada → completada / cancelada). Si no defines esas dos
-variables de entorno, el panel devuelve 503 en vez de quedar abierto con credenciales por defecto.
+Lista todas las reservas con filtro por estado, muestra totales, la frecuencia de cada una,
+y permite cambiar el estado (pendiente de pago → pagada → completada / cancelada) o cancelar
+una suscripción activa. Si no defines esas dos variables de entorno, el panel devuelve 503
+en vez de quedar abierto con credenciales por defecto.
 
 ## Probar el pago completo (Stripe test mode)
 
@@ -86,7 +145,8 @@ variables de entorno, el panel devuelve 503 en vez de quedar abierto con credenc
    stripe listen --forward-to localhost:4242/api/webhook
    ```
    Esto imprime un `whsec_...` — cópialo a `STRIPE_WEBHOOK_SECRET` en `.env` y reinicia el servidor.
-2. Completa una reserva en la web. Al confirmar te redirige a Stripe Checkout.
+2. Completa una reserva en la web. Al confirmar te redirige a Stripe Checkout (modo pago
+   único o modo suscripción según la frecuencia elegida).
 3. Usa una [tarjeta de prueba](https://docs.stripe.com/testing#cards), por ejemplo
    `4242 4242 4242 4242`, cualquier fecha futura y CVC.
 4. Tras pagar, Stripe te redirige a `/success.html`, que confirma el pago y muestra la
@@ -120,17 +180,23 @@ SQLite alcanza cómodamente para un negocio local con volumen bajo/medio de rese
 necesitas múltiples instancias del servidor o un volumen alto de escritura, el punto de
 cambio es `server/db.js`: reemplaza las llamadas a `node:sqlite` por un cliente de
 Postgres/MySQL manteniendo las mismas funciones exportadas (`insertBooking`, `getBooking`,
-`listBookings`, etc.) — el resto de la app no necesita cambios.
+`listBookings`, etc.) — el resto de la app no necesita cambios. Nota: la protección
+anti-doble-reserva depende de que las operaciones sean síncronas dentro de un mismo proceso;
+si migras a un cliente async o a múltiples instancias, envolvé el chequeo + inserción en una
+transacción de base de datos con bloqueo (`SELECT ... FOR UPDATE` en Postgres) para mantener
+la misma garantía.
 
 ## Endpoints de la API
 
 | Método | Ruta | Descripción |
 |---|---|---|
 | `GET` | `/api/config` | Catálogo del negocio (marca, precios, extras) que consume el frontend |
+| `GET` | `/api/bookings/availability` | Disponibilidad por franja para una fecha (`?date=YYYY-MM-DD`) |
 | `POST` | `/api/bookings` | Crea una reserva (`pending_payment`) y calcula el precio |
 | `GET` | `/api/bookings/:id` | Consulta el estado de una reserva |
-| `POST` | `/api/checkout-session` | Crea la sesión de pago de Stripe para una reserva |
+| `POST` | `/api/checkout-session` | Crea la sesión de pago de Stripe (pago único o suscripción) |
 | `GET` | `/api/checkout-session/:sessionId/confirm` | Verifica el pago al volver de Stripe |
 | `POST` | `/api/webhook` | Webhook de Stripe (fuente de verdad del estado de pago) |
 | `GET` | `/api/admin/bookings` | *(Basic Auth)* Lista reservas, con filtro `?status=` |
 | `PATCH` | `/api/admin/bookings/:id/status` | *(Basic Auth)* Cambia el estado de una reserva |
+| `POST` | `/api/admin/bookings/:id/cancel-subscription` | *(Basic Auth)* Cancela la suscripción de Stripe de una reserva |

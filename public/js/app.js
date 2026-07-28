@@ -6,6 +6,7 @@
     propertyType: null,
     urgency: null,
     urgencySurcharge: 0,
+    frequency: 'once',
     currentStep: 1,
     promoDiscount: 0,
   };
@@ -39,7 +40,7 @@
 
   function renderBranding(cfg) {
     const { business } = cfg;
-    document.title = `${business.name} | Reserva tu servicio online`;
+    document.title = `${business.name} | Book your service online`;
 
     document.getElementById('logoMark').textContent = business.logoEmoji;
     document.getElementById('logoText').textContent = business.name;
@@ -61,7 +62,8 @@
 
     document.getElementById('footerHours').textContent = `🕐 ${business.hours}`;
     document.getElementById('footerDescription').textContent = business.footerDescription;
-    document.getElementById('footerCopyright').textContent = `© ${new Date().getFullYear()} ${business.name}. Todos los derechos reservados.`;
+    const abnSuffix = business.abn ? ` · ABN ${business.abn}` : '';
+    document.getElementById('footerCopyright').textContent = `© ${new Date().getFullYear()} ${business.name}. All rights reserved.${abnSuffix}`;
     document.getElementById('recleanWindowHours').textContent = business.recleanWindowHours;
 
     const areasCol = document.getElementById('footerServiceAreas');
@@ -89,20 +91,17 @@
     document.getElementById('heroTitle').innerHTML = business.heroTitleHtml;
     document.getElementById('heroDescription').textContent = business.heroDescription;
 
-    document.getElementById('heroTrust').innerHTML = `
-      <li>⭐ ${business.rating}/5 (${business.reviewCount} reseñas)</li>
-      <li>🛡️ Asegurados hasta ${business.insuranceAmount}</li>
-      <li>♻️ Re-limpieza gratuita en ${business.recleanWindowHours}h</li>
-    `;
+    document.getElementById('heroTrust').innerHTML = business.heroTrust
+      .map(item => `<li>${item}</li>`).join('');
 
     const sampleSize = booking.sizeField.options[Math.min(2, booking.sizeField.options.length - 1)];
     const sampleExtras = booking.extras.slice(0, 2);
     const sampleType = booking.serviceTypes[0];
     const total = sampleSize.price + sampleType.surcharge + sampleExtras.reduce((s, e) => s + e.price, 0);
     document.getElementById('heroCardRows').innerHTML = `
-      <div class="hero-card-row"><span>${sampleType.icon} ${sampleType.label} ${sampleSize.label}</span><span>desde ${sampleSize.price}${business.currencySymbol}</span></div>
-      ${sampleExtras.map(e => `<div class="hero-card-row"><span>${e.icon} ${e.label}</span><span>+ ${e.price}${business.currencySymbol}</span></div>`).join('')}
-      <div class="hero-card-row hero-card-total"><span>Total estimado</span><span>${total}${business.currencySymbol}</span></div>
+      <div class="hero-card-row"><span>${sampleType.icon} ${sampleType.label} ${sampleSize.label}</span><span>from ${business.currencySymbol}${sampleSize.price}</span></div>
+      ${sampleExtras.map(e => `<div class="hero-card-row"><span>${e.icon} ${e.label}</span><span>+ ${business.currencySymbol}${e.price}</span></div>`).join('')}
+      <div class="hero-card-row hero-card-total"><span>Estimated total</span><span>${business.currencySymbol}${total}</span></div>
     `;
   }
 
@@ -137,9 +136,9 @@
   function renderPricingTiers(cfg) {
     document.getElementById('pricingGrid').innerHTML = cfg.pricingTiers.map(tier => `
       <div class="price-card ${tier.featured ? 'featured' : ''}">
-        ${tier.featured ? '<span class="price-tag">Más reservado</span>' : ''}
+        ${tier.featured ? '<span class="price-tag">Most booked</span>' : ''}
         <h3>${tier.label}</h3>
-        <p class="price">desde ${tier.priceFrom}${cfg.business.currencySymbol}</p>
+        <p class="price">from ${cfg.business.currencySymbol}${tier.priceFrom}</p>
         <ul>${tier.features.map(f => `<li>${f}</li>`).join('')}</ul>
       </div>
     `).join('');
@@ -147,6 +146,11 @@
 
   function renderBookingWizard(cfg) {
     const { booking } = cfg;
+
+    document.getElementById('frequencyPills').innerHTML = (booking.frequencyOptions || []).map((f, i) => `
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${f.value}">${f.label}${f.discount ? ` (save ${Math.round(f.discount * 100)}%)` : ''}</button>
+    `).join('');
+    state.frequency = booking.frequencyOptions?.[0]?.value || 'once';
 
     document.getElementById('propertyTypePills').innerHTML = booking.serviceTypes.map((t, i) => `
       <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${t.value}">${t.icon} ${t.label}</button>
@@ -168,7 +172,7 @@
         <input type="checkbox" name="extras" value="${e.key}" data-price="${e.price}" data-label="${e.label}">
         <span class="extra-icon">${e.icon}</span>
         <span class="extra-name">${e.label}</span>
-        <span class="extra-price">+${e.price}${cfg.business.currencySymbol}</span>
+        <span class="extra-price">+${cfg.business.currencySymbol}${e.price}</span>
       </label>
     `).join('');
 
@@ -179,7 +183,7 @@
       .map(o => `<option value="${o.value}">${o.label}</option>`).join('');
 
     document.getElementById('urgencyPills').innerHTML = booking.urgencyOptions.map((u, i) => `
-      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${u.value}" data-surcharge="${u.surcharge}">${u.label}${u.surcharge ? ` (+${u.surcharge}${cfg.business.currencySymbol})` : ''}</button>
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${u.value}" data-surcharge="${u.surcharge}">${u.label}${u.surcharge ? ` (+${cfg.business.currencySymbol}${u.surcharge})` : ''}</button>
     `).join('');
     state.urgency = booking.urgencyOptions[0].value;
     state.urgencySurcharge = booking.urgencyOptions[0].surcharge;
@@ -198,6 +202,8 @@
         } else if (name === 'urgency') {
           state.urgency = btn.dataset.value;
           state.urgencySurcharge = Number(btn.dataset.surcharge || 0);
+        } else if (name === 'frequency') {
+          state.frequency = btn.dataset.value;
         }
         updatePriceSummary();
       });
@@ -206,15 +212,23 @@
 
   function renderLegalContent(cfg) {
     const { business } = cfg;
-    legalContent.terms.body = `<p>Al reservar un servicio con ${business.name} aceptas las siguientes condiciones:</p>
-      <h4>1. Reservas y pagos</h4><p>El precio mostrado es una estimación basada en los datos proporcionados. El importe final se confirma tras la inspección inicial del equipo.</p>
-      <h4>2. Cancelaciones</h4><p>Puedes cancelar o reprogramar gratuitamente hasta 24 horas antes de la cita. Cancelaciones posteriores pueden conllevar un cargo del 20%.</p>
-      <h4>3. Garantía de re-limpieza</h4><p>Ofrecemos una re-limpieza gratuita dentro de las ${business.recleanWindowHours} horas si algún punto del checklist acordado no queda satisfactorio.</p>
-      <h4>4. Acceso a la vivienda</h4><p>El cliente es responsable de proporcionar un método de acceso válido en la franja horaria reservada.</p>`;
-    legalContent.privacy.body = `<p>Tus datos personales se utilizan únicamente para gestionar tu reserva y comunicarnos contigo sobre el servicio.</p>
-      <h4>Datos que recopilamos</h4><p>Nombre, email, teléfono y dirección de la vivienda a limpiar.</p>
-      <h4>Uso de los datos</h4><p>No compartimos tus datos con terceros salvo con el equipo asignado a tu servicio.</p>
-      <h4>Tus derechos</h4><p>Puedes solicitar acceso, rectificación o eliminación de tus datos escribiendo a ${business.email}.</p>`;
+    legalContent.terms.body = `<p>By booking a service with ${business.name} you agree to the following terms:</p>
+      <h4>1. Bookings and payment</h4><p>The price shown is an estimate based on the details you provide. The final amount is confirmed after the team's initial inspection.</p>
+      <h4>2. Cancellations</h4><p>You can cancel or reschedule for free up to 24 hours before your appointment. Later cancellations may incur a 20% fee.</p>
+      <h4>3. Re-clean guarantee</h4><p>We offer a free re-clean within ${business.recleanWindowHours} hours if any agreed checklist item isn't up to standard.</p>
+      <h4>4. Property access</h4><p>The customer is responsible for providing a valid access method for the booked time slot.</p>`;
+    legalContent.privacy.body = `<p>Your personal data is used only to manage your booking and communicate with you about the service.</p>
+      <h4>Data we collect</h4><p>Name, email, phone number and the address of the property to be cleaned.</p>
+      <h4>How we use it</h4><p>We don't share your data with third parties other than the team assigned to your service.</p>
+      <h4>Your rights</h4><p>You can request access to, correction of, or deletion of your data by emailing ${business.email}.</p>`;
+  }
+
+  /* ============ GST (mirrors server/config.js's computeGstComponentCents) ============ */
+  function computeGstComponent(totalDollars) {
+    const { business } = state.config;
+    if (!business.gstRegistered) return 0;
+    const rate = business.gstRate ?? 0.1;
+    return totalDollars - totalDollars / (1 + rate);
   }
 
   /* ============ Live price calculation ============ */
@@ -232,32 +246,51 @@
 
     const subtotal = base + extrasTotal + state.urgencySurcharge;
     const discount = subtotal * state.promoDiscount;
-    const total = Math.max(0, subtotal - discount);
+    const afterPromo = Math.max(0, subtotal - discount);
 
-    return { base, sizeOption, secondaryValue, serviceType, extrasChecked, extrasTotal, discount, total, currencySymbol: business.currencySymbol };
+    const frequencyOption = booking.frequencyOptions?.find(f => f.value === state.frequency) || { value: 'once', discount: 0 };
+    const total = afterPromo * (1 - (frequencyOption.discount || 0));
+
+    return { base, sizeOption, secondaryValue, serviceType, extrasChecked, extrasTotal, discount, total, frequencyOption, currencySymbol: business.currencySymbol };
   }
 
   function updatePriceSummary() {
-    const { base, sizeOption, secondaryValue, serviceType, extrasChecked, total, currencySymbol } = calcPrice();
+    const { base, sizeOption, secondaryValue, serviceType, extrasChecked, total, frequencyOption, currencySymbol } = calcPrice();
     const secondaryOption = state.config.booking.secondaryField.options.find(o => Number(o.value) === secondaryValue);
     els.sumPropertyLabel.textContent = `${serviceType.label} · ${sizeOption.label} · ${secondaryOption ? secondaryOption.label : secondaryValue}`;
-    els.sumBase.textContent = `${base}${currencySymbol}`;
+    els.sumBase.textContent = `${currencySymbol}${base}`;
 
     els.sumExtrasList.innerHTML = '';
     extrasChecked.forEach(el => {
       const li = document.createElement('li');
-      li.innerHTML = `<span>${el.dataset.label}</span><span>+${el.dataset.price}${currencySymbol}</span>`;
+      li.innerHTML = `<span>${el.dataset.label}</span><span>+${currencySymbol}${el.dataset.price}</span>`;
       els.sumExtrasList.appendChild(li);
     });
 
     if (state.urgencySurcharge > 0) {
       els.sumUrgencyLine.hidden = false;
-      els.sumUrgency.textContent = `+${state.urgencySurcharge}${currencySymbol}`;
+      els.sumUrgency.textContent = `+${currencySymbol}${state.urgencySurcharge}`;
     } else {
       els.sumUrgencyLine.hidden = true;
     }
 
-    els.sumTotal.textContent = `${total.toFixed(0)}${currencySymbol}`;
+    const sumFrequencyLine = document.getElementById('sumFrequencyLine');
+    const isRecurring = frequencyOption.value !== 'once' && frequencyOption.discount > 0;
+    if (isRecurring) {
+      sumFrequencyLine.hidden = false;
+      document.getElementById('sumFrequencyDiscount').textContent = `−${Math.round(frequencyOption.discount * 100)}%`;
+    } else {
+      sumFrequencyLine.hidden = true;
+    }
+    document.getElementById('sumTotalLabel').textContent = isRecurring ? `Total per visit (${frequencyOption.label.toLowerCase()})` : 'Estimated total';
+
+    els.sumTotal.textContent = `${currencySymbol}${total.toFixed(0)}`;
+
+    const gst = computeGstComponent(total);
+    const taxNote = document.getElementById('sumTaxNote');
+    taxNote.textContent = gst > 0
+      ? `Price includes ${currencySymbol}${gst.toFixed(2)} GST. Final price confirmed after reviewing your property notes.`
+      : 'Final price confirmed after reviewing your property notes.';
   }
 
   /* ============ Wizard navigation ============ */
@@ -287,7 +320,7 @@
     for (const field of requiredFields) {
       if (!field.value || (field.type === 'checkbox' && !field.checked)) {
         field.focus();
-        showToast('Por favor completa los campos obligatorios (*)');
+        showToast('Please fill in the required fields (*)');
         return false;
       }
     }
@@ -295,13 +328,13 @@
       const email = document.getElementById('email').value;
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         document.getElementById('email').focus();
-        showToast('Introduce un email válido');
+        showToast('Enter a valid email address');
         return false;
       }
       const phone = document.getElementById('phone').value;
       if (!/^[\d\s+()-]{6,}$/.test(phone)) {
         document.getElementById('phone').focus();
-        showToast('Introduce un teléfono válido');
+        showToast('Enter a valid phone number');
         return false;
       }
     }
@@ -309,30 +342,68 @@
       const dateVal = document.getElementById('bookingDate').value;
       if (!dateVal) {
         document.getElementById('bookingDate').focus();
-        showToast('Selecciona una fecha para tu servicio');
+        showToast('Select a date for your service');
         return false;
       }
       const chosen = new Date(dateVal + 'T00:00:00');
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (chosen < today) {
-        showToast('La fecha no puede ser anterior a hoy');
+        showToast('The date can\'t be in the past');
+        return false;
+      }
+      const timeSelect = document.getElementById('bookingTime');
+      const selectedOption = timeSelect.options[timeSelect.selectedIndex];
+      if (selectedOption && selectedOption.disabled) {
+        showToast('That time slot is fully booked — please choose another one');
         return false;
       }
     }
     return true;
   }
 
+  /* ============ Availability — disable fully-booked time slots ============ */
+  async function refreshTimeSlotAvailability() {
+    const dateVal = document.getElementById('bookingDate').value;
+    const timeSelect = document.getElementById('bookingTime');
+    if (!dateVal) return;
+
+    try {
+      const res = await fetch(`/api/bookings/availability?date=${encodeURIComponent(dateVal)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const previousValue = timeSelect.value;
+      let previousStillAvailable = true;
+
+      Array.from(timeSelect.options).forEach(option => {
+        const slot = data.slots.find(s => s.value === option.value);
+        if (!slot) return;
+        option.disabled = !slot.available;
+        option.textContent = slot.available ? slot.label : `${slot.label} — Fully booked`;
+        if (option.value === previousValue && !slot.available) previousStillAvailable = false;
+      });
+
+      if (!previousStillAvailable) {
+        const firstAvailable = Array.from(timeSelect.options).find(o => !o.disabled);
+        timeSelect.value = firstAvailable ? firstAvailable.value : previousValue;
+        showToast('Your selected time slot is now fully booked — we picked the next available one');
+      }
+    } catch {
+      // Non-critical: the server still enforces this at submission time either way.
+    }
+  }
+
   /* ============ Review step ============ */
   function buildReview() {
-    const { sizeOption, secondaryValue, serviceType, extrasChecked, total, discount, currencySymbol } = calcPrice();
+    const { sizeOption, secondaryValue, serviceType, extrasChecked, total, discount, frequencyOption, currencySymbol } = calcPrice();
     const secondaryOption = state.config.booking.secondaryField.options.find(o => Number(o.value) === secondaryValue);
-    const extrasLabel = extrasChecked.length ? extrasChecked.map(el => el.dataset.label).join(', ') : 'Ninguno';
+    const extrasLabel = extrasChecked.length ? extrasChecked.map(el => el.dataset.label).join(', ') : 'None';
     const urgencyOption = state.config.booking.urgencyOptions.find(u => u.value === state.urgency);
+    const isRecurring = frequencyOption.value !== 'once';
 
     const dateVal = document.getElementById('bookingDate').value;
     const timeVal = document.getElementById('bookingTime').value;
-    const dateFormatted = dateVal ? new Date(dateVal + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+    const dateFormatted = dateVal ? new Date(dateVal + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '—';
 
     const name = document.getElementById('fullName').value;
     const email = document.getElementById('email').value;
@@ -342,28 +413,33 @@
 
     document.getElementById('reviewBox').innerHTML = `
       <div class="review-section">
-        <button type="button" class="review-edit" data-goto="1">Editar</button>
-        <h4>Vivienda</h4>
+        <button type="button" class="review-edit" data-goto="1">Edit</button>
+        <h4>Property</h4>
         <p>${serviceType.label} · ${sizeOption.label} · ${secondaryOption ? secondaryOption.label : ''}</p>
       </div>
       <div class="review-section">
-        <button type="button" class="review-edit" data-goto="2">Editar</button>
+        <button type="button" class="review-edit" data-goto="2">Edit</button>
         <h4>Extras</h4>
         <p>${extrasLabel}</p>
       </div>
       <div class="review-section">
-        <button type="button" class="review-edit" data-goto="3">Editar</button>
-        <h4>Fecha y hora</h4>
-        <p>${dateFormatted} · franja ${timeVal} · urgencia: ${urgencyOption ? urgencyOption.label : state.urgency}</p>
+        <button type="button" class="review-edit" data-goto="3">Edit</button>
+        <h4>Date & time</h4>
+        <p>${dateFormatted} · ${timeVal} slot · urgency: ${urgencyOption ? urgencyOption.label : state.urgency}</p>
       </div>
       <div class="review-section">
-        <button type="button" class="review-edit" data-goto="4">Editar</button>
-        <h4>Contacto</h4>
+        <button type="button" class="review-edit" data-goto="4">Edit</button>
+        <h4>Contact details</h4>
         <p>${name}<br>${email} · ${phone}<br>${address}, ${postcode}</p>
       </div>
       <div class="review-section">
-        <h4>Total a pagar</h4>
-        <p class="review-total-price">${total.toFixed(0)}${currencySymbol} ${discount > 0 ? `<span class="review-discount-tag">(descuento aplicado)</span>` : ''}</p>
+        <h4>Cleaning frequency</h4>
+        <p>${frequencyOption.label}${isRecurring ? ' — billed automatically, cancel anytime' : ''}</p>
+      </div>
+      <div class="review-section">
+        <h4>${isRecurring ? 'Total per visit' : 'Total to pay'}</h4>
+        <p class="review-total-price">${currencySymbol}${total.toFixed(0)}${isRecurring ? ` <span class="review-discount-tag">/ ${frequencyOption.label.toLowerCase()}</span>` : ''} ${discount > 0 ? `<span class="review-discount-tag">(discount applied)</span>` : ''}</p>
+        ${computeGstComponent(total) > 0 ? `<p class="review-gst-note">Includes ${currencySymbol}${computeGstComponent(total).toFixed(2)} GST</p>` : ''}
       </div>
     `;
 
@@ -375,7 +451,7 @@
   /* ============ Form submission — create booking, then redirect to Stripe ============ */
   function setSubmitting(isSubmitting) {
     btnSubmit.disabled = isSubmitting;
-    btnSubmit.textContent = isSubmitting ? 'Redirigiendo a pago seguro…' : 'Confirmar y pagar →';
+    btnSubmit.textContent = isSubmitting ? 'Redirecting to secure payment…' : 'Confirm and pay →';
     btnBack.disabled = isSubmitting || state.currentStep === 1;
   }
 
@@ -402,6 +478,7 @@
       address: document.getElementById('address').value,
       postcode: document.getElementById('postcode').value,
       promoCode: els.promoCode.value || null,
+      frequency: state.frequency,
     };
 
     setSubmitting(true);
@@ -412,7 +489,7 @@
         body: JSON.stringify(payload),
       });
       const bookingData = await bookingRes.json();
-      if (!bookingRes.ok) throw new Error(bookingData.error || 'No se pudo crear la reserva');
+      if (!bookingRes.ok) throw new Error(bookingData.error || 'Could not create the booking');
 
       const sessionRes = await fetch('/api/checkout-session', {
         method: 'POST',
@@ -420,11 +497,11 @@
         body: JSON.stringify({ bookingId: bookingData.bookingId }),
       });
       const sessionData = await sessionRes.json();
-      if (!sessionRes.ok) throw new Error(sessionData.error || 'No se pudo iniciar el pago');
+      if (!sessionRes.ok) throw new Error(sessionData.error || 'Could not start the payment');
 
       window.location.href = sessionData.url;
     } catch (err) {
-      showToast(err.message || 'Ocurrió un error. Inténtalo de nuevo.');
+      showToast(err.message || 'Something went wrong. Please try again.');
       setSubmitting(false);
     }
   });
@@ -461,8 +538,8 @@
   });
 
   const legalContent = {
-    terms: { title: 'Términos y condiciones', body: '' },
-    privacy: { title: 'Política de privacidad', body: '' },
+    terms: { title: 'Terms & Conditions', body: '' },
+    privacy: { title: 'Privacy Policy', body: '' },
   };
   document.querySelectorAll('[data-modal]').forEach(link => {
     link.addEventListener('click', e => {
@@ -537,6 +614,7 @@
 
     const dateInput = document.getElementById('bookingDate');
     dateInput.min = new Date().toISOString().split('T')[0];
+    dateInput.addEventListener('change', refreshTimeSlotAvailability);
 
     btnNext.addEventListener('click', () => {
       if (!validateStep(state.currentStep)) return;
@@ -551,7 +629,7 @@
   }
 
   init().catch(err => {
-    console.error('No se pudo cargar la configuración del sitio:', err);
-    showToast('No se pudo cargar el sitio. Recarga la página.');
+    console.error('Could not load the site configuration:', err);
+    showToast('Could not load the site. Please refresh the page.');
   });
 })();

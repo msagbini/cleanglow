@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel de administración</title>
+<title>Admin panel</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧽</text></svg>">
 <link rel="stylesheet" href="../css/styles.css">
@@ -12,39 +12,40 @@
 <body>
 <div class="admin-wrap">
   <div class="admin-header">
-    <h1>📋 Panel de reservas</h1>
-    <button class="btn btn-ghost btn-sm" id="refreshBtn">Actualizar</button>
+    <h1>📋 Bookings panel</h1>
+    <button class="btn btn-ghost btn-sm" id="refreshBtn">Refresh</button>
   </div>
 
   <div class="stat-row" id="statRow"></div>
 
   <div class="filter-tabs" id="filterTabs">
-    <button data-status="" class="active">Todas</button>
-    <button data-status="pending_payment">Pendientes de pago</button>
-    <button data-status="paid">Pagadas</button>
-    <button data-status="completed">Completadas</button>
-    <button data-status="cancelled">Canceladas</button>
-    <button data-status="expired">Expiradas</button>
+    <button data-status="" class="active">All</button>
+    <button data-status="pending_payment">Pending payment</button>
+    <button data-status="paid">Paid</button>
+    <button data-status="completed">Completed</button>
+    <button data-status="cancelled">Cancelled</button>
+    <button data-status="expired">Expired</button>
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>Referencia</th>
-          <th>Estado</th>
-          <th>Cliente</th>
-          <th>Servicio</th>
-          <th>Fecha</th>
-          <th>Importe</th>
-          <th>Creada</th>
-          <th>Acción</th>
+          <th>Reference</th>
+          <th>Status</th>
+          <th>Customer</th>
+          <th>Service</th>
+          <th>Date</th>
+          <th>Frequency</th>
+          <th>Amount</th>
+          <th>Created</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody id="bookingsBody"></tbody>
     </table>
-    <div class="loading-state" id="loadingState">Cargando reservas…</div>
-    <div class="empty-state" id="emptyState" hidden>No hay reservas para este filtro.</div>
+    <div class="loading-state" id="loadingState">Loading bookings…</div>
+    <div class="empty-state" id="emptyState" hidden>No bookings match this filter.</div>
   </div>
 </div>
 

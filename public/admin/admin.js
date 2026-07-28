@@ -2,11 +2,18 @@
   'use strict';
 
   const STATUS_LABEL = {
-    pending_payment: 'Pendiente de pago',
-    paid: 'Pagada',
-    completed: 'Completada',
-    cancelled: 'Cancelada',
-    expired: 'Expirada',
+    pending_payment: 'Pending payment',
+    paid: 'Paid',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+    expired: 'Expired',
+  };
+
+  const FREQUENCY_LABEL = {
+    once: 'One-time',
+    weekly: 'Weekly',
+    fortnightly: 'Fortnightly',
+    monthly: 'Monthly',
   };
 
   const tbody = document.getElementById('bookingsBody');
@@ -25,7 +32,7 @@
     const url = currentStatus ? `/api/admin/bookings?status=${encodeURIComponent(currentStatus)}` : '/api/admin/bookings';
     const res = await fetch(url);
     if (!res.ok) {
-      loadingState.textContent = 'No se pudieron cargar las reservas.';
+      loadingState.textContent = 'Could not load bookings.';
       return;
     }
     const data = await res.json();
@@ -52,16 +59,18 @@
         <td><strong>${b.id}</strong></td>
         <td><span class="status-badge status-${b.status}">${STATUS_LABEL[b.status] || b.status}</span></td>
         <td>${escapeHtml(b.full_name)}<br><span class="muted-text">${escapeHtml(b.email)} · ${escapeHtml(b.phone)}</span></td>
-        <td>${escapeHtml(b.property_type)} · ${escapeHtml(b.bedrooms)} hab. · ${b.bathrooms} baño(s)<br><span class="muted-text">${escapeHtml(b.address)}</span></td>
+        <td>${escapeHtml(b.property_type)} · ${escapeHtml(b.bedrooms)} bed · ${b.bathrooms} bath(s)<br><span class="muted-text">${escapeHtml(b.address)}</span></td>
         <td>${b.booking_date}<br><span class="muted-text">${b.booking_time}</span></td>
-        <td><strong>${(b.amount_cents / 100).toFixed(2)}${b.currency === 'eur' ? '€' : b.currency}</strong></td>
-        <td>${new Date(b.created_at).toLocaleDateString('es-ES')}</td>
+        <td>${escapeHtml(FREQUENCY_LABEL[b.frequency] || b.frequency)}${b.stripe_subscription_id ? '<br><span class="muted-text">recurring</span>' : ''}</td>
+        <td><strong>${b.currency === 'aud' ? '$' : b.currency}${(b.amount_cents / 100).toFixed(2)}</strong></td>
+        <td>${new Date(b.created_at).toLocaleDateString('en-AU')}</td>
         <td>
           <select class="status-select" data-id="${b.id}">
             ${Object.entries(STATUS_LABEL).map(([value, label]) =>
               `<option value="${value}" ${value === b.status ? 'selected' : ''}>${label}</option>`
             ).join('')}
           </select>
+          ${b.stripe_subscription_id && b.status !== 'cancelled' ? `<button type="button" class="btn btn-ghost btn-sm cancel-sub-btn" data-id="${b.id}">Cancel subscription</button>` : ''}
         </td>
       </tr>
     `).join('');
@@ -72,6 +81,22 @@
     div.textContent = str ?? '';
     return div.innerHTML;
   }
+
+  tbody.addEventListener('click', async e => {
+    const btn = e.target.closest('.cancel-sub-btn');
+    if (!btn) return;
+    if (!confirm('Cancel this recurring subscription? The customer will not be billed again.')) return;
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/admin/bookings/${encodeURIComponent(btn.dataset.id)}/cancel-subscription`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not cancel the subscription');
+      await fetchBookings();
+    } catch (err) {
+      alert('Error cancelling subscription: ' + err.message);
+      btn.disabled = false;
+    }
+  });
 
   tbody.addEventListener('change', async e => {
     const select = e.target.closest('.status-select');
@@ -85,10 +110,10 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
-      if (!res.ok) throw new Error('No se pudo actualizar');
+      if (!res.ok) throw new Error('Update failed');
       await fetchBookings();
     } catch (err) {
-      alert('Error actualizando el estado: ' + err.message);
+      alert('Error updating status: ' + err.message);
       select.disabled = false;
     }
   });

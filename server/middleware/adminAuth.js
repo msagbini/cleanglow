@@ -13,7 +13,7 @@ export function adminAuth(req, res, next) {
   const user = process.env.ADMIN_USER;
   const pass = process.env.ADMIN_PASS;
   if (!user || !pass) {
-    return res.status(503).json({ error: 'Panel de administración no configurado. Define ADMIN_USER y ADMIN_PASS en .env.' });
+    return res.status(503).json({ error: 'Admin panel not configured. Set ADMIN_USER and ADMIN_PASS in .env.' });
   }
 
   const header = req.headers.authorization || '';
@@ -29,5 +29,5 @@ export function adminAuth(req, res, next) {
   }
 
   res.set('WWW-Authenticate', 'Basic realm="Admin"');
-  return res.status(401).send('Autenticación requerida');
+  return res.status(401).send('Authentication required');
 }
