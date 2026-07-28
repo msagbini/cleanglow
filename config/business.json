@@ -1,0 +1,120 @@
+{
+  "business": {
+    "name": "SpotlessExit",
+    "logoEmoji": "🧽",
+    "badgeText": "✔ Garantía de devolución de fianza 100%",
+    "heroTitleHtml": "Limpieza de fin de contrato que <span class=\"accent\">recupera tu fianza</span>, sin estrés.",
+    "heroDescription": "Equipos profesionales, seguro de responsabilidad civil y checklist aprobado por inmobiliarias. Reserva en 3 minutos y obtén tu presupuesto al instante.",
+    "tagline": "Limpieza de fin de contrato con garantía de devolución de fianza",
+    "seoDescription": "Reserva online tu limpieza de fin de contrato con garantía de devolución de fianza. Presupuesto instantáneo, checklist completo y profesionales verificados.",
+    "footerDescription": "Limpieza profesional de fin de contrato con garantía de devolución de fianza.",
+    "phone": "+34900123456",
+    "phoneDisplay": "900 123 456",
+    "email": "hola@spotlessexit.com",
+    "hours": "Lun-Sáb, 8:00-20:00",
+    "serviceAreas": ["Madrid", "Barcelona", "Valencia", "Sevilla"],
+    "social": { "instagram": "#", "facebook": "#", "linkedin": "#" },
+    "currency": "eur",
+    "currencySymbol": "€",
+    "rating": "4.9",
+    "reviewCount": "2.348",
+    "insuranceAmount": "2M€",
+    "recleanWindowHours": 72,
+    "stats": [
+      { "value": "+42.000", "label": "limpiezas realizadas" },
+      { "value": "98,6%", "label": "fianzas recuperadas" },
+      { "value": "24-48h", "label": "disponibilidad media" },
+      { "value": "4.9★", "label": "valoración media" }
+    ]
+  },
+  "theme": {
+    "primary": "#0f7a6b",
+    "primaryDark": "#0a5b4f",
+    "accent": "#ff8a4c"
+  },
+  "booking": {
+    "serviceTypes": [
+      { "value": "apartment", "label": "Piso", "icon": "🏢", "surcharge": 0 },
+      { "value": "house", "label": "Casa", "icon": "🏠", "surcharge": 20 },
+      { "value": "studio", "label": "Estudio", "icon": "🛏️", "surcharge": -10 },
+      { "value": "office", "label": "Oficina", "icon": "🏢", "surcharge": 15 }
+    ],
+    "sizeField": {
+      "label": "Habitaciones",
+      "options": [
+        { "value": "0", "label": "Estudio (0)", "price": 89 },
+        { "value": "1", "label": "1 habitación", "price": 99 },
+        { "value": "2", "label": "2 habitaciones", "price": 129 },
+        { "value": "3", "label": "3 habitaciones", "price": 169 },
+        { "value": "4", "label": "4 habitaciones", "price": 199 },
+        { "value": "5", "label": "5+ habitaciones", "price": 249 }
+      ],
+      "defaultValue": "2"
+    },
+    "secondaryField": {
+      "label": "Baños",
+      "pricePerUnitBeyondFirst": 15,
+      "options": [
+        { "value": "1", "label": "1 baño" },
+        { "value": "2", "label": "2 baños" },
+        { "value": "3", "label": "3 baños" },
+        { "value": "4", "label": "4+ baños" }
+      ],
+      "defaultValue": "1"
+    },
+    "extras": [
+      { "key": "oven", "label": "Horno en profundidad", "icon": "🍳", "price": 25 },
+      { "key": "fridge", "label": "Nevera dentro/fuera", "icon": "🧊", "price": 15 },
+      { "key": "carpet", "label": "Moqueta a vapor", "icon": "🧺", "price": 45 },
+      { "key": "windows", "label": "Cristales interiores", "icon": "🪟", "price": 25 },
+      { "key": "walls", "label": "Manchas en paredes", "icon": "🧱", "price": 20 },
+      { "key": "balcony", "label": "Terraza / balcón", "icon": "🌿", "price": 18 },
+      { "key": "garage", "label": "Garaje / trastero", "icon": "🚗", "price": 22 },
+      { "key": "pest", "label": "Control de plagas", "icon": "🐜", "price": 55 },
+      { "key": "ironing", "label": "Cortinas / persianas", "icon": "🪡", "price": 30 }
+    ],
+    "urgencyOptions": [
+      { "value": "standard", "label": "Estándar (48h+)", "surcharge": 0 },
+      { "value": "next-day", "label": "Mañana", "surcharge": 20 },
+      { "value": "same-day", "label": "Mismo día", "surcharge": 40 }
+    ],
+    "keyAccessOptions": [
+      { "value": "present", "label": "Estaré presente" },
+      { "value": "keybox", "label": "Caja de llaves / código" },
+      { "value": "neighbor", "label": "Recogida con portero/vecino" },
+      { "value": "agent", "label": "Coordinar con agencia inmobiliaria" }
+    ],
+    "timeSlots": [
+      { "value": "08:00", "label": "08:00 - 11:00" },
+      { "value": "11:00", "label": "11:00 - 14:00" },
+      { "value": "14:00", "label": "14:00 - 17:00" },
+      { "value": "17:00", "label": "17:00 - 20:00" }
+    ],
+    "promoCodes": { "BIENVENIDO10": 0.10, "LIMPIEZA5": 0.05 }
+  },
+  "servicesShowcase": [
+    { "icon": "🧹", "title": "Limpieza estándar de salida", "description": "Cocina, baños, habitaciones, salón, suelos, interruptores, rodapiés y puertas. La base de toda entrega de llaves." },
+    { "icon": "🍳", "title": "Cocina en profundidad", "description": "Horno, campana extractora, placa, nevera por dentro/fuera y armarios interiores desengrasados a fondo." },
+    { "icon": "🧺", "title": "Moqueta y tapicería", "description": "Limpieza a vapor de moquetas y sofás para eliminar manchas, olores y ácaros." },
+    { "icon": "🪟", "title": "Cristales y ventanas", "description": "Cristales interiores, marcos y raíles dejados sin marcas ni residuos de silicona." },
+    { "icon": "🧱", "title": "Paredes y garaje", "description": "Limpieza puntual de manchas en paredes, trastero, garaje y terraza o balcón." },
+    { "icon": "🐜", "title": "Control de plagas", "description": "Tratamiento preventivo opcional, ideal para propiedades con historial de plagas." }
+  ],
+  "checklist": {
+    "intro": "Nuestro checklist de +60 puntos está diseñado junto a agencias inmobiliarias para maximizar la devolución de tu fianza. Marca lo que aplica a tu vivienda y lo incluiremos en tu reserva.",
+    "columns": [
+      ["Interior y exterior de armarios", "Rodapiés y marcos de puertas", "Interruptores y enchufes", "Radiadores y rejillas de ventilación", "Fregadero y grifería desincrustada", "Azulejos y juntas de baño"],
+      ["Horno, placa y campana", "Nevera y congelador", "Cristales interiores y raíles", "Suelos aspirados y fregados", "Terraza, balcón o patio", "Retirada de telarañas y polvo en altura"]
+    ],
+    "guarantee": {
+      "title": "🛡️ Garantía de devolución de fianza",
+      "description": "Si tu casero o agencia no queda satisfecho con algún punto del checklist, volvemos a limpiarlo gratis dentro de las siguientes 72 horas. Sin letra pequeña.",
+      "points": ["Equipo asegurado y verificado", "Factura detallada para tu inmobiliaria", "Fotos de antes/después incluidas"]
+    }
+  },
+  "pricingTiers": [
+    { "label": "Estudio / 1 hab.", "priceFrom": 89, "featured": false, "features": ["Limpieza estándar completa", "Cocina y 1 baño", "Suelos y superficies"] },
+    { "label": "2-3 habitaciones", "priceFrom": 129, "featured": true, "features": ["Limpieza estándar completa", "Hasta 2 baños", "Cocina en profundidad opcional"] },
+    { "label": "4+ habitaciones", "priceFrom": 199, "featured": false, "features": ["Limpieza estándar completa", "Hasta 3 baños", "Equipo ampliado"] }
+  ]
+}

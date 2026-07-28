@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { config } from './config.js';
 
 let transporter = null;
 if (process.env.SMTP_HOST) {
@@ -10,31 +11,56 @@ if (process.env.SMTP_HOST) {
   });
 }
 
-export async function notifyPaidBooking(booking) {
-  const subject = `Nueva reserva pagada — ${booking.id}`;
-  const text = [
+function send(mail) {
+  if (!transporter) {
+    console.log(`[email:noop] SMTP no configurado. Para: ${mail.to} — ${mail.subject}\n${mail.text}`);
+    return Promise.resolve();
+  }
+  return transporter.sendMail({
+    from: process.env.EMAIL_FROM || `${config.business.name} <no-reply@example.com>`,
+    ...mail,
+  }).catch(err => console.error('[email] Fallo al enviar:', err.message));
+}
+
+function bookingSummaryLines(booking) {
+  const amount = `${(booking.amount_cents / 100).toFixed(2)}${config.business.currencySymbol}`;
+  return [
     `Referencia: ${booking.id}`,
-    `Cliente: ${booking.full_name} (${booking.email}, ${booking.phone})`,
-    `Dirección: ${booking.address}, ${booking.postcode}`,
-    `Vivienda: ${booking.property_type} · ${booking.bedrooms} hab. · ${booking.bathrooms} baño(s)`,
+    `Servicio: ${booking.property_type} · ${booking.bedrooms} hab. · ${booking.bathrooms} baño(s)`,
     `Extras: ${booking.extras.join(', ') || 'ninguno'}`,
     `Fecha: ${booking.booking_date} · franja ${booking.booking_time} · urgencia: ${booking.urgency}`,
-    `Total cobrado: ${(booking.amount_cents / 100).toFixed(2)}€`,
-  ].join('\n');
+    `Total: ${amount}`,
+  ];
+}
 
-  if (!transporter) {
-    console.log(`[email:noop] SMTP no configurado. ${subject}\n${text}`);
-    return;
-  }
+export async function notifyPaidBooking(booking) {
+  const lines = [
+    `Cliente: ${booking.full_name} (${booking.email}, ${booking.phone})`,
+    `Dirección: ${booking.address}, ${booking.postcode}`,
+    ...bookingSummaryLines(booking),
+  ];
+  await send({
+    to: process.env.NOTIFY_EMAIL_TO || process.env.SMTP_USER,
+    subject: `Nueva reserva pagada — ${booking.id}`,
+    text: lines.join('\n'),
+  });
+}
 
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || 'SpotlessExit <no-reply@spotlessexit.com>',
-      to: process.env.NOTIFY_EMAIL_TO || process.env.SMTP_USER,
-      subject,
-      text,
-    });
-  } catch (err) {
-    console.error('[email] Fallo al enviar notificación de reserva:', err.message);
-  }
+export async function sendCustomerConfirmation(booking) {
+  const lines = [
+    `Hola ${booking.full_name},`,
+    '',
+    `Tu reserva con ${config.business.name} ha sido confirmada y el pago procesado correctamente.`,
+    '',
+    ...bookingSummaryLines(booking),
+    '',
+    `Nos pondremos en contacto contigo para coordinar el acceso a ${booking.address}.`,
+    '',
+    `— ${config.business.name}`,
+  ];
+  await send({
+    to: booking.email,
+    subject: `Reserva confirmada — ${booking.id}`,
+    text: lines.join('\n'),
+  });
 }

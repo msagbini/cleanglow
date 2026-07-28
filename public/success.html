@@ -3,18 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reserva confirmada | SpotlessExit</title>
+<title>Reserva confirmada</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧽</text></svg>">
 <link rel="stylesheet" href="css/styles.css">
-<style>
-  .result-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--color-bg-alt); }
-  .result-card { background: #fff; border-radius: var(--radius-lg); padding: 44px; max-width: 480px; width: 100%; text-align: center; box-shadow: var(--shadow-lg); border: 1px solid var(--color-border); }
-  .result-icon { font-size: 3rem; margin-bottom: 10px; }
-  .result-summary { background: var(--color-bg-alt); border-radius: var(--radius-sm); padding: 18px; text-align: left; font-size: .9rem; margin: 20px 0; line-height: 1.7; }
-  .result-ref { font-size: .85rem; color: var(--color-muted); margin-bottom: 22px; }
-  .spinner { width: 34px; height: 34px; border: 3px solid var(--color-border); border-top-color: var(--color-primary); border-radius: 50%; margin: 0 auto 16px; animation: spin .8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
+<link rel="stylesheet" href="css/success.css">
 </head>
 <body>
 <div class="result-page">
@@ -25,62 +17,6 @@
   </div>
 </div>
 
-<script>
-(async () => {
-  const card = document.getElementById('resultCard');
-  const params = new URLSearchParams(window.location.search);
-  const sessionId = params.get('session_id');
-
-  function render(html) { card.innerHTML = html; }
-
-  function renderError(message) {
-    render(`
-      <div class="result-icon">⚠️</div>
-      <h3>No pudimos confirmar el pago</h3>
-      <p>${message}</p>
-      <a class="btn btn-primary" href="/index.html#booking">Volver a intentar</a>
-    `);
-  }
-
-  if (!sessionId) {
-    renderError('Falta la referencia de la sesión de pago. Si acabas de pagar, revisa tu email de confirmación.');
-    return;
-  }
-
-  try {
-    const res = await fetch(`/api/checkout-session/${encodeURIComponent(sessionId)}/confirm`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error al verificar el pago');
-
-    const propertyLabel = { apartment: 'Piso', house: 'Casa', studio: 'Estudio', office: 'Oficina' }[data.propertyType] || data.propertyType;
-    const bedroomLabel = data.bedrooms === '0' ? 'Estudio' : `${data.bedrooms} hab.`;
-
-    if (data.paymentStatus === 'paid') {
-      render(`
-        <div class="result-icon">✅</div>
-        <h3>¡Reserva confirmada y pagada!</h3>
-        <p>Hemos enviado los detalles a <strong>${data.email}</strong>. Te contactaremos para confirmar el acceso a la vivienda.</p>
-        <div class="result-summary">
-          <div>${propertyLabel} · ${bedroomLabel} · ${data.bathrooms} baño(s)</div>
-          <div>${data.bookingDate} · franja ${data.bookingTime}</div>
-          <div><strong>Total pagado: ${data.amount.toFixed(2)}€</strong></div>
-        </div>
-        <p class="result-ref">Referencia de reserva: <strong>${data.id}</strong></p>
-        <a class="btn btn-primary" href="/index.html">Volver al inicio</a>
-      `);
-    } else {
-      render(`
-        <div class="result-icon">⏳</div>
-        <h3>Tu pago se está procesando</h3>
-        <p>Esto puede tardar unos segundos. Te avisaremos por email en cuanto se confirme.</p>
-        <p class="result-ref">Referencia de reserva: <strong>${data.id}</strong></p>
-        <a class="btn btn-ghost" href="/index.html">Volver al inicio</a>
-      `);
-    }
-  } catch (err) {
-    renderError(err.message);
-  }
-})();
-</script>
+<script src="js/success.js"></script>
 </body>
 </html>

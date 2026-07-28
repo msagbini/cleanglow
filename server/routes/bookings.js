@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { insertBooking, getBooking } from '../db.js';
-import { computeAmountCents, EXTRA_PRICES } from '../pricing.js';
+import { computeAmountCents, isValidExtraKey } from '../config.js';
 
 const router = Router();
 
@@ -21,7 +21,7 @@ router.post('/', (req, res) => {
   if (!EMAIL_RE.test(body.email)) {
     return res.status(400).json({ error: 'Email inválido' });
   }
-  const extras = Array.isArray(body.extras) ? body.extras.filter(key => key in EXTRA_PRICES) : [];
+  const extras = Array.isArray(body.extras) ? body.extras.filter(isValidExtraKey) : [];
   const bookingDateOnly = new Date(`${body.bookingDate}T00:00:00`);
   if (Number.isNaN(bookingDateOnly.getTime())) {
     return res.status(400).json({ error: 'Fecha de reserva inválida' });

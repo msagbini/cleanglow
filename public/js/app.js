@@ -1,19 +1,10 @@
 (() => {
   'use strict';
 
-  /* ============ Pricing config ============ */
-  // Mirrors server/pricing.js — used here only for instant on-screen estimates.
-  // The server recomputes the real charge from the raw selections, so this
-  // copy drifting out of sync would produce a wrong *estimate*, not a wrong charge.
-  const BASE_PRICE_BY_BEDROOMS = { '0': 89, '1': 99, '2': 129, '3': 169, '4': 199, '5': 249 };
-  const BATHROOM_EXTRA = 15; // per bathroom beyond the first
-  const PROPERTY_TYPE_LABEL = { apartment: 'Piso', house: 'Casa', studio: 'Estudio', office: 'Oficina' };
-  const PROPERTY_TYPE_SURCHARGE = { apartment: 0, house: 20, studio: -10, office: 15 };
-  const PROMO_CODES = { BIENVENIDO10: 0.10, LIMPIEZA5: 0.05 };
-
   const state = {
-    propertyType: 'apartment',
-    urgency: 'standard',
+    config: null,
+    propertyType: null,
+    urgency: null,
     urgencySurcharge: 0,
     currentStep: 1,
     promoDiscount: 0,
@@ -26,27 +17,6 @@
   const btnNext = document.getElementById('btnNext');
   const btnSubmit = document.getElementById('btnSubmit');
 
-  /* ============ Pill groups (property type & urgency) ============ */
-  document.querySelectorAll('.pill-group').forEach(group => {
-    const name = group.dataset.name;
-    group.addEventListener('click', e => {
-      const btn = e.target.closest('.pill');
-      if (!btn) return;
-      group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      if (name === 'propertyType') {
-        state.propertyType = btn.dataset.value;
-      } else if (name === 'urgency') {
-        state.urgency = btn.dataset.value;
-        state.urgencySurcharge = Number(btn.dataset.surcharge || 0);
-      }
-      updatePriceSummary();
-    });
-  });
-  // set default active pill
-  document.querySelector('.pill-group[data-name="propertyType"] .pill[data-value="apartment"]').classList.add('active');
-
-  /* ============ Live price calculation ============ */
   const els = {
     bedrooms: document.getElementById('bedrooms'),
     bathrooms: document.getElementById('bathrooms'),
@@ -59,54 +29,236 @@
     promoCode: document.getElementById('promoCode'),
   };
 
+  /* ============ Rendering from /api/config ============ */
+  function applyTheme(theme) {
+    const root = document.documentElement.style;
+    root.setProperty('--color-primary', theme.primary);
+    root.setProperty('--color-primary-dark', theme.primaryDark);
+    root.setProperty('--color-accent', theme.accent);
+  }
+
+  function renderBranding(cfg) {
+    const { business } = cfg;
+    document.title = `${business.name} | Reserva tu servicio online`;
+
+    document.getElementById('logoMark').textContent = business.logoEmoji;
+    document.getElementById('logoText').textContent = business.name;
+    document.getElementById('footerLogoMark').textContent = business.logoEmoji;
+    document.getElementById('footerLogoText').textContent = business.name;
+
+    const telHref = `tel:${business.phone}`;
+    const headerPhone = document.getElementById('headerPhoneLink');
+    headerPhone.href = telHref;
+    headerPhone.textContent = `📞 ${business.phoneDisplay}`;
+    const footerPhone = document.getElementById('footerPhoneLink');
+    footerPhone.href = telHref;
+    footerPhone.textContent = `📞 ${business.phoneDisplay}`;
+
+    const mailHref = `mailto:${business.email}`;
+    const footerEmail = document.getElementById('footerEmailLink');
+    footerEmail.href = mailHref;
+    footerEmail.textContent = `✉️ ${business.email}`;
+
+    document.getElementById('footerHours').textContent = `🕐 ${business.hours}`;
+    document.getElementById('footerDescription').textContent = business.footerDescription;
+    document.getElementById('footerCopyright').textContent = `© ${new Date().getFullYear()} ${business.name}. Todos los derechos reservados.`;
+    document.getElementById('recleanWindowHours').textContent = business.recleanWindowHours;
+
+    const areasCol = document.getElementById('footerServiceAreas');
+    business.serviceAreas.forEach(area => {
+      const a = document.createElement('a');
+      a.href = '#booking';
+      a.textContent = area;
+      areasCol.appendChild(a);
+    });
+
+    const socialWrap = document.getElementById('footerSocial');
+    const socialLabels = { instagram: 'IG', facebook: 'FB', linkedin: 'IN' };
+    Object.entries(business.social).forEach(([key, url]) => {
+      const a = document.createElement('a');
+      a.href = url;
+      a.setAttribute('aria-label', key);
+      a.textContent = socialLabels[key] || key.slice(0, 2).toUpperCase();
+      socialWrap.appendChild(a);
+    });
+  }
+
+  function renderHero(cfg) {
+    const { business, booking } = cfg;
+    document.getElementById('heroBadge').textContent = business.badgeText;
+    document.getElementById('heroTitle').innerHTML = business.heroTitleHtml;
+    document.getElementById('heroDescription').textContent = business.heroDescription;
+
+    document.getElementById('heroTrust').innerHTML = `
+      <li>⭐ ${business.rating}/5 (${business.reviewCount} reseñas)</li>
+      <li>🛡️ Asegurados hasta ${business.insuranceAmount}</li>
+      <li>♻️ Re-limpieza gratuita en ${business.recleanWindowHours}h</li>
+    `;
+
+    const sampleSize = booking.sizeField.options[Math.min(2, booking.sizeField.options.length - 1)];
+    const sampleExtras = booking.extras.slice(0, 2);
+    const sampleType = booking.serviceTypes[0];
+    const total = sampleSize.price + sampleType.surcharge + sampleExtras.reduce((s, e) => s + e.price, 0);
+    document.getElementById('heroCardRows').innerHTML = `
+      <div class="hero-card-row"><span>${sampleType.icon} ${sampleType.label} ${sampleSize.label}</span><span>desde ${sampleSize.price}${business.currencySymbol}</span></div>
+      ${sampleExtras.map(e => `<div class="hero-card-row"><span>${e.icon} ${e.label}</span><span>+ ${e.price}${business.currencySymbol}</span></div>`).join('')}
+      <div class="hero-card-row hero-card-total"><span>Total estimado</span><span>${total}${business.currencySymbol}</span></div>
+    `;
+  }
+
+  function renderTrustStrip(cfg) {
+    document.getElementById('trustStrip').innerHTML = cfg.business.stats
+      .map(s => `<div><strong>${s.value}</strong><span>${s.label}</span></div>`).join('');
+  }
+
+  function renderServices(cfg) {
+    document.getElementById('servicesGrid').innerHTML = cfg.servicesShowcase.map(s => `
+      <article class="service-card">
+        <div class="service-icon">${s.icon}</div>
+        <h3>${s.title}</h3>
+        <p>${s.description}</p>
+      </article>
+    `).join('');
+  }
+
+  function renderChecklist(cfg) {
+    const { checklist } = cfg;
+    document.getElementById('checklistIntro').textContent = checklist.intro;
+    document.getElementById('checklistColumns').innerHTML = checklist.columns.map(col => `
+      <ul class="checklist">${col.map(item => `<li>✔ ${item}</li>`).join('')}</ul>
+    `).join('');
+    document.getElementById('guaranteeCard').innerHTML = `
+      <h3>${checklist.guarantee.title}</h3>
+      <p>${checklist.guarantee.description}</p>
+      <ul>${checklist.guarantee.points.map(p => `<li>✅ ${p}</li>`).join('')}</ul>
+    `;
+  }
+
+  function renderPricingTiers(cfg) {
+    document.getElementById('pricingGrid').innerHTML = cfg.pricingTiers.map(tier => `
+      <div class="price-card ${tier.featured ? 'featured' : ''}">
+        ${tier.featured ? '<span class="price-tag">Más reservado</span>' : ''}
+        <h3>${tier.label}</h3>
+        <p class="price">desde ${tier.priceFrom}${cfg.business.currencySymbol}</p>
+        <ul>${tier.features.map(f => `<li>${f}</li>`).join('')}</ul>
+      </div>
+    `).join('');
+  }
+
+  function renderBookingWizard(cfg) {
+    const { booking } = cfg;
+
+    document.getElementById('propertyTypePills').innerHTML = booking.serviceTypes.map((t, i) => `
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${t.value}">${t.icon} ${t.label}</button>
+    `).join('');
+    state.propertyType = booking.serviceTypes[0].value;
+
+    document.getElementById('sizeFieldLabel').textContent = booking.sizeField.label;
+    els.bedrooms.innerHTML = booking.sizeField.options.map(o =>
+      `<option value="${o.value}" ${o.value === booking.sizeField.defaultValue ? 'selected' : ''}>${o.label}</option>`
+    ).join('');
+
+    document.getElementById('secondaryFieldLabel').textContent = booking.secondaryField.label;
+    els.bathrooms.innerHTML = booking.secondaryField.options.map(o =>
+      `<option value="${o.value}" ${o.value === booking.secondaryField.defaultValue ? 'selected' : ''}>${o.label}</option>`
+    ).join('');
+
+    document.getElementById('extrasGrid').innerHTML = booking.extras.map(e => `
+      <label class="extra-card">
+        <input type="checkbox" name="extras" value="${e.key}" data-price="${e.price}" data-label="${e.label}">
+        <span class="extra-icon">${e.icon}</span>
+        <span class="extra-name">${e.label}</span>
+        <span class="extra-price">+${e.price}${cfg.business.currencySymbol}</span>
+      </label>
+    `).join('');
+
+    document.getElementById('keyAccess').innerHTML = booking.keyAccessOptions
+      .map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+
+    document.getElementById('bookingTime').innerHTML = booking.timeSlots
+      .map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+
+    document.getElementById('urgencyPills').innerHTML = booking.urgencyOptions.map((u, i) => `
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${u.value}" data-surcharge="${u.surcharge}">${u.label}${u.surcharge ? ` (+${u.surcharge}${cfg.business.currencySymbol})` : ''}</button>
+    `).join('');
+    state.urgency = booking.urgencyOptions[0].value;
+    state.urgencySurcharge = booking.urgencyOptions[0].surcharge;
+  }
+
+  function bindPillGroups() {
+    document.querySelectorAll('.pill-group').forEach(group => {
+      const name = group.dataset.name;
+      group.addEventListener('click', e => {
+        const btn = e.target.closest('.pill');
+        if (!btn) return;
+        group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        if (name === 'propertyType') {
+          state.propertyType = btn.dataset.value;
+        } else if (name === 'urgency') {
+          state.urgency = btn.dataset.value;
+          state.urgencySurcharge = Number(btn.dataset.surcharge || 0);
+        }
+        updatePriceSummary();
+      });
+    });
+  }
+
+  function renderLegalContent(cfg) {
+    const { business } = cfg;
+    legalContent.terms.body = `<p>Al reservar un servicio con ${business.name} aceptas las siguientes condiciones:</p>
+      <h4>1. Reservas y pagos</h4><p>El precio mostrado es una estimación basada en los datos proporcionados. El importe final se confirma tras la inspección inicial del equipo.</p>
+      <h4>2. Cancelaciones</h4><p>Puedes cancelar o reprogramar gratuitamente hasta 24 horas antes de la cita. Cancelaciones posteriores pueden conllevar un cargo del 20%.</p>
+      <h4>3. Garantía de re-limpieza</h4><p>Ofrecemos una re-limpieza gratuita dentro de las ${business.recleanWindowHours} horas si algún punto del checklist acordado no queda satisfactorio.</p>
+      <h4>4. Acceso a la vivienda</h4><p>El cliente es responsable de proporcionar un método de acceso válido en la franja horaria reservada.</p>`;
+    legalContent.privacy.body = `<p>Tus datos personales se utilizan únicamente para gestionar tu reserva y comunicarnos contigo sobre el servicio.</p>
+      <h4>Datos que recopilamos</h4><p>Nombre, email, teléfono y dirección de la vivienda a limpiar.</p>
+      <h4>Uso de los datos</h4><p>No compartimos tus datos con terceros salvo con el equipo asignado a tu servicio.</p>
+      <h4>Tus derechos</h4><p>Puedes solicitar acceso, rectificación o eliminación de tus datos escribiendo a ${business.email}.</p>`;
+  }
+
+  /* ============ Live price calculation ============ */
   function calcPrice() {
-    const bedrooms = els.bedrooms.value;
-    const bathrooms = Number(els.bathrooms.value);
-    let base = BASE_PRICE_BY_BEDROOMS[bedrooms] ?? 129;
-    base += PROPERTY_TYPE_SURCHARGE[state.propertyType] ?? 0;
-    base += Math.max(0, bathrooms - 1) * BATHROOM_EXTRA;
+    const { booking, business } = state.config;
+    const sizeOption = booking.sizeField.options.find(o => o.value === els.bedrooms.value) || booking.sizeField.options[0];
+    const secondaryValue = Number(els.bathrooms.value);
+    const serviceType = booking.serviceTypes.find(t => t.value === state.propertyType) || booking.serviceTypes[0];
+
+    let base = sizeOption.price + serviceType.surcharge;
+    base += Math.max(0, secondaryValue - 1) * booking.secondaryField.pricePerUnitBeyondFirst;
 
     const extrasChecked = Array.from(document.querySelectorAll('input[name="extras"]:checked'));
     const extrasTotal = extrasChecked.reduce((sum, el) => sum + Number(el.dataset.price), 0);
 
-    let subtotal = base + extrasTotal + state.urgencySurcharge;
+    const subtotal = base + extrasTotal + state.urgencySurcharge;
     const discount = subtotal * state.promoDiscount;
     const total = Math.max(0, subtotal - discount);
 
-    return { base, bathrooms, bedrooms, extrasChecked, extrasTotal, discount, total };
+    return { base, sizeOption, secondaryValue, serviceType, extrasChecked, extrasTotal, discount, total, currencySymbol: business.currencySymbol };
   }
 
   function updatePriceSummary() {
-    const { base, bedrooms, bathrooms, extrasChecked, total } = calcPrice();
-    const bedroomLabel = bedrooms === '0' ? 'Estudio' : `${bedrooms} hab.`;
-    els.sumPropertyLabel.textContent = `${PROPERTY_TYPE_LABEL[state.propertyType]} · ${bedroomLabel} · ${bathrooms} baño${bathrooms > 1 ? 's' : ''}`;
-    els.sumBase.textContent = `${base}€`;
+    const { base, sizeOption, secondaryValue, serviceType, extrasChecked, total, currencySymbol } = calcPrice();
+    const secondaryOption = state.config.booking.secondaryField.options.find(o => Number(o.value) === secondaryValue);
+    els.sumPropertyLabel.textContent = `${serviceType.label} · ${sizeOption.label} · ${secondaryOption ? secondaryOption.label : secondaryValue}`;
+    els.sumBase.textContent = `${base}${currencySymbol}`;
 
     els.sumExtrasList.innerHTML = '';
     extrasChecked.forEach(el => {
       const li = document.createElement('li');
-      li.innerHTML = `<span>${el.dataset.label}</span><span>+${el.dataset.price}€</span>`;
+      li.innerHTML = `<span>${el.dataset.label}</span><span>+${el.dataset.price}${currencySymbol}</span>`;
       els.sumExtrasList.appendChild(li);
     });
 
     if (state.urgencySurcharge > 0) {
       els.sumUrgencyLine.hidden = false;
-      els.sumUrgency.textContent = `+${state.urgencySurcharge}€`;
+      els.sumUrgency.textContent = `+${state.urgencySurcharge}${currencySymbol}`;
     } else {
       els.sumUrgencyLine.hidden = true;
     }
 
-    els.sumTotal.textContent = `${total.toFixed(0)}€`;
+    els.sumTotal.textContent = `${total.toFixed(0)}${currencySymbol}`;
   }
-
-  [els.bedrooms, els.bathrooms].forEach(el => el.addEventListener('change', updatePriceSummary));
-  document.getElementById('extrasGrid').addEventListener('change', updatePriceSummary);
-
-  els.promoCode.addEventListener('input', () => {
-    const code = els.promoCode.value.trim().toUpperCase();
-    state.promoDiscount = PROMO_CODES[code] || 0;
-    updatePriceSummary();
-  });
 
   /* ============ Wizard navigation ============ */
   function showStep(n, scroll = true) {
@@ -157,7 +309,7 @@
       const dateVal = document.getElementById('bookingDate').value;
       if (!dateVal) {
         document.getElementById('bookingDate').focus();
-        showToast('Selecciona una fecha para tu limpieza');
+        showToast('Selecciona una fecha para tu servicio');
         return false;
       }
       const chosen = new Date(dateVal + 'T00:00:00');
@@ -171,28 +323,12 @@
     return true;
   }
 
-  btnNext.addEventListener('click', () => {
-    if (!validateStep(state.currentStep)) return;
-    if (state.currentStep < steps.length) showStep(state.currentStep + 1);
-  });
-
-  btnBack.addEventListener('click', () => {
-    if (state.currentStep > 1) showStep(state.currentStep - 1);
-  });
-
-  // set min date to today
-  const dateInput = document.getElementById('bookingDate');
-  const todayISO = new Date().toISOString().split('T')[0];
-  dateInput.min = todayISO;
-
   /* ============ Review step ============ */
   function buildReview() {
-    const { base, bedrooms, bathrooms, extrasChecked, total, discount } = calcPrice();
-    const bedroomLabel = bedrooms === '0' ? 'Estudio' : `${bedrooms} habitaciones`;
-    const extrasLabel = extrasChecked.length
-      ? extrasChecked.map(el => el.dataset.label).join(', ')
-      : 'Ninguno';
-    const urgencyLabelMap = { standard: 'Estándar (48h+)', 'next-day': 'Mañana', 'same-day': 'Mismo día' };
+    const { sizeOption, secondaryValue, serviceType, extrasChecked, total, discount, currencySymbol } = calcPrice();
+    const secondaryOption = state.config.booking.secondaryField.options.find(o => Number(o.value) === secondaryValue);
+    const extrasLabel = extrasChecked.length ? extrasChecked.map(el => el.dataset.label).join(', ') : 'Ninguno';
+    const urgencyOption = state.config.booking.urgencyOptions.find(u => u.value === state.urgency);
 
     const dateVal = document.getElementById('bookingDate').value;
     const timeVal = document.getElementById('bookingTime').value;
@@ -208,7 +344,7 @@
       <div class="review-section">
         <button type="button" class="review-edit" data-goto="1">Editar</button>
         <h4>Vivienda</h4>
-        <p>${PROPERTY_TYPE_LABEL[state.propertyType]} · ${bedroomLabel} · ${bathrooms} baño${bathrooms > 1 ? 's' : ''}</p>
+        <p>${serviceType.label} · ${sizeOption.label} · ${secondaryOption ? secondaryOption.label : ''}</p>
       </div>
       <div class="review-section">
         <button type="button" class="review-edit" data-goto="2">Editar</button>
@@ -218,7 +354,7 @@
       <div class="review-section">
         <button type="button" class="review-edit" data-goto="3">Editar</button>
         <h4>Fecha y hora</h4>
-        <p>${dateFormatted} · franja ${timeVal} · urgencia: ${urgencyLabelMap[state.urgency]}</p>
+        <p>${dateFormatted} · franja ${timeVal} · urgencia: ${urgencyOption ? urgencyOption.label : state.urgency}</p>
       </div>
       <div class="review-section">
         <button type="button" class="review-edit" data-goto="4">Editar</button>
@@ -227,7 +363,7 @@
       </div>
       <div class="review-section">
         <h4>Total a pagar</h4>
-        <p style="font-size:1.3rem;font-weight:800;color:var(--color-primary-dark)">${total.toFixed(0)}€ ${discount > 0 ? `<span style="font-size:.8rem;color:var(--color-success);font-weight:600">(descuento aplicado)</span>` : ''}</p>
+        <p class="review-total-price">${total.toFixed(0)}${currencySymbol} ${discount > 0 ? `<span class="review-discount-tag">(descuento aplicado)</span>` : ''}</p>
       </div>
     `;
 
@@ -325,21 +461,8 @@
   });
 
   const legalContent = {
-    terms: {
-      title: 'Términos y condiciones',
-      body: `<p>Al reservar un servicio con SpotlessExit aceptas las siguientes condiciones:</p>
-        <h4>1. Reservas y pagos</h4><p>El precio mostrado es una estimación basada en los datos proporcionados. El importe final se confirma tras la inspección inicial del equipo.</p>
-        <h4>2. Cancelaciones</h4><p>Puedes cancelar o reprogramar gratuitamente hasta 24 horas antes de la cita. Cancelaciones posteriores pueden conllevar un cargo del 20%.</p>
-        <h4>3. Garantía de re-limpieza</h4><p>Ofrecemos una re-limpieza gratuita dentro de las 72 horas si algún punto del checklist acordado no queda satisfactorio.</p>
-        <h4>4. Acceso a la vivienda</h4><p>El cliente es responsable de proporcionar un método de acceso válido en la franja horaria reservada.</p>`
-    },
-    privacy: {
-      title: 'Política de privacidad',
-      body: `<p>Tus datos personales se utilizan únicamente para gestionar tu reserva y comunicarnos contigo sobre el servicio.</p>
-        <h4>Datos que recopilamos</h4><p>Nombre, email, teléfono y dirección de la vivienda a limpiar.</p>
-        <h4>Uso de los datos</h4><p>No compartimos tus datos con terceros salvo con el equipo de limpieza asignado a tu servicio.</p>
-        <h4>Tus derechos</h4><p>Puedes solicitar acceso, rectificación o eliminación de tus datos escribiendo a hola@spotlessexit.com.</p>`
-    }
+    terms: { title: 'Términos y condiciones', body: '' },
+    privacy: { title: 'Política de privacidad', body: '' },
   };
   document.querySelectorAll('[data-modal]').forEach(link => {
     link.addEventListener('click', e => {
@@ -387,6 +510,48 @@
   backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
   /* ============ Init ============ */
-  updatePriceSummary();
-  showStep(1, false);
+  async function init() {
+    const res = await fetch('/api/config');
+    const cfg = await res.json();
+    state.config = cfg;
+
+    applyTheme(cfg.theme);
+    renderBranding(cfg);
+    renderHero(cfg);
+    renderTrustStrip(cfg);
+    renderServices(cfg);
+    renderChecklist(cfg);
+    renderPricingTiers(cfg);
+    renderBookingWizard(cfg);
+    renderLegalContent(cfg);
+    bindPillGroups();
+
+    els.bedrooms.addEventListener('change', updatePriceSummary);
+    els.bathrooms.addEventListener('change', updatePriceSummary);
+    document.getElementById('extrasGrid').addEventListener('change', updatePriceSummary);
+    els.promoCode.addEventListener('input', () => {
+      const code = els.promoCode.value.trim().toUpperCase();
+      state.promoDiscount = cfg.booking.promoCodes[code] || 0;
+      updatePriceSummary();
+    });
+
+    const dateInput = document.getElementById('bookingDate');
+    dateInput.min = new Date().toISOString().split('T')[0];
+
+    btnNext.addEventListener('click', () => {
+      if (!validateStep(state.currentStep)) return;
+      if (state.currentStep < steps.length) showStep(state.currentStep + 1);
+    });
+    btnBack.addEventListener('click', () => {
+      if (state.currentStep > 1) showStep(state.currentStep - 1);
+    });
+
+    updatePriceSummary();
+    showStep(1, false);
+  }
+
+  init().catch(err => {
+    console.error('No se pudo cargar la configuración del sitio:', err);
+    showToast('No se pudo cargar el sitio. Recarga la página.');
+  });
 })();

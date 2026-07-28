@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import {
   getBooking, getBookingBySessionId, attachStripeSession, markBookingStatus, markNotified,
 } from '../db.js';
-import { notifyPaidBooking } from '../email.js';
+import { notifyPaidBooking, sendCustomerConfirmation } from '../email.js';
 import { publicView } from './bookings.js';
 
 const router = Router();
@@ -17,7 +17,7 @@ async function markPaidOnce(booking) {
   if (booking.status === 'paid') return booking;
   const paid = markBookingStatus(booking.id, 'paid');
   if (!paid.notified_at) {
-    await notifyPaidBooking(paid);
+    await Promise.all([notifyPaidBooking(paid), sendCustomerConfirmation(paid)]);
     markNotified(paid.id);
   }
   return paid;

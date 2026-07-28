@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { config } from './config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, 'data');
@@ -64,7 +65,7 @@ export function insertBooking(fields, amountCents) {
     fields.furnished ?? null, fields.notesProperty ?? null, JSON.stringify(fields.extras ?? []),
     fields.keyAccess ?? null, fields.bookingDate, fields.bookingTime, fields.urgency,
     fields.fullName, fields.email, fields.phone, fields.address, fields.postcode,
-    fields.promoCode ?? null, amountCents, 'eur'
+    fields.promoCode ?? null, amountCents, config.business.currency
   );
   return getBooking(id);
 }
@@ -91,6 +92,29 @@ export function markBookingStatus(id, status) {
 
 export function markNotified(id) {
   db.prepare(`UPDATE bookings SET notified_at = datetime('now') WHERE id = ?`).run(id);
+}
+
+const VALID_STATUSES = ['pending_payment', 'paid', 'completed', 'cancelled', 'expired'];
+
+export function listBookings({ status, limit = 200 } = {}) {
+  let query = 'SELECT * FROM bookings';
+  const params = [];
+  if (status && VALID_STATUSES.includes(status)) {
+    query += ' WHERE status = ?';
+    params.push(status);
+  }
+  query += ' ORDER BY created_at DESC LIMIT ?';
+  params.push(limit);
+  return db.prepare(query).all(...params).map(deserialize);
+}
+
+export function countBookingsByStatus() {
+  const rows = db.prepare('SELECT status, COUNT(*) as count FROM bookings GROUP BY status').all();
+  return Object.fromEntries(rows.map(r => [r.status, r.count]));
+}
+
+export function isValidStatus(status) {
+  return VALID_STATUSES.includes(status);
 }
 
 function deserialize(row) {
