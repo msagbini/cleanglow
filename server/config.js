@@ -97,7 +97,7 @@ export function isValidExtraKey(key) {
 }
 
 // Extras are a flat array of keys, one entry per unit (e.g. 3 curtains ==
-// the key "ironing" repeated 3 times) — this caps how many times a single
+// the key "curtains" repeated 3 times) — this caps how many times a single
 // key may repeat, so a bad payload can't inflate a line indefinitely.
 export function isValidExtraQuantity(key, count) {
   return count <= (extraMaxQuantityByKey[key] ?? 1);

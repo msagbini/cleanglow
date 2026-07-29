@@ -13,6 +13,16 @@
   };
   const MAX_PHOTOS = 8;
 
+  // "168 hours" reads oddly next to marketing copy that says "7 days" —
+  // shows whole-day windows as days, anything smaller as hours.
+  function formatWindow(hours) {
+    if (hours >= 24 && hours % 24 === 0) {
+      const days = hours / 24;
+      return `${days} day${days === 1 ? '' : 's'}`;
+    }
+    return `${hours} hours`;
+  }
+
   function getOrdinalSuffix(n) {
     const s = ['th', 'st', 'nd', 'rd'];
     const v = n % 100;
@@ -97,7 +107,8 @@
     document.getElementById('footerDescription').textContent = business.footerDescription;
     const abnSuffix = business.abn ? ` · ABN ${business.abn}` : '';
     document.getElementById('footerCopyright').textContent = `© ${new Date().getFullYear()} ${business.name}. All rights reserved.${abnSuffix}`;
-    document.getElementById('recleanWindowHours').textContent = business.recleanWindowHours;
+    document.getElementById('recleanWindowHours').textContent = formatWindow(business.recleanWindowHours);
+    document.getElementById('faqRecleanWindowHours').textContent = formatWindow(business.recleanWindowHours);
 
     const areasCol = document.getElementById('footerServiceAreas');
     business.serviceAreas.forEach(area => {
@@ -312,11 +323,11 @@
       <h4>3. Bond-Back & Re-clean Guarantee</h4>
       <p><strong>What we guarantee:</strong> if your property manager or landlord flags an item from your <em>agreed checklist</em> that wasn't completed to a professional standard, we will re-clean that item at no charge — as many times as it takes to meet the standard — provided:</p>
       <ul>
-        <li>it is reported to us in writing (email, or a note on your property condition/exit report) within ${business.recleanWindowHours} hours of the clean; and</li>
+        <li>it is reported to us in writing (email, or a note on your property condition/exit report) within ${formatWindow(business.recleanWindowHours)} of the clean; and</li>
         <li>you or your property manager give our team reasonable access to carry out the re-clean.</li>
       </ul>
       <p><strong>What "100% bond-back guarantee" means — and doesn't mean:</strong> it describes our commitment to re-clean checklist items until they meet a professional standard. It is <strong>not</strong> a guarantee of the bond amount itself. Whether your bond is returned in full is a decision made by your landlord, property manager, or (if disputed) the relevant tenancy authority, based on factors outside our control — for example property damage, unpaid rent, garden/lawn condition, or missing items.</p>
-      <p><strong>What isn't covered:</strong> pre-existing damage, fair wear and tear, mould, odours or staining caused by conditions that existed before our service, items outside the checklist agreed at booking, and re-clean requests made after the ${business.recleanWindowHours}-hour reporting window or where access wasn't provided.</p>
+      <p><strong>What isn't covered:</strong> pre-existing damage, fair wear and tear, mould, odours or staining caused by conditions that existed before our service, items outside the checklist agreed at booking, and re-clean requests made after the ${formatWindow(business.recleanWindowHours)} reporting window or where access wasn't provided.</p>
       <h4>4. Property access</h4><p>The customer is responsible for providing a valid access method for the booked time slot, and for the re-clean visit described above if one is requested.</p>
       <h4>5. Recurring plans and early cancellation</h4><p>Weekly, fortnightly and monthly plans are billed automatically at a discounted rate that reflects the ongoing, repeat nature of the service. If a recurring plan is cancelled before the minimum of ${state.config.booking.earlyCancellationMinCycles ?? 3} cleans has been completed, a one-off early-cancellation fee equal to one visit at the discounted rate applies, charged to the card on file, to recover the discount given on the assumption of ongoing business. This fee does not apply once the minimum number of cleans has been completed — the plan can then be cancelled at any time with no fee.</p>`;
     legalContent.privacy.body = `<p>Your personal data is used only to manage your booking and communicate with you about the service.</p>
@@ -678,7 +689,7 @@
     e.preventDefault();
     if (!validateStep(4)) return;
 
-    // Flat array with one entry per unit (e.g. 3 curtains -> "ironing" repeated
+    // Flat array with one entry per unit (e.g. 3 curtains -> "curtains" repeated
     // 3 times) — this is what server/config.js expects and how it prices them.
     const extras = getExtraLines().flatMap(line => Array(line.quantity).fill(line.key));
     const payload = {
