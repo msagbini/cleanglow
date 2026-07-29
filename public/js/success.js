@@ -5,6 +5,12 @@
 
   function render(html) { card.innerHTML = html; }
 
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
   function renderError(message) {
     render(`
       <div class="result-icon">⚠️</div>
@@ -44,7 +50,7 @@
       render(`
         <div class="result-icon">✅</div>
         <h3>${isRecurring ? 'Your recurring clean is now active!' : 'Booking confirmed and paid!'}</h3>
-        <p>We've sent the details to <strong>${data.email}</strong>. We'll be in touch to confirm access.</p>
+        <p>We've sent the details to <strong>${escapeHtml(data.email)}</strong>. We'll be in touch to confirm access.</p>
         <div class="result-summary">
           <div>${propertyLabel} · ${sizeLabel} · ${data.bathrooms} bathroom(s)</div>
           <div>${data.bookingDate} · ${data.bookingTime} slot</div>

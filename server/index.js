@@ -43,14 +43,18 @@ app.use(express.json());
 // hammering the Stripe API) — keep it tighter than general API traffic.
 const writeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false });
 const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+// The admin panel guards every booking/customer record behind one password —
+// a much tighter limit than general API traffic makes credential brute-forcing
+// impractical, independent of whatever the password strength turns out to be.
+const adminLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false });
 app.use('/api/', apiLimiter);
 app.use('/api/bookings', writeLimiter);
 app.use('/api/checkout-session', writeLimiter);
 
 // Gate /admin (static UI) and /api/admin (data) before the public static
 // middleware below, which would otherwise serve public/admin/* unprotected.
-app.use('/admin', adminAuth, express.static(path.join(publicDir, 'admin')));
-app.use('/api/admin', adminAuth, adminRouter);
+app.use('/admin', adminLimiter, adminAuth, express.static(path.join(publicDir, 'admin')));
+app.use('/api/admin', adminLimiter, adminAuth, adminRouter);
 
 // Serve index.html with its SEO meta tags (title, description, canonical
 // URL) filled in from config/business.json, ahead of the static middleware

@@ -206,8 +206,8 @@
               </div>
             </div>
 
-            <label class="field-label">Urgency</label>
-            <div class="pill-group" data-name="urgency" id="urgencyPills"></div>
+            <label class="field-label">Cleaning speed</label>
+            <p class="urgency-badge" id="urgencyBadge">Pick a date to see if a speed surcharge applies</p>
 
             <div class="checkbox-row">
               <label class="checkbox-line">
@@ -235,11 +235,11 @@
             <div class="field-row">
               <div class="field">
                 <label class="field-label" for="phone">Phone *</label>
-                <input type="tel" id="phone" name="phone" required placeholder="0400 000 000">
+                <input type="tel" id="phone" name="phone" required placeholder="0400000000" inputmode="numeric" autocomplete="tel">
               </div>
               <div class="field">
                 <label class="field-label" for="postcode">Postcode *</label>
-                <input type="text" id="postcode" name="postcode" required placeholder="3000">
+                <input type="text" id="postcode" name="postcode" required placeholder="3000" inputmode="numeric" autocomplete="postal-code">
               </div>
             </div>
 
@@ -248,6 +248,7 @@
 
             <label class="field-label" for="promoCode">Promo code (optional)</label>
             <input type="text" id="promoCode" name="promoCode" placeholder="e.g. WELCOME10">
+            <p class="promo-feedback" id="promoFeedback" hidden></p>
 
             <div class="checkbox-row">
               <label class="checkbox-line">
@@ -277,6 +278,8 @@
           <h3>Your quote</h3>
           <div class="summary-line"><span id="sumPropertyLabel">…</span><span id="sumBase">—</span></div>
           <ul class="summary-extras" id="sumExtrasList"></ul>
+          <div class="summary-line" id="sumOversizeLine" hidden><span>Large property surcharge</span><span id="sumOversize">+0</span></div>
+          <div class="summary-line" id="sumKeyAccessLine" hidden><span>Key access</span><span id="sumKeyAccess">+0</span></div>
           <div class="summary-line" id="sumUrgencyLine" hidden><span>Urgency</span><span id="sumUrgency">+0</span></div>
           <div class="summary-line" id="sumFrequencyLine" hidden><span>Frequency discount</span><span id="sumFrequencyDiscount">−0</span></div>
           <div class="summary-line summary-total"><span id="sumTotalLabel">Estimated total</span><span id="sumTotal">—</span></div>
@@ -399,6 +402,8 @@
     <div class="modal-body" id="legalBody"></div>
   </div>
 </div>
+
+<a class="whatsapp-float whatsapp-float-hidden" id="whatsappFloat" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top" hidden>↑</button>
 

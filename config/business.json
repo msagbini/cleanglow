@@ -47,23 +47,28 @@
       { "value": "apartment", "label": "Apartment", "icon": "🏢", "surcharge": 0 },
       { "value": "house", "label": "House", "icon": "🏠", "surcharge": 40 },
       { "value": "studio", "label": "Studio", "icon": "🛏️", "surcharge": -20 },
-      { "value": "office", "label": "Office", "icon": "🏢", "surcharge": 30 }
+      {
+        "value": "office", "label": "Office", "icon": "🏢", "surcharge": 30,
+        "sizeFieldLabel": "Rooms",
+        "sizeFieldOptionLabels": ["Small office (1 room)", "2 rooms", "3 rooms", "4 rooms", "5 rooms", "6+ rooms"]
+      }
     ],
     "sizeField": {
       "label": "Bedrooms",
       "options": [
-        { "value": "0", "label": "Studio (0 bed)", "price": 230 },
-        { "value": "1", "label": "1 Bedroom", "price": 320 },
-        { "value": "2", "label": "2 Bedrooms", "price": 360 },
-        { "value": "3", "label": "3 Bedrooms", "price": 460 },
-        { "value": "4", "label": "4 Bedrooms", "price": 560 },
-        { "value": "5", "label": "5+ Bedrooms", "price": 650 }
+        { "value": "0", "label": "Studio (0 bed)", "price": 210, "typicalSqm": 40 },
+        { "value": "1", "label": "1 Bedroom", "price": 300, "typicalSqm": 60 },
+        { "value": "2", "label": "2 Bedrooms", "price": 340, "typicalSqm": 90 },
+        { "value": "3", "label": "3 Bedrooms", "price": 440, "typicalSqm": 120 },
+        { "value": "4", "label": "4 Bedrooms", "price": 540, "typicalSqm": 160 },
+        { "value": "5", "label": "5+ Bedrooms", "price": 630, "typicalSqm": 220 }
       ],
       "defaultValue": "2"
     },
+    "oversizeSurchargePerSqm": 2,
     "secondaryField": {
       "label": "Bathrooms",
-      "pricePerUnitBeyondFirst": 45,
+      "pricePerUnitBeyondFirst": 65,
       "options": [
         { "value": "1", "label": "1 Bathroom" },
         { "value": "2", "label": "2 Bathrooms" },
@@ -80,19 +85,18 @@
       { "key": "walls", "label": "Wall Spot Cleaning", "icon": "🧱", "price": 45 },
       { "key": "balcony", "label": "Balcony / Patio", "icon": "🌿", "price": 40 },
       { "key": "garage", "label": "Garage / Storage", "icon": "🚗", "price": 50 },
-      { "key": "pest", "label": "Pest Control Treatment", "icon": "🐜", "price": 140 },
-      { "key": "ironing", "label": "Curtains / Blinds", "icon": "🪡", "price": 65 }
+      { "key": "ironing", "label": "Curtains / Blinds", "icon": "🪡", "price": 50, "perUnit": true, "unitLabel": "curtain", "maxQuantity": 12 }
     ],
     "urgencyOptions": [
-      { "value": "standard", "label": "Standard (48h+)", "surcharge": 0 },
-      { "value": "next-day", "label": "Next Day", "surcharge": 45 },
-      { "value": "same-day", "label": "Same Day", "surcharge": 80 }
+      { "value": "standard", "label": "Standard (48h+)", "surcharge": 0, "minDaysAhead": 2 },
+      { "value": "next-day", "label": "Next Day", "surcharge": 45, "minDaysAhead": 1 },
+      { "value": "same-day", "label": "Same Day", "surcharge": 80, "minDaysAhead": 0 }
     ],
     "keyAccessOptions": [
-      { "value": "present", "label": "I'll be there" },
-      { "value": "keybox", "label": "Lockbox / key code" },
-      { "value": "neighbor", "label": "Pick-up from a neighbour / building manager" },
-      { "value": "agent", "label": "Coordinate with property manager" }
+      { "value": "present", "label": "I'll be there", "surcharge": 0 },
+      { "value": "keybox", "label": "Lockbox / key code", "surcharge": 0 },
+      { "value": "neighbor", "label": "Pick-up from a neighbour / building manager", "surcharge": 15 },
+      { "value": "agent", "label": "Coordinate with property manager", "surcharge": 20 }
     ],
     "timeSlots": [
       { "value": "08:00", "label": "8:00am - 11:00am" },
@@ -100,7 +104,7 @@
       { "value": "14:00", "label": "2:00pm - 5:00pm" },
       { "value": "17:00", "label": "5:00pm - 8:00pm" }
     ],
-    "promoCodes": { "WELCOME10": 0.10, "CLEAN5": 0.05 },
+    "promoCodes": { "WELCOME10": 0.10, "CLEAN5": 0.05, "WELCOME5": 0.05 },
     "maxConcurrentBookingsPerSlot": 1,
     "frequencyOptions": [
       { "value": "once", "label": "One-time clean", "discount": 0, "stripeInterval": null },
@@ -114,8 +118,7 @@
     { "icon": "🍳", "title": "Deep Kitchen Clean", "description": "Oven, rangehood, cooktop, and fridge inside and out, plus a full degrease of interior cabinets." },
     { "icon": "🧺", "title": "Carpet & Upholstery", "description": "Steam cleaning for carpets and sofas to remove stains, odours and dust mites." },
     { "icon": "🪟", "title": "Windows & Glass", "description": "Interior windows, frames and tracks left streak-free with no residue." },
-    { "icon": "🧱", "title": "Walls & Garage", "description": "Spot cleaning for wall marks, storage areas, garage, balcony or patio." },
-    { "icon": "🐜", "title": "Pest Control", "description": "Optional preventative treatment, ideal for properties with a pest history." }
+    { "icon": "🧱", "title": "Walls & Garage", "description": "Spot cleaning for wall marks, storage areas, garage, balcony or patio." }
   ],
   "checklist": {
     "intro": "Our 60+ point checklist was built with property managers to maximise your bond return. Tick what applies to your property and we'll include it in your booking.",

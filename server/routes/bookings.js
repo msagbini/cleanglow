@@ -5,7 +5,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto } from '../db.js';
-import { computeAmountCents, isValidExtraKey, isValidFrequency, config } from '../config.js';
+import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, deriveUrgencyForDate, config } from '../config.js';
 
 const router = Router();
 
@@ -30,11 +30,15 @@ const upload = multer({
 });
 
 const REQUIRED_FIELDS = [
-  'propertyType', 'bedrooms', 'bathrooms', 'bookingDate', 'bookingTime', 'urgency',
+  'propertyType', 'bedrooms', 'bathrooms', 'bookingDate', 'bookingTime',
   'fullName', 'email', 'phone', 'address', 'postcode',
 ];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// Australian mobile/landline numbers as entered by customers: 10 digits, no
+// spaces, starting with 0 (e.g. 0420576710). Postcodes are exactly 4 digits.
+const PHONE_RE = /^0\d{9}$/;
+const POSTCODE_RE = /^\d{4}$/;
 
 // Registered before /:id so "availability" isn't swallowed as an :id value.
 router.get('/availability', (req, res) => {
@@ -61,7 +65,21 @@ router.post('/', (req, res) => {
   if (!EMAIL_RE.test(body.email)) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
+  const phone = String(body.phone).replace(/\s+/g, '');
+  if (!PHONE_RE.test(phone)) {
+    return res.status(400).json({ error: 'Phone must be 10 digits, starting with 0 (e.g. 0400000000)' });
+  }
+  const postcode = String(body.postcode).trim();
+  if (!POSTCODE_RE.test(postcode)) {
+    return res.status(400).json({ error: 'Postcode must be exactly 4 digits' });
+  }
   const extras = Array.isArray(body.extras) ? body.extras.filter(isValidExtraKey) : [];
+  const extraCounts = extras.reduce((counts, key) => ({ ...counts, [key]: (counts[key] ?? 0) + 1 }), {});
+  for (const [key, count] of Object.entries(extraCounts)) {
+    if (!isValidExtraQuantity(key, count)) {
+      return res.status(400).json({ error: `Too many units selected for extra: ${key}` });
+    }
+  }
   const bookingDateOnly = new Date(`${body.bookingDate}T00:00:00`);
   if (Number.isNaN(bookingDateOnly.getTime())) {
     return res.status(400).json({ error: 'Invalid booking date' });
@@ -72,19 +90,21 @@ router.post('/', (req, res) => {
     propertyType: String(body.propertyType),
     bedrooms: String(body.bedrooms),
     bathrooms: Number(body.bathrooms) || 1,
-    sqm: body.sqm ? Number(body.sqm) : null,
+    sqm: body.sqm ? Math.min(2000, Math.max(0, Number(body.sqm) || 0)) : null,
     furnished: body.furnished ?? null,
-    notesProperty: body.notesProperty ?? null,
+    notesProperty: body.notesProperty ? String(body.notesProperty).slice(0, 2000) : null,
     extras,
     keyAccess: body.keyAccess ?? null,
     bookingDate: body.bookingDate,
     bookingTime: body.bookingTime,
-    urgency: String(body.urgency),
+    // Derived server-side from the date — see computeAmountCents — so the
+    // stored record always matches what was actually charged.
+    urgency: deriveUrgencyForDate(body.bookingDate).value,
     fullName: String(body.fullName).slice(0, 200),
     email: String(body.email).slice(0, 200),
-    phone: String(body.phone).slice(0, 50),
+    phone,
     address: String(body.address).slice(0, 300),
-    postcode: String(body.postcode).slice(0, 20),
+    postcode,
     promoCode: body.promoCode ? String(body.promoCode).slice(0, 30) : null,
     frequency,
   };

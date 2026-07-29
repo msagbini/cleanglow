@@ -104,12 +104,20 @@ export async function webhookHandler(req, res) {
   const stripe = getStripe();
   if (!stripe) return res.status(500).end();
 
+  // Signature verification is never optional here: without it, anyone who
+  // knows a booking's Stripe session ID (visible in their own browser URL
+  // the moment checkout starts, before they've actually paid) could POST a
+  // forged "checkout.session.completed" body and get their own unpaid
+  // booking marked paid. Fail closed if the secret isn't configured.
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error('[stripe] STRIPE_WEBHOOK_SECRET is not set — refusing to process an unverifiable webhook.');
+    return res.status(500).send('Webhook not configured');
+  }
+
   let event;
   try {
     const signature = req.headers['stripe-signature'];
-    event = process.env.STRIPE_WEBHOOK_SECRET
-      ? stripe.webhooks.constructEvent(req.body, signature, process.env.STRIPE_WEBHOOK_SECRET)
-      : JSON.parse(req.body.toString('utf8'));
+    event = stripe.webhooks.constructEvent(req.body, signature, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     console.error('[stripe] Invalid webhook signature:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);

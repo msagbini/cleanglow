@@ -13,6 +13,12 @@
   };
   const MAX_PHOTOS = 8;
 
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
   const form = document.getElementById('bookingForm');
   const steps = Array.from(document.querySelectorAll('.form-step'));
   const dots = Array.from(document.querySelectorAll('.step-dot'));
@@ -69,6 +75,12 @@
     const footerPhone = document.getElementById('footerPhoneLink');
     footerPhone.href = telHref;
     footerPhone.textContent = `📞 ${business.phoneDisplay}`;
+
+    const whatsappNumber = business.phone.replace(/\D/g, '');
+    const whatsappFloat = document.getElementById('whatsappFloat');
+    if (whatsappFloat) {
+      whatsappFloat.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi ${business.name}, I'd like to ask about a booking.`)}`;
+    }
 
     const mailHref = `mailto:${business.email}`;
     const footerEmail = document.getElementById('footerEmailLink');
@@ -181,17 +193,26 @@
     `).join('');
     state.propertyType = booking.serviceTypes[0].value;
 
-    document.getElementById('sizeFieldLabel').textContent = booking.sizeField.label;
-    els.bedrooms.innerHTML = booking.sizeField.options.map(o =>
-      `<option value="${o.value}" ${o.value === booking.sizeField.defaultValue ? 'selected' : ''}>${o.label}</option>`
-    ).join('');
+    renderSizeField(booking.serviceTypes[0]);
 
     document.getElementById('secondaryFieldLabel').textContent = booking.secondaryField.label;
     els.bathrooms.innerHTML = booking.secondaryField.options.map(o =>
       `<option value="${o.value}" ${o.value === booking.secondaryField.defaultValue ? 'selected' : ''}>${o.label}</option>`
     ).join('');
 
-    document.getElementById('extrasGrid').innerHTML = booking.extras.map(e => `
+    document.getElementById('extrasGrid').innerHTML = booking.extras.map(e => e.perUnit ? `
+      <div class="extra-card extra-card-unit">
+        <span class="extra-icon">${e.icon}</span>
+        <span class="extra-name">${e.label}</span>
+        <span class="extra-price">${cfg.business.currencySymbol}${e.price} per ${e.unitLabel || 'unit'}</span>
+        <div class="extra-qty">
+          <button type="button" class="extra-qty-btn" data-qty-delta="-1" data-qty-for="${e.key}" aria-label="Fewer ${e.label}">−</button>
+          <input type="number" name="extras" min="0" max="${e.maxQuantity ?? 12}" step="1" value="0"
+                 data-key="${e.key}" data-price="${e.price}" data-label="${e.label}" id="extraQty_${e.key}">
+          <button type="button" class="extra-qty-btn" data-qty-delta="1" data-qty-for="${e.key}" aria-label="More ${e.label}">+</button>
+        </div>
+      </div>
+    ` : `
       <label class="extra-card">
         <input type="checkbox" name="extras" value="${e.key}" data-price="${e.price}" data-label="${e.label}">
         <span class="extra-icon">${e.icon}</span>
@@ -201,16 +222,60 @@
     `).join('');
 
     document.getElementById('keyAccess').innerHTML = booking.keyAccessOptions
-      .map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+      .map(o => `<option value="${o.value}">${o.label}${o.surcharge ? ` (+${cfg.business.currencySymbol}${o.surcharge})` : ''}</option>`).join('');
 
     document.getElementById('bookingTime').innerHTML = booking.timeSlots
       .map(o => `<option value="${o.value}">${o.label}</option>`).join('');
 
-    document.getElementById('urgencyPills').innerHTML = booking.urgencyOptions.map((u, i) => `
-      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${u.value}" data-surcharge="${u.surcharge}">${u.label}${u.surcharge ? ` (+${cfg.business.currencySymbol}${u.surcharge})` : ''}</button>
-    `).join('');
     state.urgency = booking.urgencyOptions[0].value;
     state.urgencySurcharge = booking.urgencyOptions[0].surcharge;
+  }
+
+  // "Bedrooms" doesn't make sense for an office — swap the field label and
+  // option wording (e.g. "2 Bedrooms" -> "2 rooms") based on the selected
+  // property type, keeping the same underlying price tiers.
+  function renderSizeField(serviceType) {
+    const { booking } = state.config;
+    document.getElementById('sizeFieldLabel').textContent = serviceType.sizeFieldLabel || booking.sizeField.label;
+    const overrides = serviceType.sizeFieldOptionLabels;
+    const previousValue = els.bedrooms.value;
+    els.bedrooms.innerHTML = booking.sizeField.options.map((o, i) =>
+      `<option value="${o.value}">${overrides?.[i] ?? o.label}</option>`
+    ).join('');
+    els.bedrooms.value = previousValue || booking.sizeField.defaultValue;
+  }
+
+  // Mirrors server/config.js's deriveUrgencyForDate — urgency is never a free
+  // choice, it's determined by how much notice the chosen date actually
+  // gives us, so "Standard (48h+)" can't be paired with a same-day date to
+  // dodge the surcharge (the server enforces this independently either way).
+  function deriveUrgencyForDate(dateStr) {
+    const options = state.config.booking.urgencyOptions;
+    if (!dateStr) return options[0];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const chosen = new Date(`${dateStr}T00:00:00`);
+    if (Number.isNaN(chosen.getTime())) return options[0];
+    const daysAhead = Math.round((chosen - today) / 86400000);
+    const sorted = [...options].sort((a, b) => (b.minDaysAhead ?? 0) - (a.minDaysAhead ?? 0));
+    return sorted.find(u => daysAhead >= (u.minDaysAhead ?? 0)) ?? sorted[sorted.length - 1];
+  }
+
+  function updateUrgencyBadge() {
+    const dateVal = document.getElementById('bookingDate').value;
+    const option = deriveUrgencyForDate(dateVal);
+    state.urgency = option.value;
+    state.urgencySurcharge = option.surcharge;
+    const badge = document.getElementById('urgencyBadge');
+    if (badge) {
+      const symbol = state.config.business.currencySymbol;
+      badge.textContent = dateVal
+        ? (option.surcharge > 0
+            ? `${option.label} — +${symbol}${option.surcharge} surcharge applies for this date`
+            : `${option.label} — no extra charge`)
+        : 'Pick a date to see if a speed surcharge applies';
+    }
+    updatePriceSummary();
   }
 
   function bindPillGroups() {
@@ -223,9 +288,8 @@
         btn.classList.add('active');
         if (name === 'propertyType') {
           state.propertyType = btn.dataset.value;
-        } else if (name === 'urgency') {
-          state.urgency = btn.dataset.value;
-          state.urgencySurcharge = Number(btn.dataset.surcharge || 0);
+          const serviceType = state.config.booking.serviceTypes.find(t => t.value === btn.dataset.value);
+          if (serviceType) renderSizeField(serviceType);
         } else if (name === 'frequency') {
           state.frequency = btn.dataset.value;
         }
@@ -262,7 +326,27 @@
     return totalDollars - totalDollars / (1 + rate);
   }
 
-  /* ============ Live price calculation ============ */
+  // Mirrors server/config.js's sizeField.options -> sizeFieldOptionLabels
+  // override, so "Bedrooms" doesn't show up for an office anywhere on screen.
+  function sizeOptionDisplayLabel(serviceType, sizeOption) {
+    const { booking } = state.config;
+    const idx = booking.sizeField.options.findIndex(o => o.value === sizeOption.value);
+    return serviceType.sizeFieldOptionLabels?.[idx] ?? sizeOption.label;
+  }
+
+  function getExtraLines() {
+    const checkboxLines = Array.from(document.querySelectorAll('input[name="extras"][type="checkbox"]:checked'))
+      .map(el => ({ key: el.value, label: el.dataset.label, price: Number(el.dataset.price), quantity: 1, lineTotal: Number(el.dataset.price) }));
+    const quantityLines = Array.from(document.querySelectorAll('input[name="extras"][type="number"]'))
+      .filter(el => Number(el.value) > 0)
+      .map(el => ({
+        key: el.dataset.key, label: el.dataset.label, price: Number(el.dataset.price), quantity: Number(el.value),
+        lineTotal: Number(el.dataset.price) * Number(el.value),
+      }));
+    return [...checkboxLines, ...quantityLines];
+  }
+
+  /* ============ Live price calculation (mirrors server/config.js's computeAmountCents) ============ */
   function calcPrice() {
     const { booking, business } = state.config;
     const sizeOption = booking.sizeField.options.find(o => o.value === els.bedrooms.value) || booking.sizeField.options[0];
@@ -272,31 +356,59 @@
     let base = sizeOption.price + serviceType.surcharge;
     base += Math.max(0, secondaryValue - 1) * booking.secondaryField.pricePerUnitBeyondFirst;
 
-    const extrasChecked = Array.from(document.querySelectorAll('input[name="extras"]:checked'));
-    const extrasTotal = extrasChecked.reduce((sum, el) => sum + Number(el.dataset.price), 0);
+    const sqm = Number(document.getElementById('sqm').value) || 0;
+    const oversizeSqm = Math.max(0, sqm - (sizeOption.typicalSqm ?? 0));
+    const oversizeSurcharge = oversizeSqm * (booking.oversizeSurchargePerSqm ?? 0);
 
-    const subtotal = base + extrasTotal + state.urgencySurcharge;
+    const keyAccessValue = document.getElementById('keyAccess').value;
+    const keyAccessOption = booking.keyAccessOptions.find(k => k.value === keyAccessValue);
+    const keyAccessSurcharge = keyAccessOption?.surcharge ?? 0;
+
+    const extraLines = getExtraLines();
+    const extrasTotal = extraLines.reduce((sum, line) => sum + line.lineTotal, 0);
+
+    const subtotal = base + extrasTotal + state.urgencySurcharge + oversizeSurcharge + keyAccessSurcharge;
     const discount = subtotal * state.promoDiscount;
     const afterPromo = Math.max(0, subtotal - discount);
 
     const frequencyOption = booking.frequencyOptions?.find(f => f.value === state.frequency) || { value: 'once', discount: 0 };
     const total = afterPromo * (1 - (frequencyOption.discount || 0));
 
-    return { base, sizeOption, secondaryValue, serviceType, extrasChecked, extrasTotal, discount, total, frequencyOption, currencySymbol: business.currencySymbol };
+    return {
+      base, sizeOption, secondaryValue, serviceType, extraLines, extrasTotal, discount, total, frequencyOption,
+      oversizeSurcharge, keyAccessSurcharge, keyAccessOption, currencySymbol: business.currencySymbol,
+    };
   }
 
   function updatePriceSummary() {
-    const { base, sizeOption, secondaryValue, serviceType, extrasChecked, total, frequencyOption, currencySymbol } = calcPrice();
+    const { base, sizeOption, secondaryValue, serviceType, extraLines, total, frequencyOption, currencySymbol, oversizeSurcharge, keyAccessSurcharge } = calcPrice();
     const secondaryOption = state.config.booking.secondaryField.options.find(o => Number(o.value) === secondaryValue);
-    els.sumPropertyLabel.textContent = `${serviceType.label} · ${sizeOption.label} · ${secondaryOption ? secondaryOption.label : secondaryValue}`;
+    els.sumPropertyLabel.textContent = `${serviceType.label} · ${sizeOptionDisplayLabel(serviceType, sizeOption)} · ${secondaryOption ? secondaryOption.label : secondaryValue}`;
     els.sumBase.textContent = `${currencySymbol}${base}`;
 
     els.sumExtrasList.innerHTML = '';
-    extrasChecked.forEach(el => {
+    extraLines.forEach(line => {
       const li = document.createElement('li');
-      li.innerHTML = `<span>${el.dataset.label}</span><span>+${currencySymbol}${el.dataset.price}</span>`;
+      const qtyText = line.quantity > 1 ? ` ×${line.quantity}` : '';
+      li.innerHTML = `<span>${line.label}${qtyText}</span><span>+${currencySymbol}${line.lineTotal}</span>`;
       els.sumExtrasList.appendChild(li);
     });
+
+    const sumOversizeLine = document.getElementById('sumOversizeLine');
+    if (oversizeSurcharge > 0) {
+      sumOversizeLine.hidden = false;
+      document.getElementById('sumOversize').textContent = `+${currencySymbol}${oversizeSurcharge.toFixed(0)}`;
+    } else {
+      sumOversizeLine.hidden = true;
+    }
+
+    const sumKeyAccessLine = document.getElementById('sumKeyAccessLine');
+    if (keyAccessSurcharge > 0) {
+      sumKeyAccessLine.hidden = false;
+      document.getElementById('sumKeyAccess').textContent = `+${currencySymbol}${keyAccessSurcharge}`;
+    } else {
+      sumKeyAccessLine.hidden = true;
+    }
 
     if (state.urgencySurcharge > 0) {
       els.sumUrgencyLine.hidden = false;
@@ -363,9 +475,15 @@
         return false;
       }
       const phone = document.getElementById('phone').value;
-      if (!/^[\d\s+()-]{6,}$/.test(phone)) {
+      if (!/^0\d{9}$/.test(phone)) {
         document.getElementById('phone').focus();
-        showToast('Enter a valid phone number');
+        showToast('Enter a 10-digit phone number starting with 0 (e.g. 0400000000)');
+        return false;
+      }
+      const postcode = document.getElementById('postcode').value;
+      if (!/^\d{4}$/.test(postcode)) {
+        document.getElementById('postcode').focus();
+        showToast('Enter a 4-digit postcode (e.g. 3000)');
         return false;
       }
     }
@@ -426,9 +544,11 @@
 
   /* ============ Review step ============ */
   function buildReview() {
-    const { sizeOption, secondaryValue, serviceType, extrasChecked, total, discount, frequencyOption, currencySymbol } = calcPrice();
+    const { sizeOption, secondaryValue, serviceType, extraLines, total, discount, frequencyOption, currencySymbol } = calcPrice();
     const secondaryOption = state.config.booking.secondaryField.options.find(o => Number(o.value) === secondaryValue);
-    const extrasLabel = extrasChecked.length ? extrasChecked.map(el => el.dataset.label).join(', ') : 'None';
+    const extrasLabel = extraLines.length
+      ? extraLines.map(line => `${escapeHtml(line.label)}${line.quantity > 1 ? ` ×${line.quantity}` : ''}`).join(', ')
+      : 'None';
     const urgencyOption = state.config.booking.urgencyOptions.find(u => u.value === state.urgency);
     const isRecurring = frequencyOption.value !== 'once';
 
@@ -436,17 +556,18 @@
     const timeVal = document.getElementById('bookingTime').value;
     const dateFormatted = dateVal ? new Date(dateVal + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '—';
 
-    const name = document.getElementById('fullName').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-    const address = document.getElementById('address').value;
-    const postcode = document.getElementById('postcode').value;
+    // User-supplied — escaped before going into innerHTML further down.
+    const name = escapeHtml(document.getElementById('fullName').value);
+    const email = escapeHtml(document.getElementById('email').value);
+    const phone = escapeHtml(document.getElementById('phone').value);
+    const address = escapeHtml(document.getElementById('address').value);
+    const postcode = escapeHtml(document.getElementById('postcode').value);
 
     document.getElementById('reviewBox').innerHTML = `
       <div class="review-section">
         <button type="button" class="review-edit" data-goto="1">Edit</button>
         <h4>Property</h4>
-        <p>${serviceType.label} · ${sizeOption.label} · ${secondaryOption ? secondaryOption.label : ''}</p>
+        <p>${serviceType.label} · ${sizeOptionDisplayLabel(serviceType, sizeOption)} · ${secondaryOption ? secondaryOption.label : ''}</p>
       </div>
       <div class="review-section">
         <button type="button" class="review-edit" data-goto="2">Edit</button>
@@ -546,7 +667,9 @@
     e.preventDefault();
     if (!validateStep(4)) return;
 
-    const extras = Array.from(document.querySelectorAll('input[name="extras"]:checked')).map(el => el.value);
+    // Flat array with one entry per unit (e.g. 3 curtains -> "ironing" repeated
+    // 3 times) — this is what server/config.js expects and how it prices them.
+    const extras = getExtraLines().flatMap(line => Array(line.quantity).fill(line.key));
     const payload = {
       propertyType: state.propertyType,
       bedrooms: els.bedrooms.value,
@@ -671,10 +794,16 @@
     navToggle.setAttribute('aria-expanded', 'false');
   }));
 
-  /* ============ Back to top ============ */
+  /* ============ Back to top / WhatsApp float ============ */
+  // Both float over page content, so they only appear once the visitor has
+  // scrolled past the hero — otherwise they can sit on top of the primary
+  // "Book now" / "See pricing" buttons on small mobile viewports.
   const backToTop = document.getElementById('backToTop');
+  const whatsappFloatBtn = document.getElementById('whatsappFloat');
   window.addEventListener('scroll', () => {
-    backToTop.hidden = window.scrollY < 500;
+    const pastHero = window.scrollY < 500;
+    backToTop.hidden = pastHero;
+    whatsappFloatBtn.classList.toggle('whatsapp-float-hidden', pastHero);
   });
   backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
@@ -697,16 +826,56 @@
 
     els.bedrooms.addEventListener('change', updatePriceSummary);
     els.bathrooms.addEventListener('change', updatePriceSummary);
-    document.getElementById('extrasGrid').addEventListener('change', updatePriceSummary);
+    document.getElementById('sqm').addEventListener('input', updatePriceSummary);
+
+    // Strip and cap in one step — relying on the maxlength attribute alone
+    // would count stripped-out letters against the limit (e.g. pasting
+    // "abc0400111222xyz" would truncate to 10 raw characters *before* the
+    // letters are removed, losing real digits).
+    const digitsOnly = (el, maxLen) => el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/g, '').slice(0, maxLen);
+    });
+    digitsOnly(document.getElementById('phone'), 10);
+    digitsOnly(document.getElementById('postcode'), 4);
+    document.getElementById('keyAccess').addEventListener('change', updatePriceSummary);
+    const extrasGrid = document.getElementById('extrasGrid');
+    extrasGrid.addEventListener('change', updatePriceSummary);
+    extrasGrid.addEventListener('input', updatePriceSummary);
+    extrasGrid.addEventListener('click', e => {
+      const btn = e.target.closest('.extra-qty-btn');
+      if (!btn) return;
+      const input = document.getElementById(`extraQty_${btn.dataset.qtyFor}`);
+      if (!input) return;
+      const next = Number(input.value || 0) + Number(btn.dataset.qtyDelta);
+      input.value = Math.max(0, Math.min(Number(input.max), next));
+      updatePriceSummary();
+    });
+    const promoFeedback = document.getElementById('promoFeedback');
     els.promoCode.addEventListener('input', () => {
-      const code = els.promoCode.value.trim().toUpperCase();
+      const raw = els.promoCode.value.trim();
+      const code = raw.toUpperCase();
       state.promoDiscount = cfg.booking.promoCodes[code] || 0;
+      if (!raw) {
+        promoFeedback.hidden = true;
+      } else if (state.promoDiscount > 0) {
+        promoFeedback.hidden = false;
+        promoFeedback.textContent = `✓ Code applied: ${Math.round(state.promoDiscount * 100)}% off`;
+        promoFeedback.className = 'promo-feedback promo-feedback-valid';
+      } else {
+        promoFeedback.hidden = false;
+        promoFeedback.textContent = '✗ This code isn\'t valid';
+        promoFeedback.className = 'promo-feedback promo-feedback-invalid';
+      }
       updatePriceSummary();
     });
 
     const dateInput = document.getElementById('bookingDate');
     dateInput.min = new Date().toISOString().split('T')[0];
-    dateInput.addEventListener('change', refreshTimeSlotAvailability);
+    dateInput.addEventListener('change', () => {
+      refreshTimeSlotAvailability();
+      updateUrgencyBadge();
+    });
+    updateUrgencyBadge();
 
     btnNext.addEventListener('click', () => {
       if (!validateStep(state.currentStep)) return;
