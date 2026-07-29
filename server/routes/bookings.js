@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto } from '../db.js';
+import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, markLeadsConvertedFor } from '../db.js';
 import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, deriveUrgencyForDate, config } from '../config.js';
 
 const router = Router();
@@ -119,6 +119,8 @@ router.post('/', (req, res) => {
     }
     throw err;
   }
+
+  markLeadsConvertedFor({ email: fields.email, phone: fields.phone });
 
   res.status(201).json({
     bookingId: booking.id,

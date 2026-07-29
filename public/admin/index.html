@@ -47,6 +47,18 @@
     <div class="loading-state" id="loadingState">Loading bookings…</div>
     <div class="empty-state" id="emptyState" hidden>No bookings match this filter.</div>
   </div>
+
+  <div class="admin-header" style="margin-top: 40px;">
+    <h1>📞 Abandoned leads</h1>
+    <span class="muted-text">Started a booking but didn't finish — follow up by phone or wait for the SMS reminder.</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Email</th><th>Phone</th><th>Started</th><th>Status</th></tr></thead>
+      <tbody id="leadsBody"></tbody>
+    </table>
+    <div class="empty-state" id="leadsEmptyState" hidden>No abandoned leads right now.</div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="photosModal" hidden>

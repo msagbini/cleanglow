@@ -837,6 +837,22 @@
     });
     digitsOnly(document.getElementById('phone'), 10);
     digitsOnly(document.getElementById('postcode'), 4);
+
+    // Best-effort capture — if someone types their email/phone but never
+    // finishes the booking, this lets the business follow up. Fire on blur
+    // (not on every keystroke) and never blocks or reports failure.
+    function captureLead() {
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      if (!email && !phone) return;
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, phone }),
+      }).catch(() => {});
+    }
+    document.getElementById('email').addEventListener('blur', captureLead);
+    document.getElementById('phone').addEventListener('blur', captureLead);
     document.getElementById('keyAccess').addEventListener('change', updatePriceSummary);
     const extrasGrid = document.getElementById('extrasGrid');
     extrasGrid.addEventListener('change', updatePriceSummary);

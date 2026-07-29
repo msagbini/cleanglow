@@ -2,7 +2,7 @@ import { Router } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos } from '../db.js';
+import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, listLeads } from '../db.js';
 import { getStripe } from './payments.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -83,6 +83,17 @@ router.get('/bookings/:id/photos/:filename', (req, res) => {
     return res.status(404).json({ error: 'Photo not found' });
   }
   res.sendFile(filePath);
+});
+
+router.get('/leads', (req, res) => {
+  const leads = listLeads().map(l => ({
+    id: l.id,
+    email: l.email,
+    phone: l.phone,
+    createdAt: l.created_at,
+    status: l.converted_at ? 'converted' : (l.reminded_at ? 'reminded' : 'open'),
+  }));
+  res.json({ leads });
 });
 
 export default router;

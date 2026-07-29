@@ -203,6 +203,23 @@ la misma garantía.
 | `POST` | `/api/admin/bookings/:id/cancel-subscription` | *(Basic Auth)* Cancela la suscripción de Stripe de una reserva |
 | `GET` | `/api/admin/bookings/:id/photos` | *(Basic Auth)* Lista las fotos subidas para una reserva |
 | `GET` | `/api/admin/bookings/:id/photos/:filename` | *(Basic Auth)* Sirve una foto subida |
+| `POST` | `/api/leads` | Captura email/teléfono apenas se escriben, antes de terminar la reserva |
+| `GET` | `/api/admin/leads` | *(Basic Auth)* Lista los leads abandonados y su estado |
+
+### Leads abandonados y recordatorio por SMS
+
+Apenas el cliente escribe su email o teléfono en el paso de contacto (al salir del campo,
+no en cada tecla), el sitio guarda esos datos como un "lead" — aunque nunca termine de
+reservar. Si el cliente sí completa una reserva real con ese mismo email o teléfono, el
+lead se marca automáticamente como convertido. Si pasan 30 minutos sin que eso pase, un
+proceso interno (revisa cada 5 minutos, sin necesidad de un servicio externo de colas)
+manda un SMS recordatorio una sola vez por lead.
+
+El envío usa [ClickSend](https://clicksend.com) — configurá `CLICKSEND_USERNAME` y
+`CLICKSEND_API_KEY` en tu `.env` (o en las variables de Railway) para activarlo. Sin esas
+variables, el sistema sigue guardando los leads igual, solo que en vez de mandar el SMS
+imprime en la consola lo que hubiera enviado — nunca falla ni bloquea nada. Los leads
+(convertidos o no) se ven en el panel de administración, en la sección "📞 Abandoned leads".
 
 ### Fotos del estado de la propiedad
 

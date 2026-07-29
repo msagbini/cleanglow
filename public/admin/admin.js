@@ -168,7 +168,32 @@
     fetchBookings();
   });
 
-  document.getElementById('refreshBtn').addEventListener('click', fetchBookings);
+  document.getElementById('refreshBtn').addEventListener('click', () => { fetchBookings(); fetchLeads(); });
+
+  const leadsBody = document.getElementById('leadsBody');
+  const leadsEmptyState = document.getElementById('leadsEmptyState');
+  const LEAD_STATUS_LABEL = { open: 'Waiting', reminded: 'SMS sent', converted: 'Booked ✓' };
+
+  async function fetchLeads() {
+    const res = await fetch('/api/admin/leads');
+    if (!res.ok) return;
+    const { leads } = await res.json();
+    if (!leads.length) {
+      leadsBody.innerHTML = '';
+      leadsEmptyState.hidden = false;
+      return;
+    }
+    leadsEmptyState.hidden = true;
+    leadsBody.innerHTML = leads.map(l => `
+      <tr>
+        <td>${escapeHtml(l.email || '—')}</td>
+        <td>${escapeHtml(l.phone || '—')}</td>
+        <td>${new Date(l.createdAt).toLocaleString('en-AU')}</td>
+        <td>${escapeHtml(LEAD_STATUS_LABEL[l.status] || l.status)}</td>
+      </tr>
+    `).join('');
+  }
 
   fetchBookings();
+  fetchLeads();
 })();

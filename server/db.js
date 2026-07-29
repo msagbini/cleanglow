@@ -50,6 +50,14 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_booking_photos_booking ON booking_photos (booking_id);
+  CREATE TABLE IF NOT EXISTS leads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT,
+    phone TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    reminded_at TEXT,
+    converted_at TEXT
+  );
 `);
 
 // CREATE TABLE IF NOT EXISTS only applies the schema to a brand-new file — an
@@ -145,6 +153,61 @@ export function listBookingPhotos(bookingId) {
   return db.prepare(
     'SELECT id, filename, original_name, size_bytes, created_at FROM booking_photos WHERE booking_id = ? ORDER BY id ASC'
   ).all(bookingId);
+}
+
+// Captured as soon as the customer types an email/phone in the booking
+// form, before they've necessarily finished or paid — lets the business
+// follow up (by SMS, or by hand) with anyone who starts a booking and
+// doesn't come back to complete it.
+export function saveLead({ email, phone }) {
+  const normalisedEmail = email ? String(email).trim().toLowerCase().slice(0, 200) : null;
+  const normalisedPhone = phone ? String(phone).replace(/\D/g, '').slice(0, 10) : null;
+  if (!normalisedEmail && !normalisedPhone) return;
+
+  // One open (not yet reminded/converted) lead per email+phone pair, updated
+  // in place, so re-typing the same details doesn't create duplicate rows.
+  const existing = db.prepare(`
+    SELECT id FROM leads
+    WHERE reminded_at IS NULL AND converted_at IS NULL
+      AND ((email IS NOT NULL AND email = ?) OR (phone IS NOT NULL AND phone = ?))
+    ORDER BY id DESC LIMIT 1
+  `).get(normalisedEmail, normalisedPhone);
+
+  if (existing) {
+    db.prepare('UPDATE leads SET email = COALESCE(?, email), phone = COALESCE(?, phone) WHERE id = ?')
+      .run(normalisedEmail, normalisedPhone, existing.id);
+  } else {
+    db.prepare('INSERT INTO leads (email, phone) VALUES (?, ?)').run(normalisedEmail, normalisedPhone);
+  }
+}
+
+// Called once a real booking is created, so a lead that converts doesn't
+// later get a "did you forget something?" reminder.
+export function markLeadsConvertedFor({ email, phone }) {
+  const normalisedEmail = email ? String(email).trim().toLowerCase() : null;
+  const normalisedPhone = phone ? String(phone).replace(/\D/g, '') : null;
+  db.prepare(`
+    UPDATE leads SET converted_at = datetime('now')
+    WHERE converted_at IS NULL
+      AND ((email IS NOT NULL AND email = ?) OR (phone IS NOT NULL AND phone = ?))
+  `).run(normalisedEmail, normalisedPhone);
+}
+
+export function findStaleLeads(minutesOld) {
+  return db.prepare(`
+    SELECT * FROM leads
+    WHERE reminded_at IS NULL AND converted_at IS NULL
+      AND phone IS NOT NULL
+      AND created_at <= datetime('now', ?)
+  `).all(`-${Number(minutesOld)} minutes`);
+}
+
+export function markLeadReminded(id) {
+  db.prepare(`UPDATE leads SET reminded_at = datetime('now') WHERE id = ?`).run(id);
+}
+
+export function listLeads({ limit = 100 } = {}) {
+  return db.prepare('SELECT * FROM leads ORDER BY created_at DESC LIMIT ?').all(limit);
 }
 
 export function getBooking(id) {

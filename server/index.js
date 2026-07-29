@@ -9,8 +9,10 @@ import paymentsRouter, { webhookHandler } from './routes/payments.js';
 import configRouter from './routes/config.js';
 import adminRouter from './routes/admin.js';
 import seoRouter from './routes/seo.js';
+import leadsRouter from './routes/leads.js';
 import { adminAuth } from './middleware/adminAuth.js';
 import { renderIndexHtml } from './renderIndex.js';
+import { startAbandonedLeadSweep } from './leadSweep.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '..', 'public');
@@ -50,6 +52,7 @@ const adminLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHe
 app.use('/api/', apiLimiter);
 app.use('/api/bookings', writeLimiter);
 app.use('/api/checkout-session', writeLimiter);
+app.use('/api/leads', writeLimiter);
 
 // Gate /admin (static UI) and /api/admin (data) before the public static
 // middleware below, which would otherwise serve public/admin/* unprotected.
@@ -70,6 +73,7 @@ app.use(express.static(publicDir));
 app.use('/api/bookings', bookingsRouter);
 app.use('/api', paymentsRouter);
 app.use('/api/config', configRouter);
+app.use('/api/leads', leadsRouter);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
@@ -82,4 +86,8 @@ app.listen(port, () => {
   if (!process.env.ADMIN_USER || !process.env.ADMIN_PASS) {
     console.warn('⚠️  ADMIN_USER/ADMIN_PASS not set — the /admin panel is disabled until you configure them in .env');
   }
+  if (!process.env.CLICKSEND_USERNAME || !process.env.CLICKSEND_API_KEY) {
+    console.warn('⚠️  CLICKSEND_USERNAME/CLICKSEND_API_KEY not set — abandoned-booking SMS reminders are disabled (logged instead) until you configure them.');
+  }
+  startAbandonedLeadSweep();
 });
