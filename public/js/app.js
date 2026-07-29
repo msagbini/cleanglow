@@ -323,6 +323,9 @@
       <h4>Data we collect</h4><p>Name, email, phone number and the address of the property to be cleaned.</p>
       <h4>How we use it</h4><p>We don't share your data with third parties other than the team assigned to your service.</p>
       <h4>Your rights</h4><p>You can request access to, correction of, or deletion of your data by emailing ${business.email}.</p>`;
+    legalContent.cookies.body = `<p>This site doesn't use tracking, advertising or analytics cookies.</p>
+      <h4>What we do use</h4><p>Only what's strictly needed to run the booking form itself while you have it open — no data is stored in your browser between visits.</p>
+      <h4>Stripe</h4><p>When you reach the payment screen, our payment processor Stripe may set its own cookies there for fraud prevention. That happens on Stripe's own site, under their <a href="https://stripe.com/privacy" target="_blank" rel="noopener">privacy policy</a>, not ours.</p>`;
   }
 
   /* ============ GST (mirrors server/config.js's computeGstComponentCents) ============ */
@@ -770,6 +773,7 @@
   const legalContent = {
     terms: { title: 'Terms & Conditions', body: '' },
     privacy: { title: 'Privacy Policy', body: '' },
+    cookies: { title: 'Cookies', body: '' },
   };
   // Delegated on document (rather than bound per-element at load) because some
   // [data-modal] links — e.g. the guarantee footnotes — are injected later,
