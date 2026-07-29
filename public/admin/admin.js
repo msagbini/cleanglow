@@ -126,10 +126,34 @@
     }
     const btn = e.target.closest('.cancel-sub-btn');
     if (!btn) return;
+    const id = btn.dataset.id;
+
+    let chargeFeeCents = 0;
+    try {
+      const infoRes = await fetch(`/api/admin/bookings/${encodeURIComponent(id)}/cancellation-info`);
+      const info = await infoRes.json();
+      if (infoRes.ok && info.feeApplies) {
+        const feeDollars = (info.feeCents / 100).toFixed(2);
+        const wantsFee = confirm(
+          `This subscription has only completed ${info.cyclesCompleted} of the ${info.minCycles} cycles required before free cancellation.\n\n` +
+          `Charge a $${feeDollars} early-cancellation fee to the card on file before cancelling?\n\n` +
+          `OK = charge the fee and cancel. Cancel (this dialog) = cancel the subscription with NO fee.`
+        );
+        if (wantsFee) chargeFeeCents = info.feeCents;
+      }
+    } catch {
+      // If we can't reach the cancellation-info endpoint, fall through to a
+      // plain cancel below rather than blocking the admin entirely.
+    }
+
     if (!confirm('Cancel this recurring subscription? The customer will not be billed again.')) return;
     btn.disabled = true;
     try {
-      const res = await fetch(`/api/admin/bookings/${encodeURIComponent(btn.dataset.id)}/cancel-subscription`, { method: 'POST' });
+      const res = await fetch(`/api/admin/bookings/${encodeURIComponent(id)}/cancel-subscription`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chargeFeeCents }),
+      });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Could not cancel the subscription');
       await fetchBookings();

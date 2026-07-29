@@ -311,6 +311,8 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
 .review-total-price { font-size: 1.3rem; font-weight: 800; color: var(--color-primary-text); }
 .review-discount-tag { font-size: .8rem; color: var(--color-success); font-weight: 600; }
 .review-gst-note { font-size: .78rem; color: var(--color-muted); margin-top: 4px; }
+.review-cancellation-note { font-size: .78rem; color: var(--color-muted); margin-top: 6px; }
+.review-cancellation-note a { color: var(--color-primary-text); font-weight: 600; text-decoration: underline; }
 
 /* ---------- Price summary sidebar ---------- */
 .price-summary {

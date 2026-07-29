@@ -106,6 +106,7 @@
     ],
     "promoCodes": { "WELCOME10": 0.10, "CLEAN5": 0.05, "WELCOME5": 0.05 },
     "maxConcurrentBookingsPerSlot": 1,
+    "earlyCancellationMinCycles": 3,
     "frequencyOptions": [
       { "value": "once", "label": "One-time clean", "discount": 0, "stripeInterval": null },
       { "value": "weekly", "label": "Weekly", "discount": 0.15, "stripeInterval": { "unit": "week", "count": 1 } },

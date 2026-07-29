@@ -13,6 +13,12 @@
   };
   const MAX_PHOTOS = 8;
 
+  function getOrdinalSuffix(n) {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+  }
+
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
@@ -311,7 +317,8 @@
       </ul>
       <p><strong>What "100% bond-back guarantee" means — and doesn't mean:</strong> it describes our commitment to re-clean checklist items until they meet a professional standard. It is <strong>not</strong> a guarantee of the bond amount itself. Whether your bond is returned in full is a decision made by your landlord, property manager, or (if disputed) the relevant tenancy authority, based on factors outside our control — for example property damage, unpaid rent, garden/lawn condition, or missing items.</p>
       <p><strong>What isn't covered:</strong> pre-existing damage, fair wear and tear, mould, odours or staining caused by conditions that existed before our service, items outside the checklist agreed at booking, and re-clean requests made after the ${business.recleanWindowHours}-hour reporting window or where access wasn't provided.</p>
-      <h4>4. Property access</h4><p>The customer is responsible for providing a valid access method for the booked time slot, and for the re-clean visit described above if one is requested.</p>`;
+      <h4>4. Property access</h4><p>The customer is responsible for providing a valid access method for the booked time slot, and for the re-clean visit described above if one is requested.</p>
+      <h4>5. Recurring plans and early cancellation</h4><p>Weekly, fortnightly and monthly plans are billed automatically at a discounted rate that reflects the ongoing, repeat nature of the service. If a recurring plan is cancelled before the minimum of ${state.config.booking.earlyCancellationMinCycles ?? 3} cleans has been completed, a one-off early-cancellation fee equal to one visit at the discounted rate applies, charged to the card on file, to recover the discount given on the assumption of ongoing business. This fee does not apply once the minimum number of cleans has been completed — the plan can then be cancelled at any time with no fee.</p>`;
     legalContent.privacy.body = `<p>Your personal data is used only to manage your booking and communicate with you about the service.</p>
       <h4>Data we collect</h4><p>Name, email, phone number and the address of the property to be cleaned.</p>
       <h4>How we use it</h4><p>We don't share your data with third parties other than the team assigned to your service.</p>
@@ -586,7 +593,8 @@
       </div>
       <div class="review-section">
         <h4>Cleaning frequency</h4>
-        <p>${frequencyOption.label}${isRecurring ? ' — billed automatically, cancel anytime' : ''}</p>
+        <p>${frequencyOption.label}${isRecurring ? ' — billed automatically each cycle' : ''}</p>
+        ${isRecurring ? `<p class="review-cancellation-note">Cancelling before your ${state.config.booking.earlyCancellationMinCycles ?? 3}${getOrdinalSuffix(state.config.booking.earlyCancellationMinCycles ?? 3)} clean incurs a one-off early-cancellation fee equal to one visit at your discounted rate — see <a href="#" data-modal="terms">terms</a>.</p>` : ''}
       </div>
       <div class="review-section">
         <h4>${isRecurring ? 'Total per visit' : 'Total to pay'}</h4>
@@ -716,6 +724,16 @@
       showToast(err.message || 'Something went wrong. Please try again.');
       setSubmitting(false);
     }
+  });
+
+  // If the customer clicks their browser's back button from the Stripe
+  // checkout page, the browser can restore this page from cache (bfcache)
+  // exactly as it was left — mid-redirect, with the submit button stuck
+  // disabled on "Redirecting to secure payment…". `pageshow` with
+  // `event.persisted` fires specifically for that restore, so this resets
+  // the button instead of leaving the page looking broken.
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) setSubmitting(false);
   });
 
   /* ============ Accordion (FAQ) ============ */

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
 import {
-  getBooking, getBookingBySessionId, attachStripeSession, attachStripeSubscription,
-  markBookingStatus, markNotified,
+  getBooking, getBookingBySessionId, getBookingBySubscriptionId, attachStripeSession, attachStripeSubscription,
+  markBookingStatus, markNotified, incrementCyclesCompleted,
 } from '../db.js';
 import { getFrequencyOption } from '../config.js';
 import { notifyPaidBooking, sendCustomerConfirmation } from '../email.js';
@@ -136,6 +136,19 @@ export async function webhookHandler(req, res) {
         const session = event.data.object;
         const booking = getBookingBySessionId(session.id);
         if (booking && booking.status === 'pending_payment') markBookingStatus(booking.id, 'expired');
+        break;
+      }
+      // `subscription_cycle` is a renewal charge, not the first payment (that
+      // one is already counted via checkout.session.completed above, and
+      // cycles_completed starts at 1) — this is what lets us tell a
+      // subscriber who's paid for months apart from one who signed up for
+      // the discount and is cancelling right after the very first clean.
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object;
+        if (invoice.billing_reason === 'subscription_cycle' && invoice.subscription) {
+          const booking = getBookingBySubscriptionId(invoice.subscription);
+          if (booking) incrementCyclesCompleted(booking.id);
+        }
         break;
       }
       default:

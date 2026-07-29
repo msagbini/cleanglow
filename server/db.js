@@ -67,6 +67,9 @@ db.exec(`
 for (const ddl of [
   'ALTER TABLE bookings ADD COLUMN frequency TEXT NOT NULL DEFAULT \'once\'',
   'ALTER TABLE bookings ADD COLUMN stripe_subscription_id TEXT',
+  // Starts at 1 — the very first Checkout payment is cycle 1, before any
+  // recurring `invoice.payment_succeeded` webhook has fired.
+  'ALTER TABLE bookings ADD COLUMN cycles_completed INTEGER NOT NULL DEFAULT 1',
 ]) {
   try { db.exec(ddl); } catch { /* column already exists */ }
 }
@@ -218,6 +221,18 @@ export function getBooking(id) {
 export function getBookingBySessionId(sessionId) {
   const row = db.prepare('SELECT * FROM bookings WHERE stripe_session_id = ?').get(sessionId);
   return row ? deserialize(row) : null;
+}
+
+export function getBookingBySubscriptionId(subscriptionId) {
+  const row = db.prepare('SELECT * FROM bookings WHERE stripe_subscription_id = ?').get(subscriptionId);
+  return row ? deserialize(row) : null;
+}
+
+// Counts a completed recurring billing cycle — used to enforce the minimum
+// commitment before a subscription can be cancelled without an early-
+// cancellation fee (see earlyCancellationMinCycles in business.json).
+export function incrementCyclesCompleted(id) {
+  db.prepare(`UPDATE bookings SET cycles_completed = cycles_completed + 1, updated_at = datetime('now') WHERE id = ?`).run(id);
 }
 
 export function attachStripeSession(id, sessionId) {

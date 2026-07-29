@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, listLeads } from '../db.js';
 import { getStripe } from './payments.js';
+import { config } from '../config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
@@ -28,6 +29,25 @@ router.patch('/bookings/:id/status', (req, res) => {
   res.json(updated);
 });
 
+// A customer who picks weekly/fortnightly for the recurring discount and
+// cancels right after the first clean gets the discount without ever giving
+// the business the repeat business it was priced for. If they haven't yet
+// completed the minimum number of cycles, the admin panel warns about this
+// and offers to charge a one-cycle early-cancellation fee (off-session, on
+// the card already on file for the subscription) before cancelling.
+router.get('/bookings/:id/cancellation-info', (req, res) => {
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  const minCycles = config.booking.earlyCancellationMinCycles ?? 0;
+  const cyclesShort = Math.max(0, minCycles - booking.cycles_completed);
+  res.json({
+    cyclesCompleted: booking.cycles_completed,
+    minCycles,
+    feeApplies: cyclesShort > 0,
+    feeCents: cyclesShort > 0 ? booking.amount_cents : 0,
+  });
+});
+
 router.post('/bookings/:id/cancel-subscription', async (req, res) => {
   const booking = getBooking(req.params.id);
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
@@ -37,6 +57,29 @@ router.post('/bookings/:id/cancel-subscription', async (req, res) => {
 
   const stripe = getStripe();
   if (!stripe) return res.status(500).json({ error: 'Stripe is not configured on the server.' });
+
+  const chargeFeeCents = Number(req.body?.chargeFeeCents) || 0;
+  if (chargeFeeCents > 0) {
+    try {
+      const subscription = await stripe.subscriptions.retrieve(booking.stripe_subscription_id);
+      const paymentMethod = subscription.default_payment_method;
+      if (!paymentMethod) {
+        return res.status(502).json({ error: 'No card on file for this subscription — cancel manually from the Stripe dashboard instead.' });
+      }
+      await stripe.paymentIntents.create({
+        amount: chargeFeeCents,
+        currency: booking.currency,
+        customer: subscription.customer,
+        payment_method: paymentMethod,
+        off_session: true,
+        confirm: true,
+        description: `Early cancellation fee — Booking ${booking.id}`,
+      });
+    } catch (err) {
+      console.error('[stripe] Error charging early-cancellation fee:', err.message);
+      return res.status(502).json({ error: `Could not charge the cancellation fee (${err.message}) — subscription was NOT cancelled.` });
+    }
+  }
 
   try {
     await stripe.subscriptions.cancel(booking.stripe_subscription_id);

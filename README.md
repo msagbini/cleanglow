@@ -200,11 +200,29 @@ la misma garantía.
 | `POST` | `/api/webhook` | Webhook de Stripe (fuente de verdad del estado de pago) |
 | `GET` | `/api/admin/bookings` | *(Basic Auth)* Lista reservas, con filtro `?status=` |
 | `PATCH` | `/api/admin/bookings/:id/status` | *(Basic Auth)* Cambia el estado de una reserva |
-| `POST` | `/api/admin/bookings/:id/cancel-subscription` | *(Basic Auth)* Cancela la suscripción de Stripe de una reserva |
+| `GET` | `/api/admin/bookings/:id/cancellation-info` | *(Basic Auth)* Ciclos cobrados y si aplica recargo por cancelación temprana |
+| `POST` | `/api/admin/bookings/:id/cancel-subscription` | *(Basic Auth)* Cancela la suscripción de Stripe de una reserva (opcionalmente cobra un recargo antes, con `{ "chargeFeeCents": N }`) |
 | `GET` | `/api/admin/bookings/:id/photos` | *(Basic Auth)* Lista las fotos subidas para una reserva |
 | `GET` | `/api/admin/bookings/:id/photos/:filename` | *(Basic Auth)* Sirve una foto subida |
 | `POST` | `/api/leads` | Captura email/teléfono apenas se escriben, antes de terminar la reserva |
 | `GET` | `/api/admin/leads` | *(Basic Auth)* Lista los leads abandonados y su estado |
+
+### Recargo por cancelación temprana de planes recurrentes
+
+Un cliente podría elegir el plan semanal solo para aprovechar el 15% de descuento y
+cancelar apenas después de la primera limpieza — eso le da el precio de "cliente
+recurrente" sin serlo. Para evitarlo: `earlyCancellationMinCycles` en
+`config/business.json` (por defecto 3) define cuántos ciclos hay que completar antes
+de poder cancelar sin costo. El sistema cuenta los ciclos reales vía el webhook de
+Stripe (`invoice.payment_succeeded` con `billing_reason: subscription_cycle`), no
+confía en nada que mande el cliente.
+
+Si cancelás una suscripción desde el panel de admin antes de cumplir el mínimo, te
+avisa cuántos ciclos van y te ofrece cobrar un recargo (el valor de una limpieza más,
+a la tarjeta ya guardada) antes de cancelar. Si el cobro falla, la suscripción **no**
+se cancela — así nunca se pierde el recargo por un error de red. Esto está documentado
+también en los Términos y Condiciones del sitio, y el cliente lo ve al confirmar un
+plan recurrente en el paso de revisión.
 
 ### Leads abandonados y recordatorio por SMS
 
