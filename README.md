@@ -239,6 +239,16 @@ variables, el sistema sigue guardando los leads igual, solo que en vez de mandar
 imprime en la consola lo que hubiera enviado — nunca falla ni bloquea nada. Los leads
 (convertidos o no) se ven en el panel de administración, en la sección "📞 Abandoned leads".
 
+La misma conexión de ClickSend se reutiliza para dos recordatorios más, ambos con la
+misma lógica de "una sola vez, nunca bloquea nada si falla":
+
+- **Recordatorio 24h antes de la limpieza** — a toda reserva pagada cuya fecha/hora
+  quede a menos de 24 horas, sin repetir el envío.
+- **Pedido de reseña de Google** — apenas marcás una reserva como "Completed" en el
+  panel de admin, siempre que hayas configurado `googleReviewUrl` en
+  `config/business.json` (queda vacío por defecto — sin eso, no manda nada, para no
+  compartir un link de reseña que no existe).
+
 ### Fotos del estado de la propiedad
 
 En el paso 1 del formulario, el cliente puede adjuntar hasta 8 fotos (JPEG, PNG o WEBP,

@@ -26,9 +26,9 @@
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 22px;
-  --shadow-sm: 0 2px 8px rgba(16, 40, 34, 0.06);
-  --shadow-md: 0 10px 30px rgba(16, 40, 34, 0.10);
-  --shadow-lg: 0 20px 50px rgba(16, 40, 34, 0.16);
+  --shadow-sm: 0 1px 3px rgba(16, 40, 34, 0.05);
+  --shadow-md: 0 6px 18px rgba(16, 40, 34, 0.08);
+  --shadow-lg: 0 12px 32px rgba(16, 40, 34, 0.12);
   --max-width: 1180px;
   --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }
@@ -145,7 +145,7 @@ input, select, textarea { font-family: inherit; }
 .trust-strip-inner span { font-size: .8rem; opacity: .85; }
 
 /* ---------- Sections ---------- */
-.section { padding: 80px 0; }
+.section { padding: 64px 0; }
 .section-alt { background: var(--color-bg-alt); }
 .section-head { max-width: 640px; margin: 0 auto 48px; text-align: center; }
 .eyebrow {
@@ -453,4 +453,9 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
   .container { padding: 0 16px; }
   .header-actions { gap: 8px; }
   .header-actions .btn-sm { padding: 9px 14px; font-size: .82rem; }
+  /* Smaller footprint on narrow screens, where a 52px floating circle can
+     sit directly over card text while scrolling. */
+  .whatsapp-float, .back-to-top { width: 44px; height: 44px; font-size: 1.3rem; bottom: 16px; }
+  .whatsapp-float { left: 16px; }
+  .back-to-top { right: 16px; font-size: 1.05rem; }
 }

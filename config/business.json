@@ -16,6 +16,7 @@
     "hours": "Mon–Sat, 8:00am–8:00pm",
     "serviceAreas": ["Melbourne CBD", "St Kilda", "Richmond", "Fitzroy", "Brunswick", "South Yarra"],
     "social": { "instagram": "#", "facebook": "#", "linkedin": "#" },
+    "googleReviewUrl": "",
     "currency": "aud",
     "currencySymbol": "$",
     "currencyCode": "AUD",

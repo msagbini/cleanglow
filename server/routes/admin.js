@@ -2,9 +2,10 @@ import { Router } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, listLeads } from '../db.js';
+import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, listLeads, markReviewRequestSent } from '../db.js';
 import { getStripe } from './payments.js';
 import { config } from '../config.js';
+import { sendSms, reviewRequestMessage } from '../sms.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
@@ -17,7 +18,7 @@ router.get('/bookings', (req, res) => {
   res.json({ bookings, counts: countBookingsByStatus() });
 });
 
-router.patch('/bookings/:id/status', (req, res) => {
+router.patch('/bookings/:id/status', async (req, res) => {
   const { status } = req.body || {};
   if (!isValidStatus(status)) {
     return res.status(400).json({ error: 'Invalid status' });
@@ -26,6 +27,15 @@ router.patch('/bookings/:id/status', (req, res) => {
   if (!existing) return res.status(404).json({ error: 'Booking not found' });
 
   const updated = markBookingStatus(req.params.id, status);
+
+  // One-time review request, only once a job is actually marked completed,
+  // only once per booking, and only if a real review link has been set —
+  // otherwise this would silently send customers a broken/empty link.
+  if (status === 'completed' && !updated.review_request_sent_at && config.business.googleReviewUrl) {
+    await sendSms(updated.phone, reviewRequestMessage(updated));
+    markReviewRequestSent(updated.id);
+  }
+
   res.json(updated);
 });
 

@@ -70,6 +70,8 @@ for (const ddl of [
   // Starts at 1 — the very first Checkout payment is cycle 1, before any
   // recurring `invoice.payment_succeeded` webhook has fired.
   'ALTER TABLE bookings ADD COLUMN cycles_completed INTEGER NOT NULL DEFAULT 1',
+  'ALTER TABLE bookings ADD COLUMN reminder_sent_at TEXT',
+  'ALTER TABLE bookings ADD COLUMN review_request_sent_at TEXT',
 ]) {
   try { db.exec(ddl); } catch { /* column already exists */ }
 }
@@ -252,6 +254,26 @@ export function markBookingStatus(id, status) {
 
 export function markNotified(id) {
   db.prepare(`UPDATE bookings SET notified_at = datetime('now') WHERE id = ?`).run(id);
+}
+
+// Paid bookings whose appointment is now less than 24h away and haven't had
+// a reminder yet. `booking_date || ' ' || booking_time` turns ("2026-08-01",
+// "14:00") into a string SQLite's datetime() can parse directly.
+export function findBookingsNeedingReminder() {
+  return db.prepare(`
+    SELECT * FROM bookings
+    WHERE status = 'paid' AND reminder_sent_at IS NULL
+      AND datetime(booking_date || ' ' || booking_time) > datetime('now')
+      AND datetime(booking_date || ' ' || booking_time) <= datetime('now', '+24 hours')
+  `).all().map(deserialize);
+}
+
+export function markReminderSent(id) {
+  db.prepare(`UPDATE bookings SET reminder_sent_at = datetime('now') WHERE id = ?`).run(id);
+}
+
+export function markReviewRequestSent(id) {
+  db.prepare(`UPDATE bookings SET review_request_sent_at = datetime('now') WHERE id = ?`).run(id);
 }
 
 const VALID_STATUSES = ['pending_payment', 'paid', 'completed', 'cancelled', 'expired'];

@@ -13,6 +13,7 @@ import leadsRouter from './routes/leads.js';
 import { adminAuth } from './middleware/adminAuth.js';
 import { renderIndexHtml } from './renderIndex.js';
 import { startAbandonedLeadSweep } from './leadSweep.js';
+import { startBookingReminderSweep } from './bookingReminders.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '..', 'public');
@@ -90,4 +91,5 @@ app.listen(port, () => {
     console.warn('⚠️  CLICKSEND_USERNAME/CLICKSEND_API_KEY not set — abandoned-booking SMS reminders are disabled (logged instead) until you configure them.');
   }
   startAbandonedLeadSweep();
+  startBookingReminderSweep();
 });

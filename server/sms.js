@@ -43,3 +43,15 @@ export function abandonedBookingMessage(baseUrl) {
   const { business } = config;
   return `Hi! You started a booking with ${business.name} but didn't finish. Complete it here: ${baseUrl}/#booking or call us on ${business.phoneDisplay}.`;
 }
+
+export function reminderMessage(booking) {
+  const { business } = config;
+  const dateFormatted = new Date(`${booking.booking_date}T00:00:00`).toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
+  return `Hi ${booking.full_name.split(' ')[0]}, reminder: your ${business.name} clean is coming up on ${dateFormatted} (${booking.booking_time} slot) at ${booking.address}. Reply or call ${business.phoneDisplay} if you need to reschedule.`;
+}
+
+export function reviewRequestMessage(booking) {
+  const { business } = config;
+  const reviewUrl = business.googleReviewUrl;
+  return `Hi ${booking.full_name.split(' ')[0]}, thanks for booking with ${business.name}! If you were happy with the clean, a quick Google review really helps us out: ${reviewUrl}`;
+}
