@@ -14,7 +14,10 @@
   --color-accent: #ff8a4c;
   --color-ink: #16241f;
   --color-body: #44544e;
-  --color-muted: #6f8079;
+  /* #55655e (not the lighter #6f8079 this used to be) is the darkest shade
+     that still reads as "muted" while clearing 4.5:1 contrast on white —
+     the old value measured ~4.17:1, under the WCAG AA text minimum. */
+  --color-muted: #55655e;
   --color-border: #dfe8e4;
   --color-bg: #ffffff;
   --color-bg-alt: #f5faf8;
@@ -48,6 +51,14 @@ body {
 }
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
+
+/* Visible keyboard focus on every interactive element — the inputs above get
+   their own focus glow, this covers buttons, links, pills, accordion
+   triggers, etc. so tabbing through the site is never invisible. */
+a:focus-visible, button:focus-visible, .pill:focus-visible, .extra-card:focus-within {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
 h1, h2, h3, h4 { color: var(--color-ink); line-height: 1.2; margin: 0 0 .5em; }
 p { margin: 0 0 1em; }
 ul { margin: 0; padding: 0; list-style: none; }
@@ -100,6 +111,14 @@ input, select, textarea { font-family: inherit; }
 .main-nav a:hover { color: var(--color-primary); }
 .header-actions { display: flex; align-items: center; gap: 16px; }
 .phone-link { font-weight: 600; font-size: .92rem; color: var(--color-primary-text); display: none; }
+/* Below 900px the text phone number gives way to a round tap-to-call icon —
+   calling is often the easier path for less digitally-confident visitors,
+   so it stays a first-class, always-visible action next to "Book now",
+   not something buried inside the hamburger menu. */
+.call-icon-btn {
+  display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+  border-radius: 50%; background: var(--color-primary-light); font-size: 1.05rem; flex-shrink: 0;
+}
 .nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; padding: 6px; }
 .nav-toggle span { width: 22px; height: 2px; background: var(--color-ink); border-radius: 2px; }
 
@@ -119,7 +138,7 @@ input, select, textarea { font-family: inherit; }
 .hero-copy > p { font-size: 1.08rem; max-width: 520px; }
 .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin: 26px 0; }
 .hero-trust { display: flex; gap: 22px; flex-wrap: wrap; font-size: .88rem; color: var(--color-muted); font-weight: 500; }
-.hero-guarantee-footnote { font-size: .76rem; color: var(--color-muted); margin-top: 14px; max-width: 520px; }
+.hero-guarantee-footnote { font-size: .82rem; color: var(--color-muted); margin-top: 14px; max-width: 520px; }
 .hero-guarantee-footnote a { color: var(--color-primary-text); font-weight: 600; text-decoration: underline; }
 
 .hero-visual { display: flex; justify-content: center; }
@@ -133,8 +152,10 @@ input, select, textarea { font-family: inherit; }
 .hero-card-row span:last-child { flex-shrink: 0; white-space: nowrap; }
 .hero-card-total { font-weight: 700; font-size: 1.1rem; color: var(--color-primary-text); border-bottom: none; padding-top: 14px; }
 .hero-card-tag {
-  position: absolute; top: -14px; right: 24px; background: var(--color-accent); color: #fff;
-  font-size: .75rem; font-weight: 700; padding: 6px 12px; border-radius: 999px; box-shadow: var(--shadow-sm);
+  /* Dark ink text, not white — white-on-accent-orange measures ~2.3:1, well
+     under the 4.5:1 minimum for text this size; ink-on-orange clears ~6.9:1. */
+  position: absolute; top: -14px; right: 24px; background: var(--color-accent); color: var(--color-ink);
+  font-size: .78rem; font-weight: 700; padding: 6px 12px; border-radius: 999px; box-shadow: var(--shadow-sm);
 }
 
 /* ---------- Trust strip ---------- */
@@ -142,7 +163,7 @@ input, select, textarea { font-family: inherit; }
 .trust-strip-inner { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; text-align: center; }
 .trust-strip-inner div { display: flex; flex-direction: column; gap: 2px; }
 .trust-strip-inner strong { font-size: 1.4rem; }
-.trust-strip-inner span { font-size: .8rem; opacity: .85; }
+.trust-strip-inner span { font-size: .85rem; opacity: .9; }
 
 /* ---------- Sections ---------- */
 .section { padding: 64px 0; }
@@ -175,7 +196,7 @@ input, select, textarea { font-family: inherit; }
 }
 .guarantee-card h3 { color: #fff; }
 .guarantee-card ul { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; font-size: .92rem; }
-.guarantee-disclaimer { margin-top: 18px; font-size: .78rem; color: rgba(255,255,255,.8); border-top: 1px solid rgba(255,255,255,.25); padding-top: 14px; }
+.guarantee-disclaimer { margin-top: 18px; font-size: .84rem; color: rgba(255,255,255,.85); border-top: 1px solid rgba(255,255,255,.25); padding-top: 14px; }
 .guarantee-disclaimer a { color: #fff; font-weight: 600; text-decoration: underline; }
 
 /* ---------- Pricing ---------- */
@@ -187,7 +208,7 @@ input, select, textarea { font-family: inherit; }
 .price-card.featured { border-color: var(--color-primary); box-shadow: var(--shadow-md); transform: scale(1.03); }
 .price-tag {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-  background: var(--color-accent); color: #fff; font-size: .75rem; font-weight: 700;
+  background: var(--color-accent); color: var(--color-ink); font-size: .78rem; font-weight: 700;
   padding: 5px 14px; border-radius: 999px;
 }
 .price-card h3 { font-size: 1.05rem; }
@@ -205,7 +226,7 @@ input, select, textarea { font-family: inherit; }
   content: ""; position: absolute; top: 16px; left: 6%; right: 6%; height: 2px; background: var(--color-border); z-index: 0;
 }
 .step-dot {
-  display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .78rem;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .82rem;
   color: var(--color-muted); font-weight: 600; position: relative; z-index: 1; flex: 1;
 }
 .step-dot span {
@@ -235,7 +256,10 @@ input[type=text], input[type=email], input[type=tel], input[type=number], input[
   width: 100%; padding: 12px 14px; border: 1.5px solid var(--color-border); border-radius: var(--radius-sm);
   font-size: .95rem; color: var(--color-ink); background: var(--color-surface); transition: border-color .15s;
 }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-primary); }
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-light);
+}
 textarea { resize: vertical; }
 input:invalid:not(:placeholder-shown):required { border-color: var(--color-danger); }
 
@@ -257,7 +281,7 @@ input:invalid:not(:placeholder-shown):required { border-color: var(--color-dange
 .extra-card:has(input:checked) { border-color: var(--color-primary); background: var(--color-primary-light); }
 .extra-icon { font-size: 1.1rem; }
 .extra-name { font-size: .86rem; font-weight: 600; color: var(--color-ink); }
-.extra-price { font-size: .8rem; color: var(--color-primary-text); font-weight: 700; }
+.extra-price { font-size: .85rem; color: var(--color-primary-text); font-weight: 700; }
 
 .extra-card-unit { padding: 14px; gap: 8px; cursor: default; }
 .extra-qty { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
@@ -307,11 +331,11 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
 .review-section { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 16px 18px; }
 .review-section h4 { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: var(--color-muted); margin: 0 0 8px; }
 .review-section p { margin: 0; font-size: .93rem; color: var(--color-ink); }
-.review-edit { font-size: .78rem; color: var(--color-primary-text); font-weight: 700; float: right; text-decoration: underline; }
+.review-edit { font-size: .84rem; color: var(--color-primary-text); font-weight: 700; float: right; text-decoration: underline; }
 .review-total-price { font-size: 1.3rem; font-weight: 800; color: var(--color-primary-text); }
-.review-discount-tag { font-size: .8rem; color: var(--color-success); font-weight: 600; }
-.review-gst-note { font-size: .78rem; color: var(--color-muted); margin-top: 4px; }
-.review-cancellation-note { font-size: .78rem; color: var(--color-muted); margin-top: 6px; }
+.review-discount-tag { font-size: .85rem; color: var(--color-success); font-weight: 600; }
+.review-gst-note { font-size: .84rem; color: var(--color-muted); margin-top: 4px; }
+.review-cancellation-note { font-size: .84rem; color: var(--color-muted); margin-top: 6px; }
 .review-cancellation-note a { color: var(--color-primary-text); font-weight: 600; text-decoration: underline; }
 
 /* ---------- Price summary sidebar ---------- */
@@ -323,9 +347,9 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
 .summary-line { display: flex; justify-content: space-between; padding: 9px 0; font-size: .88rem; border-bottom: 1px solid rgba(255,255,255,.1); }
 .summary-line[hidden] { display: none; }
 .summary-extras { display: flex; flex-direction: column; }
-.summary-extras li { display: flex; justify-content: space-between; padding: 7px 0; font-size: .83rem; color: rgba(255,255,255,.8); border-bottom: 1px solid rgba(255,255,255,.08); }
+.summary-extras li { display: flex; justify-content: space-between; padding: 7px 0; font-size: .87rem; color: rgba(255,255,255,.85); border-bottom: 1px solid rgba(255,255,255,.08); }
 .summary-total { font-size: 1.1rem; font-weight: 800; border-bottom: none; padding-top: 14px; color: var(--color-accent); }
-.summary-note { font-size: .75rem; color: rgba(255,255,255,.55); margin-top: 14px; }
+.summary-note { font-size: .82rem; color: rgba(255,255,255,.65); margin-top: 14px; }
 
 /* ---------- Testimonials ---------- */
 .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -334,7 +358,14 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
   padding: 26px; margin: 0; font-size: .95rem;
 }
 .testimonial p { color: var(--color-body); font-style: italic; }
-.testimonial footer { font-weight: 700; color: var(--color-ink); font-size: .85rem; }
+.testimonial footer { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--color-ink); font-size: .88rem; margin-top: 16px; }
+.testimonial-avatar {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 50%; font-size: .78rem; font-weight: 700;
+  color: var(--color-primary-dark); background: var(--color-primary-light);
+}
+.testimonial:nth-of-type(2) .testimonial-avatar { color: #b8730a; background: color-mix(in srgb, var(--color-accent) 18%, var(--color-bg)); }
+.testimonial:nth-of-type(3) .testimonial-avatar { color: var(--color-primary-dark); background: color-mix(in srgb, var(--color-primary) 20%, var(--color-bg)); }
 
 /* ---------- FAQ Accordion ---------- */
 .accordion { max-width: 760px; margin: 0 auto; border-top: 1px solid var(--color-border); }
@@ -358,15 +389,24 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
 /* ---------- Footer ---------- */
 .site-footer { background: #0d1a15; color: rgba(255,255,255,.75); padding: 56px 0 0; }
 .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; padding-bottom: 40px; }
-.footer-brand p { font-size: .88rem; margin: 14px 0; max-width: 260px; }
+/* .logo defaults to --color-ink (near-black) for the white header — on the
+   footer's dark background that measured ~1.1:1 contrast, effectively
+   invisible. Overriding to white here is a real legibility fix, not style. */
+.footer-brand .logo { color: #fff; }
+.footer-brand p { font-size: .9rem; margin: 14px 0; max-width: 260px; }
 .footer-social { display: flex; gap: 10px; }
-.footer-social a { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; }
+.footer-social a {
+  width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.08);
+  display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.75);
+  transition: background .15s, color .15s;
+}
+.footer-social a:hover { background: var(--color-primary); color: #fff; }
 .footer-col h4 { color: #fff; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
 .footer-col { display: flex; flex-direction: column; gap: 10px; font-size: .9rem; }
 .footer-col a:hover { color: #fff; }
 .footer-bottom {
   display: flex; justify-content: space-between; align-items: center; padding: 20px 0;
-  border-top: 1px solid rgba(255,255,255,.08); font-size: .8rem; flex-wrap: wrap; gap: 10px;
+  border-top: 1px solid rgba(255,255,255,.08); font-size: .85rem; flex-wrap: wrap; gap: 10px;
 }
 .footer-legal { display: flex; gap: 18px; }
 
@@ -419,6 +459,7 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
    ========================================================= */
 @media (min-width: 900px) {
   .phone-link { display: inline-block; }
+  .call-icon-btn { display: none; }
 }
 
 @media (max-width: 960px) {
@@ -443,7 +484,7 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
   .booking-form { padding: 24px; }
   .progress-bar { max-width: 100%; }
   .step-dot span { width: 28px; height: 28px; }
-  .step-dot { font-size: .68rem; }
+  .step-dot { font-size: .74rem; }
 }
 
 @media (max-width: 480px) {
@@ -458,4 +499,15 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
   .whatsapp-float, .back-to-top { width: 44px; height: 44px; font-size: 1.3rem; bottom: 16px; }
   .whatsapp-float { left: 16px; }
   .back-to-top { right: 16px; font-size: 1.05rem; }
+}
+
+/* Anyone with vestibular/motion sensitivity (more common among older
+   visitors) gets a still, instant site instead of sliding/fading transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

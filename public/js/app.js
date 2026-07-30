@@ -88,6 +88,8 @@
     const headerPhone = document.getElementById('headerPhoneLink');
     headerPhone.href = telHref;
     headerPhone.textContent = `📞 ${business.phoneDisplay}`;
+    const headerCallIcon = document.getElementById('headerCallIcon');
+    if (headerCallIcon) headerCallIcon.href = telHref;
     const footerPhone = document.getElementById('footerPhoneLink');
     footerPhone.href = telHref;
     footerPhone.textContent = `📞 ${business.phoneDisplay}`;
@@ -119,12 +121,16 @@
     });
 
     const socialWrap = document.getElementById('footerSocial');
-    const socialLabels = { instagram: 'IG', facebook: 'FB', linkedin: 'IN' };
+    const socialIcons = {
+      instagram: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+      facebook: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M14.5 9H17V6h-2.5C12.6 6 11 7.6 11 9.9V12H9v3h2v6h3v-6h2.4l.6-3H14v-1.7c0-.7.3-1.3 1.5-1.3Z"/></svg>',
+      linkedin: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="5.3" cy="5.3" r="2" /><path d="M3.7 9.5h3.2V20H3.7Zm6.2 0h3v1.5h.1c.4-.8 1.5-1.7 3.1-1.7 3.3 0 4 2.2 4 5V20h-3.2v-4.9c0-1.2 0-2.7-1.7-2.7-1.6 0-1.9 1.3-1.9 2.6V20H9.9Z"/></svg>',
+    };
     Object.entries(business.social).forEach(([key, url]) => {
       const a = document.createElement('a');
       a.href = url;
       a.setAttribute('aria-label', key);
-      a.textContent = socialLabels[key] || key.slice(0, 2).toUpperCase();
+      a.innerHTML = socialIcons[key] || key.slice(0, 2).toUpperCase();
       socialWrap.appendChild(a);
     });
   }
