@@ -138,6 +138,7 @@ input, select, textarea { font-family: inherit; }
 .hero-copy > p { font-size: 1.08rem; max-width: 520px; }
 .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin: 26px 0; }
 .hero-trust { display: flex; gap: 22px; flex-wrap: wrap; font-size: .88rem; color: var(--color-muted); font-weight: 500; }
+.hero-areas { font-size: .85rem; color: var(--color-muted); margin: 14px 0 0; max-width: 520px; }
 .hero-guarantee-footnote { font-size: .82rem; color: var(--color-muted); margin-top: 14px; max-width: 520px; }
 .hero-guarantee-footnote a { color: var(--color-primary-text); font-weight: 600; text-decoration: underline; }
 

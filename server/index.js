@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
+import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +12,7 @@ import adminRouter from './routes/admin.js';
 import seoRouter from './routes/seo.js';
 import leadsRouter from './routes/leads.js';
 import { adminAuth } from './middleware/adminAuth.js';
+import { requireSameOrigin } from './middleware/requireSameOrigin.js';
 import { renderIndexHtml } from './renderIndex.js';
 import { startAbandonedLeadSweep } from './leadSweep.js';
 import { startBookingReminderSweep } from './bookingReminders.js';
@@ -19,6 +21,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '..', 'public');
 
 const app = express();
+
+// Railway (and any reverse proxy/CDN in front of this app) terminates TLS and
+// forwards requests through its own edge — without this, express-rate-limit
+// keys on the proxy's IP for every visitor instead of the real client, so one
+// abusive visitor exhausts the shared bucket for everyone else. `1` trusts
+// exactly one hop (the platform's own edge), not an arbitrary client-supplied chain.
+app.set('trust proxy', 1);
+
+app.use(compression());
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -58,7 +69,7 @@ app.use('/api/leads', writeLimiter);
 // Gate /admin (static UI) and /api/admin (data) before the public static
 // middleware below, which would otherwise serve public/admin/* unprotected.
 app.use('/admin', adminLimiter, adminAuth, express.static(path.join(publicDir, 'admin')));
-app.use('/api/admin', adminLimiter, adminAuth, adminRouter);
+app.use('/api/admin', adminLimiter, adminAuth, requireSameOrigin, adminRouter);
 
 // Serve index.html with its SEO meta tags (title, description, canonical
 // URL) filled in from config/business.json, ahead of the static middleware
@@ -78,8 +89,30 @@ app.use('/api/leads', leadsRouter);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
+// Final error handler — without NODE_ENV=production, Express's own default
+// error handler includes the error's stack/message in the response body.
+// This always logs the full error server-side but only ever sends a generic
+// message to the client, regardless of NODE_ENV, so a stray thrown error
+// (e.g. an unexpected DB error in bookings.js) never leaks internals to a
+// live customer.
+app.use((err, req, res, next) => {
+  console.error('[unhandled route error]', err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: 'Something went wrong. Please try again.' });
+});
+
+// Last-resort safety net for anything unforeseen — never suppresses
+// uncaughtException (a corrupted-state crash should still restart the
+// process), but an unhandled rejection elsewhere shouldn't take the whole
+// site down silently. The real fix for the known cause of this (the SMS
+// sweep intervals) is the try/catch added directly in leadSweep.js and
+// bookingReminders.js — this is just the net for anything else.
+process.on('unhandledRejection', err => {
+  console.error('[unhandledRejection]', err);
+});
+
 const port = process.env.PORT || 4242;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
   if (!process.env.STRIPE_SECRET_KEY) {
     console.warn('⚠️  STRIPE_SECRET_KEY is not set — payments won\'t work until you configure it in .env');
@@ -92,4 +125,13 @@ app.listen(port, () => {
   }
   startAbandonedLeadSweep();
   startBookingReminderSweep();
+});
+
+// Railway sends SIGTERM before replacing a container on redeploy — without
+// this, a customer mid-checkout or mid-photo-upload at that moment gets their
+// connection dropped abruptly instead of the in-flight request completing.
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(1), 10_000).unref();
 });

@@ -96,6 +96,14 @@ export function isValidExtraKey(key) {
   return validExtraKeys.has(key);
 }
 
+// Without this, an unrecognized bedrooms/size value silently fell back to
+// the cheapest catalog tier in computeAmountCents instead of being rejected
+// — a real 5-bedroom booking could be priced as a Studio by simply sending a
+// bedrooms value that doesn't match any catalog option.
+export function isValidSizeValue(value) {
+  return String(value) in sizeOptionByValue;
+}
+
 // Extras are a flat array of keys, one entry per unit (e.g. 3 curtains ==
 // the key "curtains" repeated 3 times) — this caps how many times a single
 // key may repeat, so a bad payload can't inflate a line indefinitely.

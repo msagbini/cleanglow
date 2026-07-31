@@ -11,13 +11,30 @@
 <meta property="og:description" content="{{SITE_DESCRIPTION}}">
 <meta property="og:url" content="{{SITE_URL}}">
 <meta property="og:site_name" content="{{SITE_NAME}}">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{SITE_TITLE}}">
 <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
 <link rel="icon" href="{{SITE_ICON_HREF}}">
 <meta property="og:image" content="{{SITE_OG_IMAGE}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:image" content="{{SITE_OG_IMAGE}}">
 <link rel="stylesheet" href="css/styles.css">
+<script type="application/ld+json">{{LOCAL_BUSINESS_JSONLD}}</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What happens if my landlord isn't satisfied?", "acceptedAnswer": { "@type": "Answer", "text": "We offer a free re-clean guarantee within 7 days of the service if any checklist item doesn't meet your landlord's or agent's standards." } },
+    { "@type": "Question", "name": "Do I need to be there during the clean?", "acceptedAnswer": { "@type": "Answer", "text": "It's not required. You can arrange a lockbox, coordinate with a neighbour/building manager, or with your property manager during booking." } },
+    { "@type": "Question", "name": "Do you bring your own products and equipment?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity." } },
+    { "@type": "Question", "name": "How long does the clean take?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours." } },
+    { "@type": "Question", "name": "Can I cancel or change the date?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment." } },
+    { "@type": "Question", "name": "Does the price include GST?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees." } }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -54,13 +71,14 @@
   <div class="container hero-inner">
     <div class="hero-copy">
       <span class="badge" id="heroBadge">✔ 100% Guarantee</span>
-      <h1 id="heroTitle">Book your service in minutes.</h1>
-      <p id="heroDescription">Loading…</p>
+      <h1 id="heroTitle">{{HERO_TITLE_HTML}}</h1>
+      <p id="heroDescription">{{HERO_DESCRIPTION}}</p>
       <div class="hero-cta">
         <a href="#booking" class="btn btn-primary btn-lg">Book now</a>
         <a href="#pricing" class="btn btn-ghost btn-lg">See pricing</a>
       </div>
       <ul class="hero-trust" id="heroTrust"></ul>
+      <p class="hero-areas">Servicing {{SERVICE_AREAS_TEXT}} and nearby suburbs.</p>
       <p class="hero-guarantee-footnote" id="heroGuaranteeFootnote"></p>
     </div>
     <div class="hero-visual" aria-hidden="true">

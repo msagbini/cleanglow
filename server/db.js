@@ -58,6 +58,10 @@ db.exec(`
     reminded_at TEXT,
     converted_at TEXT
   );
+  CREATE TABLE IF NOT EXISTS processed_webhook_events (
+    event_id TEXT PRIMARY KEY,
+    processed_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // CREATE TABLE IF NOT EXISTS only applies the schema to a brand-new file — an
@@ -274,6 +278,19 @@ export function markReminderSent(id) {
 
 export function markReviewRequestSent(id) {
   db.prepare(`UPDATE bookings SET review_request_sent_at = datetime('now') WHERE id = ?`).run(id);
+}
+
+// Stripe documents at-least-once (occasionally duplicate) webhook delivery.
+// Without this, a duplicate `invoice.payment_succeeded` delivery would
+// double-increment cycles_completed, letting a subscriber's minimum-
+// commitment counter (used to waive the early-cancellation fee) advance
+// faster than their real billing history.
+export function hasProcessedEvent(eventId) {
+  return !!db.prepare('SELECT 1 FROM processed_webhook_events WHERE event_id = ?').get(eventId);
+}
+
+export function markEventProcessed(eventId) {
+  db.prepare('INSERT OR IGNORE INTO processed_webhook_events (event_id) VALUES (?)').run(eventId);
 }
 
 const VALID_STATUSES = ['pending_payment', 'paid', 'completed', 'cancelled', 'expired'];

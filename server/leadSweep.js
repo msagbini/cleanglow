@@ -13,10 +13,17 @@ export function startAbandonedLeadSweep() {
 }
 
 export async function runSweepOnce() {
-  const baseUrl = process.env.PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 4242}`;
-  const staleLeads = findStaleLeads(ABANDONED_AFTER_MINUTES);
-  for (const lead of staleLeads) {
-    await sendSms(lead.phone, abandonedBookingMessage(baseUrl));
-    markLeadReminded(lead.id);
+  // A single transient error here (e.g. a locked SQLite file) must never take
+  // down the whole live site — without this, Node's default behavior on an
+  // unhandled rejection from this setInterval callback is to crash the process.
+  try {
+    const baseUrl = process.env.PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 4242}`;
+    const staleLeads = findStaleLeads(ABANDONED_AFTER_MINUTES);
+    for (const lead of staleLeads) {
+      await sendSms(lead.phone, abandonedBookingMessage(baseUrl));
+      markLeadReminded(lead.id);
+    }
+  } catch (err) {
+    console.error('[leadSweep] Sweep iteration failed, will retry next interval:', err.message);
   }
 }

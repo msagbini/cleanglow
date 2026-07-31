@@ -2,7 +2,7 @@ import { Router } from 'express';
 import Stripe from 'stripe';
 import {
   getBooking, getBookingBySessionId, getBookingBySubscriptionId, attachStripeSession, attachStripeSubscription,
-  markBookingStatus, markNotified, incrementCyclesCompleted,
+  markBookingStatus, markNotified, incrementCyclesCompleted, hasProcessedEvent, markEventProcessed,
 } from '../db.js';
 import { getFrequencyOption } from '../config.js';
 import { notifyPaidBooking, sendCustomerConfirmation } from '../email.js';
@@ -123,6 +123,12 @@ export async function webhookHandler(req, res) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  // Stripe delivers at-least-once, so the same event can arrive more than
+  // once — process each event.id only the first time we see it.
+  if (hasProcessedEvent(event.id)) {
+    return res.json({ received: true, duplicate: true });
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed':
@@ -154,6 +160,7 @@ export async function webhookHandler(req, res) {
       default:
         break;
     }
+    markEventProcessed(event.id);
     res.json({ received: true });
   } catch (err) {
     console.error('[stripe] Error processing webhook:', err.message);

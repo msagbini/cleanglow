@@ -16,6 +16,7 @@ COPY config ./config
 RUN mkdir -p /app/server/data
 
 ENV PORT=4242
+ENV NODE_ENV=production
 EXPOSE 4242
 
 CMD ["node", "server/index.js"]

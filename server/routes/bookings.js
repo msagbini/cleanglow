@@ -5,7 +5,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, markLeadsConvertedFor } from '../db.js';
-import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, deriveUrgencyForDate, config } from '../config.js';
+import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, isValidSizeValue, deriveUrgencyForDate, config } from '../config.js';
 
 const router = Router();
 
@@ -14,6 +14,29 @@ const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
 fs.mkdirSync(uploadsDir, { recursive: true });
 
 const ALLOWED_PHOTO_TYPES = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+
+// fileFilter below only checks the client-declared Content-Type of the
+// multipart part, which is fully attacker-controlled — this checks the
+// actual bytes on disk after upload, so a file can't get stored under a
+// mismatched extension just because its declared mimetype lied about it.
+const MAGIC_BYTE_CHECKS = {
+  '.jpg': buf => buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff,
+  '.png': buf => buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
+  '.webp': buf => buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP',
+};
+
+function isValidImageFile(filePath, ext) {
+  const check = MAGIC_BYTE_CHECKS[ext];
+  if (!check) return false;
+  const fd = fs.openSync(filePath, 'r');
+  try {
+    const buf = Buffer.alloc(12);
+    fs.readSync(fd, buf, 0, 12, 0);
+    return check(buf);
+  } finally {
+    fs.closeSync(fd);
+  }
+}
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -64,6 +87,9 @@ router.post('/', (req, res) => {
   }
   if (!EMAIL_RE.test(body.email)) {
     return res.status(400).json({ error: 'Invalid email address' });
+  }
+  if (!isValidSizeValue(body.bedrooms)) {
+    return res.status(400).json({ error: 'Invalid property size selected' });
   }
   const phone = String(body.phone).replace(/\s+/g, '');
   if (!PHONE_RE.test(phone)) {
@@ -142,6 +168,15 @@ router.post('/:id/photos', (req, res) => {
       return res.status(400).json({ error: err.message || 'Could not upload photos' });
     }
     const files = req.files || [];
+
+    for (const file of files) {
+      const ext = path.extname(file.filename).toLowerCase();
+      if (!isValidImageFile(file.path, ext)) {
+        for (const f of files) fs.unlink(f.path, () => {});
+        return res.status(400).json({ error: 'One of the uploaded files is not a valid image' });
+      }
+    }
+
     try {
       for (const file of files) {
         addBookingPhoto(booking.id, {

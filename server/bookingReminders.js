@@ -11,9 +11,15 @@ export function startBookingReminderSweep() {
 }
 
 export async function runReminderSweepOnce() {
-  const dueBookings = findBookingsNeedingReminder();
-  for (const booking of dueBookings) {
-    await sendSms(booking.phone, reminderMessage(booking));
-    markReminderSent(booking.id);
+  // See leadSweep.js for why this try/catch matters: an unhandled rejection
+  // from this setInterval callback would otherwise crash the whole process.
+  try {
+    const dueBookings = findBookingsNeedingReminder();
+    for (const booking of dueBookings) {
+      await sendSms(booking.phone, reminderMessage(booking));
+      markReminderSent(booking.id);
+    }
+  } catch (err) {
+    console.error('[bookingReminders] Sweep iteration failed, will retry next interval:', err.message);
   }
 }
