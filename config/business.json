@@ -107,7 +107,7 @@
       { "value": "14:00", "label": "2:00pm - 5:00pm" },
       { "value": "17:00", "label": "5:00pm - 8:00pm" }
     ],
-    "promoCodes": { "WELCOME10": 0.10, "CLEAN5": 0.05, "WELCOME5": 0.05 },
+    "promoCodes": { "WELCOME10": 0.10, "CLEAN5": 0.05, "WELCOME5": 0.05, "LAUNCHTEST99": 0.99 },
     "maxConcurrentBookingsPerSlot": 1,
     "earlyCancellationMinCycles": 3,
     "frequencyOptions": [
