@@ -229,6 +229,7 @@ input, select, textarea { font-family: inherit; }
 .price { font-size: 2rem; font-weight: 800; color: var(--color-primary-text); margin: 8px 0 18px; }
 .price-card ul { display: flex; flex-direction: column; gap: 8px; font-size: .9rem; color: var(--color-muted); text-align: left; }
 .price-card ul li::before { content: "✓ "; color: var(--color-primary); font-weight: 700; }
+.price-card-select { width: 100%; margin-top: 22px; }
 
 /* ---------- Booking wizard ---------- */
 .section-booking { background: var(--color-bg-alt); }

@@ -217,9 +217,29 @@
         <h3>${tier.label}</h3>
         <p class="price">from ${cfg.business.currencySymbol}${tier.priceFrom}</p>
         <ul>${tier.features.map(f => `<li>${f}</li>`).join('')}</ul>
+        ${tier.presetBedrooms ? `<button type="button" class="btn btn-ghost btn-sm price-card-select" data-preset-bedrooms="${tier.presetBedrooms}">Book this size</button>` : ''}
       </div>
     `).join('');
   }
+
+  // Jumping in from a pricing card should land the customer on a wizard
+  // that's already set up for the size they picked, not an empty form they
+  // have to fill in again from scratch.
+  document.getElementById('pricingGrid').addEventListener('click', e => {
+    const btn = e.target.closest('.price-card-select');
+    if (!btn) return;
+    els.bedrooms.value = btn.dataset.presetBedrooms;
+    updatePriceSummary();
+    const wrap = document.querySelector('.booking-wrap');
+    document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (wrap) {
+      setTimeout(() => {
+        wrap.classList.remove('booking-arrival-highlight');
+        void wrap.offsetWidth;
+        wrap.classList.add('booking-arrival-highlight');
+      }, 650);
+    }
+  });
 
   function renderBookingWizard(cfg) {
     const { booking } = cfg;

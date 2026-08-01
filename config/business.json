@@ -138,8 +138,8 @@
     }
   },
   "pricingTiers": [
-    { "label": "Studio / 1 Bedroom", "priceFrom": 210, "featured": false, "features": ["Full standard clean", "Kitchen & 1 bathroom", "Floors & surfaces"] },
-    { "label": "2-3 Bedrooms", "priceFrom": 340, "featured": true, "features": ["Full standard clean", "Up to 2 bathrooms", "Optional deep kitchen clean"] },
-    { "label": "4+ Bedrooms", "priceFrom": 540, "featured": false, "features": ["Full standard clean", "Up to 3 bathrooms", "Extended team"] }
+    { "label": "Studio / 1 Bedroom", "priceFrom": 210, "featured": false, "presetBedrooms": "0", "features": ["Full standard clean", "Kitchen & 1 bathroom", "Floors & surfaces"] },
+    { "label": "2-3 Bedrooms", "priceFrom": 340, "featured": true, "presetBedrooms": "2", "features": ["Full standard clean", "Up to 2 bathrooms", "Optional deep kitchen clean"] },
+    { "label": "4+ Bedrooms", "priceFrom": 540, "featured": false, "presetBedrooms": "4", "features": ["Full standard clean", "Up to 3 bathrooms", "Extended team"] }
   ]
 }
