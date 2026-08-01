@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { config, computeGstComponentCents } from './config.js';
+import { buildBookingIcs } from './ics.js';
 
 let transporter = null;
 if (process.env.SMTP_HOST) {
@@ -71,5 +72,10 @@ export async function sendCustomerConfirmation(booking) {
     to: booking.email,
     subject: `Booking confirmed — ${booking.id}`,
     text: lines.join('\n'),
+    attachments: [{
+      filename: `${booking.id}.ics`,
+      content: buildBookingIcs(booking, config.business),
+      contentType: 'text/calendar',
+    }],
   });
 }

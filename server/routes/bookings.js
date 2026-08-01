@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, markLeadsConvertedFor } from '../db.js';
 import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, isValidSizeValue, deriveUrgencyForDate, config } from '../config.js';
+import { buildBookingIcs } from '../ics.js';
 
 const router = Router();
 
@@ -196,6 +197,20 @@ router.get('/:id', (req, res) => {
   const booking = getBooking(req.params.id);
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
   res.json(publicView(booking));
+});
+
+// Only offered once a booking is actually paid — an unpaid/pending slot
+// isn't confirmed yet, so it shouldn't end up on anyone's calendar.
+router.get('/:id/calendar.ics', (req, res) => {
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  if (!['paid', 'completed'].includes(booking.status)) {
+    return res.status(409).json({ error: 'This booking is not confirmed yet' });
+  }
+  const ics = buildBookingIcs(booking, config.business);
+  res.set('Content-Type', 'text/calendar; charset=utf-8');
+  res.set('Content-Disposition', `attachment; filename="${booking.id}.ics"`);
+  res.send(ics);
 });
 
 export function publicView(booking) {
