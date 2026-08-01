@@ -27,9 +27,9 @@
     "insuranceAmount": "$20M",
     "recleanWindowHours": 168,
     "heroTrust": [
-      "🛡️ Fully insured & police-checked cleaners",
-      "✅ 100% bond-back guarantee*",
-      "♻️ Free re-clean within 7 days"
+      { "icon": "shield", "text": "Fully insured & police-checked cleaners" },
+      { "icon": "badge", "text": "100% bond-back guarantee*" },
+      { "icon": "refresh", "text": "Free re-clean within 7 days" }
     ],
     "guaranteeFootnote": "*Bond-back guarantee means we'll re-clean any agreed checklist item for free until it meets a professional standard. It doesn't guarantee the bond amount itself, which is decided by your landlord or property manager. Conditions apply —",
     "stats": [
@@ -118,11 +118,11 @@
     ]
   },
   "servicesShowcase": [
-    { "icon": "🧹", "title": "Standard End of Lease Clean", "description": "Kitchen, bathrooms, bedrooms, living areas, floors, switches, skirting boards and doors. The foundation of every bond clean." },
-    { "icon": "🍳", "title": "Deep Kitchen Clean", "description": "Oven, rangehood, cooktop, and fridge inside and out, plus a full degrease of interior cabinets." },
-    { "icon": "🧺", "title": "Carpet & Upholstery", "description": "Steam cleaning for carpets and sofas to remove stains, odours and dust mites." },
-    { "icon": "🪟", "title": "Windows & Glass", "description": "Interior windows, frames and tracks left streak-free with no residue." },
-    { "icon": "🧱", "title": "Walls & Garage", "description": "Spot cleaning for wall marks, storage areas, garage, balcony or patio." }
+    { "icon": "sparkle", "title": "Standard End of Lease Clean", "description": "Kitchen, bathrooms, bedrooms, living areas, floors, switches, skirting boards and doors. The foundation of every bond clean." },
+    { "icon": "flame", "title": "Deep Kitchen Clean", "description": "Oven, rangehood, cooktop, and fridge inside and out, plus a full degrease of interior cabinets." },
+    { "icon": "rug", "title": "Carpet & Upholstery", "description": "Steam cleaning for carpets and sofas to remove stains, odours and dust mites." },
+    { "icon": "window", "title": "Windows & Glass", "description": "Interior windows, frames and tracks left streak-free with no residue." },
+    { "icon": "roller", "title": "Walls & Garage", "description": "Spot cleaning for wall marks, storage areas, garage, balcony or patio." }
   ],
   "checklist": {
     "intro": "Our 60+ point checklist was built with property managers to maximise your bond return. Tick what applies to your property and we'll include it in your booking.",
@@ -131,7 +131,7 @@
       ["Oven, cooktop and rangehood", "Fridge and freezer", "Interior windows and tracks", "Vacuumed and mopped floors", "Balcony, patio or courtyard", "Cobwebs and high dusting"]
     ],
     "guarantee": {
-      "title": "🛡️ Bond-Back Guarantee*",
+      "title": "Bond-Back Guarantee*",
       "description": "If your landlord or agent flags an item from your agreed checklist, we'll re-clean it for free — as many times as it takes to meet a professional standard. Report it within 7 days and give us access, and we'll be there.",
       "points": ["Insured & vetted cleaning teams", "Itemised invoice for your property manager", "Before/after photos included"],
       "disclaimer": "*Covers re-cleaning of agreed checklist items reported within the window above. Doesn't cover pre-existing damage, fair wear and tear, or the landlord's final bond decision —"

@@ -13,6 +13,24 @@
   };
   const MAX_PHOTOS = 8;
 
+  // Small, consistent line-icon set (brand-colored, in a soft circular chip
+  // via CSS) used in place of raw emoji in a few high-visibility spots —
+  // emoji render inconsistently across OS/browser and read as less
+  // professional than a matched icon set. Keyed by name, referenced from
+  // config/business.json instead of an emoji character; falls back to
+  // whatever raw value config provides if the key isn't recognized, so an
+  // unmapped icon never breaks rendering.
+  const ICONS = {
+    sparkle: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="M19 15l.6 1.7L21.3 17l-1.7.6L19 19.3l-.6-1.7L16.7 17l1.7-.6L19 15Z"/></svg>',
+    flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c4 0 6-2.5 6-6 0-3-2-4.5-3-6.5-.5 1.5-1 2-1.8 1-1-1.3-.7-3.3.3-5-3 1-6 4.5-6 8.5 0 4.5 2 8 4.5 8Z"/></svg>',
+    rug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><rect x="7" y="8" width="10" height="8" rx="1"/></svg>',
+    window: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>',
+    roller: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="11" height="6" rx="1.5"/><line x1="10" y1="10" x2="10" y2="16"/><line x1="10" y1="16" x2="15" y2="16"/><line x1="15" y1="16" x2="15" y2="21"/></svg>',
+    shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3Z"/></svg>',
+    badge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>',
+    refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a8 8 0 0 1 14-5l2-2"/><path d="M20 2v5h-5"/><path d="M20 15a8 8 0 0 1-14 5l-2 2"/><path d="M4 22v-5h5"/></svg>',
+  };
+
   // "168 hours" reads oddly next to marketing copy that says "7 days" —
   // shows whole-day windows as days, anything smaller as hours.
   function formatWindow(hours) {
@@ -142,7 +160,7 @@
     document.getElementById('heroDescription').textContent = business.heroDescription;
 
     document.getElementById('heroTrust').innerHTML = business.heroTrust
-      .map(item => `<li>${item}</li>`).join('');
+      .map(item => `<li>${ICONS[item.icon] || ''}<span>${item.text}</span></li>`).join('');
 
     const heroFootnote = document.getElementById('heroGuaranteeFootnote');
     if (heroFootnote && business.guaranteeFootnote) {
@@ -168,7 +186,7 @@
   function renderServices(cfg) {
     document.getElementById('servicesGrid').innerHTML = cfg.servicesShowcase.map(s => `
       <article class="service-card">
-        <div class="service-icon">${s.icon}</div>
+        <div class="service-icon">${ICONS[s.icon] || s.icon}</div>
         <h3>${s.title}</h3>
         <p>${s.description}</p>
       </article>
@@ -185,9 +203,9 @@
       ? `<p class="guarantee-disclaimer">${checklist.guarantee.disclaimer} <a href="#" data-modal="terms">Guarantee Terms</a></p>`
       : '';
     document.getElementById('guaranteeCard').innerHTML = `
-      <h3>${checklist.guarantee.title}</h3>
+      <h3>${ICONS.shield}<span>${checklist.guarantee.title}</span></h3>
       <p>${checklist.guarantee.description}</p>
-      <ul>${checklist.guarantee.points.map(p => `<li>✅ ${p}</li>`).join('')}</ul>
+      <ul>${checklist.guarantee.points.map(p => `<li>${ICONS.badge}<span>${p}</span></li>`).join('')}</ul>
       ${disclaimer}
     `;
   }
