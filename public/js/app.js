@@ -846,6 +846,23 @@
   });
   backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
+  // "Book now" jumps within the same page rather than loading a separate
+  // page — a deliberate, common pattern for this kind of site (no reload,
+  // keeps the in-progress quote) — but that can feel like nothing happened.
+  // This pulse makes the arrival unmistakable without turning it into an
+  // actual page navigation.
+  document.querySelectorAll('a[href="#booking"]').forEach(link => {
+    link.addEventListener('click', () => {
+      const wrap = document.querySelector('.booking-wrap');
+      if (!wrap) return;
+      setTimeout(() => {
+        wrap.classList.remove('booking-arrival-highlight');
+        void wrap.offsetWidth; // restart the animation even if it's still running from a rapid re-click
+        wrap.classList.add('booking-arrival-highlight');
+      }, 650);
+    });
+  });
+
   /* ============ Init ============ */
   async function init() {
     const res = await fetch('/api/config');

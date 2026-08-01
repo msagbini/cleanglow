@@ -238,6 +238,13 @@ input, select, textarea { font-family: inherit; }
 .step-dot.active span, .step-dot.completed span { border-color: var(--color-primary); background: var(--color-primary); color: #fff; }
 .step-dot.active, .step-dot.completed { color: var(--color-primary-text); }
 
+@keyframes bookingArrivalPulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent); }
+  70% { box-shadow: 0 0 0 22px color-mix(in srgb, var(--color-primary) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 0%, transparent); }
+}
+.booking-arrival-highlight { border-radius: var(--radius-lg); animation: bookingArrivalPulse 1.1s ease-out; }
+
 .booking-panel {
   display: grid; grid-template-columns: 1.6fr 1fr; gap: 28px; align-items: start;
 }
