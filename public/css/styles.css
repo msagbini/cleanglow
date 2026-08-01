@@ -257,6 +257,11 @@ input, select, textarea { font-family: inherit; }
   70% { box-shadow: 0 0 0 22px color-mix(in srgb, var(--color-primary) 0%, transparent); }
   100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 0%, transparent); }
 }
+/* Padding (offset by a matching negative margin, so normal layout doesn't
+   shift) gives the pulse ring room to breathe — without it, the ring's edge
+   sat right on top of the step-number circles, reported as looking like a
+   glitchy transition instead of a deliberate highlight. */
+.booking-wrap { padding: 16px; margin: -16px; border-radius: var(--radius-lg); }
 .booking-arrival-highlight { border-radius: var(--radius-lg); animation: bookingArrivalPulse 1.1s ease-out; }
 
 .booking-panel {

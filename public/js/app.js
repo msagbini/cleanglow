@@ -217,7 +217,7 @@
         <h3>${tier.label}</h3>
         <p class="price">from ${cfg.business.currencySymbol}${tier.priceFrom}</p>
         <ul>${tier.features.map(f => `<li>${f}</li>`).join('')}</ul>
-        ${tier.presetBedrooms ? `<button type="button" class="btn btn-ghost btn-sm price-card-select" data-preset-bedrooms="${tier.presetBedrooms}">Book this size</button>` : ''}
+        ${tier.presetBedrooms ? `<button type="button" class="btn btn-primary btn-sm price-card-select" data-preset-bedrooms="${tier.presetBedrooms}">Book this size</button>` : ''}
       </div>
     `).join('');
   }
