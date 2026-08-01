@@ -2,12 +2,14 @@ import { Router } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, addBookingPhoto, listLeads, markReviewRequestSent } from '../db.js';
+import {
+  listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, addBookingPhoto, listLeads,
+  createCleaner, listCleaners, getCleaner, setCleanerActive, assignBookingToCleaner,
+} from '../db.js';
 import { getStripe } from './payments.js';
 import { config } from '../config.js';
-import { sendSms, reviewRequestMessage } from '../sms.js';
-import { sendCompletionPhotos } from '../email.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
+import { handleBookingCompleted } from '../bookingCompletion.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
@@ -31,22 +33,8 @@ router.patch('/bookings/:id/status', async (req, res) => {
 
   const updated = markBookingStatus(req.params.id, status);
 
-  // One-time review request, only once a job is actually marked completed,
-  // only once per booking, and only if a real review link has been set —
-  // otherwise this would silently send customers a broken/empty link.
-  if (status === 'completed' && !updated.review_request_sent_at && config.business.googleReviewUrl) {
-    await sendSms(updated.phone, reviewRequestMessage(updated));
-    markReviewRequestSent(updated.id);
-  }
-
-  // Delivers on the "before/after photos included" guarantee point — if the
-  // cleaning team uploaded after-photos before marking the job completed,
-  // the customer gets them by email right away instead of having to ask.
   if (status === 'completed') {
-    const afterPhotos = listBookingPhotos(updated.id).filter(p => p.phase === 'after');
-    if (afterPhotos.length) {
-      await sendCompletionPhotos(updated, afterPhotos.map(p => path.join(uploadsDir, p.filename)));
-    }
+    await handleBookingCompleted(updated, uploadsDir);
   }
 
   res.json(updated);
@@ -200,6 +188,42 @@ router.get('/leads', (req, res) => {
     status: l.converted_at ? 'converted' : (l.reminded_at ? 'reminded' : 'open'),
   }));
   res.json({ leads });
+});
+
+router.get('/cleaners', (req, res) => {
+  res.json({ cleaners: listCleaners() });
+});
+
+router.post('/cleaners', (req, res) => {
+  const { name, phone, email } = req.body || {};
+  if (!name || !String(name).trim()) {
+    return res.status(400).json({ error: 'Name is required' });
+  }
+  const cleaner = createCleaner({
+    name: String(name).trim().slice(0, 100),
+    phone: phone ? String(phone).trim().slice(0, 20) : null,
+    email: email ? String(email).trim().slice(0, 200) : null,
+  });
+  res.status(201).json(cleaner);
+});
+
+router.patch('/cleaners/:id/active', (req, res) => {
+  const cleaner = getCleaner(req.params.id);
+  if (!cleaner) return res.status(404).json({ error: 'Cleaner not found' });
+  setCleanerActive(cleaner.id, !!req.body?.active);
+  res.json(getCleaner(cleaner.id));
+});
+
+router.patch('/bookings/:id/assign-cleaner', (req, res) => {
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  const { cleanerId } = req.body || {};
+  if (cleanerId) {
+    const cleaner = getCleaner(cleanerId);
+    if (!cleaner) return res.status(400).json({ error: 'Cleaner not found' });
+  }
+  assignBookingToCleaner(booking.id, cleanerId || null);
+  res.json(getBooking(booking.id));
 });
 
 export default router;

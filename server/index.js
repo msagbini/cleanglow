@@ -9,6 +9,7 @@ import bookingsRouter from './routes/bookings.js';
 import paymentsRouter, { webhookHandler } from './routes/payments.js';
 import configRouter from './routes/config.js';
 import adminRouter from './routes/admin.js';
+import cleanersRouter from './routes/cleaners.js';
 import seoRouter from './routes/seo.js';
 import leadsRouter from './routes/leads.js';
 import { adminAuth } from './middleware/adminAuth.js';
@@ -60,7 +61,11 @@ const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHea
 // The admin panel guards every booking/customer record behind one password —
 // a much tighter limit than general API traffic makes credential brute-forcing
 // impractical, independent of whatever the password strength turns out to be.
-const adminLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false });
+// skipSuccessfulRequests means only failed (wrong-password) attempts count
+// against this budget — a real admin using the dashboard all day (each page
+// load alone is ~7-8 requests: static assets + bookings/leads/cleaners) never
+// gets rate-limited by their own legitimate use; only repeated wrong guesses do.
+const adminLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false, skipSuccessfulRequests: true });
 app.use('/api/', apiLimiter);
 app.use('/api/bookings', writeLimiter);
 app.use('/api/checkout-session', writeLimiter);
@@ -70,6 +75,11 @@ app.use('/api/leads', writeLimiter);
 // middleware below, which would otherwise serve public/admin/* unprotected.
 app.use('/admin', adminLimiter, adminAuth, express.static(path.join(publicDir, 'admin')));
 app.use('/api/admin', adminLimiter, adminAuth, requireSameOrigin, adminRouter);
+
+// No Basic Auth here — access is gated by the unguessable token in the URL
+// itself (see routes/cleaners.js), the same trust model as a booking
+// reference. requireSameOrigin still applies to the mutating routes.
+app.use('/api/cleaner', requireSameOrigin, cleanersRouter);
 
 // Serve index.html with its SEO meta tags (title, description, canonical
 // URL) filled in from config/business.json, ahead of the static middleware
@@ -81,6 +91,14 @@ app.get(['/', '/index.html'], (req, res) => {
 app.use(seoRouter);
 
 app.use(express.static(publicDir));
+
+// The token is a client-side route param, not a real file — registered
+// AFTER express.static so real files under /cleaner/ (app.js, cleaner.css)
+// are served as themselves first; this only catches paths that don't match
+// an actual static file, i.e. a genuine cleaner token.
+app.get('/cleaner/:token', (req, res) => {
+  res.sendFile(path.join(publicDir, 'cleaner', 'index.html'));
+});
 
 app.use('/api/bookings', bookingsRouter);
 app.use('/api', paymentsRouter);

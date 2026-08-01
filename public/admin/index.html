@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/img/logo-mark.svg">
 <link rel="stylesheet" href="../css/styles.css">
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="../css/dashboard.css">
 </head>
 <body>
 <div class="admin-wrap">
@@ -39,6 +39,7 @@
           <th>Date</th>
           <th>Frequency</th>
           <th>Amount</th>
+          <th>Cleaner</th>
           <th>Created</th>
           <th>Action</th>
         </tr>
@@ -59,6 +60,24 @@
       <tbody id="leadsBody"></tbody>
     </table>
     <div class="empty-state" id="leadsEmptyState" hidden>No abandoned leads right now.</div>
+  </div>
+
+  <div class="admin-header admin-header-spaced">
+    <h1>🧹 Cleaners</h1>
+    <span class="muted-text">Each cleaner gets a link — no password. Assign jobs to them from the bookings table above.</span>
+  </div>
+  <form id="addCleanerForm" class="add-cleaner-form">
+    <input type="text" id="cleanerName" placeholder="Name" required>
+    <input type="tel" id="cleanerPhone" placeholder="Phone (optional)">
+    <input type="email" id="cleanerEmail" placeholder="Email (optional)">
+    <button type="submit" class="btn btn-primary btn-sm">Add cleaner</button>
+  </form>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Contact</th><th>Link</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="cleanersBody"></tbody>
+    </table>
+    <div class="empty-state" id="cleanersEmptyState" hidden>No cleaners added yet.</div>
   </div>
 </div>
 

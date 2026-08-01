@@ -37,3 +37,6 @@ select.status-select { padding: 6px 8px; border-radius: 6px; border: 1px solid v
 .modal-wide h4 { margin: 24px 0 0; font-size: .95rem; text-transform: uppercase; letter-spacing: .04em; color: var(--color-muted); }
 .after-photos-form { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
 .after-photos-note { margin-top: 10px; font-size: .82rem; }
+.add-cleaner-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.add-cleaner-form input { padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: .88rem; }
+.cleaner-link-copy { font-size: .8rem; }

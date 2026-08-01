@@ -23,6 +23,7 @@
   const filterTabs = document.getElementById('filterTabs');
 
   let currentStatus = '';
+  let cleaners = [];
 
   async function fetchBookings() {
     loadingState.hidden = false;
@@ -63,6 +64,12 @@
         <td>${b.booking_date}<br><span class="muted-text">${b.booking_time}</span></td>
         <td>${escapeHtml(FREQUENCY_LABEL[b.frequency] || b.frequency)}${b.stripe_subscription_id ? '<br><span class="muted-text">recurring</span>' : ''}</td>
         <td><strong>${b.currency === 'aud' ? '$' : b.currency}${(b.amount_cents / 100).toFixed(2)}</strong></td>
+        <td>
+          <select class="cleaner-select" data-id="${b.id}">
+            <option value="">— Unassigned —</option>
+            ${cleaners.map(c => `<option value="${c.id}" ${c.id === b.assigned_cleaner_id ? 'selected' : ''} ${!c.active ? 'disabled' : ''}>${escapeHtml(c.name)}${!c.active ? ' (inactive)' : ''}</option>`).join('')}
+          </select>
+        </td>
         <td>${new Date(b.created_at).toLocaleDateString('en-AU')}</td>
         <td>
           <select class="status-select" data-id="${b.id}">
@@ -198,22 +205,41 @@
   });
 
   tbody.addEventListener('change', async e => {
-    const select = e.target.closest('.status-select');
-    if (!select) return;
-    const id = select.dataset.id;
-    const status = select.value;
-    select.disabled = true;
-    try {
-      const res = await fetch(`/api/admin/bookings/${encodeURIComponent(id)}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      if (!res.ok) throw new Error('Update failed');
-      await fetchBookings();
-    } catch (err) {
-      alert('Error updating status: ' + err.message);
-      select.disabled = false;
+    const statusSelect = e.target.closest('.status-select');
+    if (statusSelect) {
+      const id = statusSelect.dataset.id;
+      const status = statusSelect.value;
+      statusSelect.disabled = true;
+      try {
+        const res = await fetch(`/api/admin/bookings/${encodeURIComponent(id)}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        });
+        if (!res.ok) throw new Error('Update failed');
+        await fetchBookings();
+      } catch (err) {
+        alert('Error updating status: ' + err.message);
+        statusSelect.disabled = false;
+      }
+      return;
+    }
+
+    const cleanerSelect = e.target.closest('.cleaner-select');
+    if (cleanerSelect) {
+      const id = cleanerSelect.dataset.id;
+      cleanerSelect.disabled = true;
+      try {
+        const res = await fetch(`/api/admin/bookings/${encodeURIComponent(id)}/assign-cleaner`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cleanerId: cleanerSelect.value || null }),
+        });
+        if (!res.ok) throw new Error('Update failed');
+      } catch (err) {
+        alert('Error assigning cleaner: ' + err.message);
+      }
+      cleanerSelect.disabled = false;
     }
   });
 
@@ -226,7 +252,7 @@
     fetchBookings();
   });
 
-  document.getElementById('refreshBtn').addEventListener('click', () => { fetchBookings(); fetchLeads(); });
+  document.getElementById('refreshBtn').addEventListener('click', () => { fetchBookings(); fetchLeads(); fetchCleaners(); });
 
   const leadsBody = document.getElementById('leadsBody');
   const leadsEmptyState = document.getElementById('leadsEmptyState');
@@ -252,6 +278,94 @@
     `).join('');
   }
 
-  fetchBookings();
-  fetchLeads();
+  const cleanersBody = document.getElementById('cleanersBody');
+  const cleanersEmptyState = document.getElementById('cleanersEmptyState');
+  const addCleanerForm = document.getElementById('addCleanerForm');
+
+  async function fetchCleaners() {
+    const res = await fetch('/api/admin/cleaners');
+    if (!res.ok) return;
+    const data = await res.json();
+    cleaners = data.cleaners;
+    renderCleanersRows();
+  }
+
+  function renderCleanersRows() {
+    if (!cleaners.length) {
+      cleanersBody.innerHTML = '';
+      cleanersEmptyState.hidden = false;
+      return;
+    }
+    cleanersEmptyState.hidden = true;
+    cleanersBody.innerHTML = cleaners.map(c => {
+      const link = `${location.origin}/cleaner/${c.id}`;
+      return `
+        <tr data-id="${c.id}">
+          <td><strong>${escapeHtml(c.name)}</strong></td>
+          <td class="muted-text">${escapeHtml(c.phone || '—')}${c.email ? `<br>${escapeHtml(c.email)}` : ''}</td>
+          <td>
+            <a href="${link}" target="_blank" rel="noopener">${link}</a>
+            <br><button type="button" class="btn btn-ghost btn-sm cleaner-link-copy" data-link="${link}">Copy link</button>
+          </td>
+          <td><span class="status-badge ${c.active ? 'status-paid' : 'status-expired'}">${c.active ? 'Active' : 'Inactive'}</span></td>
+          <td><button type="button" class="btn btn-ghost btn-sm cleaner-toggle-btn" data-id="${c.id}" data-active="${c.active ? 1 : 0}">${c.active ? 'Deactivate' : 'Reactivate'}</button></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  addCleanerForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('cleanerName').value.trim();
+    const phone = document.getElementById('cleanerPhone').value.trim();
+    const email = document.getElementById('cleanerEmail').value.trim();
+    if (!name) return;
+    try {
+      const res = await fetch('/api/admin/cleaners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not add cleaner');
+      addCleanerForm.reset();
+      await fetchCleaners();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
+  cleanersBody.addEventListener('click', async e => {
+    const copyBtn = e.target.closest('.cleaner-link-copy');
+    if (copyBtn) {
+      navigator.clipboard?.writeText(copyBtn.dataset.link).catch(() => {});
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = 'Copy link'; }, 1500);
+      return;
+    }
+    const toggleBtn = e.target.closest('.cleaner-toggle-btn');
+    if (toggleBtn) {
+      const nextActive = toggleBtn.dataset.active !== '1';
+      toggleBtn.disabled = true;
+      try {
+        const res = await fetch(`/api/admin/cleaners/${encodeURIComponent(toggleBtn.dataset.id)}/active`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: nextActive }),
+        });
+        if (!res.ok) throw new Error('Update failed');
+        await fetchCleaners();
+        await fetchBookings();
+      } catch (err) {
+        alert('Error updating cleaner: ' + err.message);
+        toggleBtn.disabled = false;
+      }
+    }
+  });
+
+  (async () => {
+    await fetchCleaners();
+    fetchBookings();
+    fetchLeads();
+  })();
 })();

@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 
@@ -63,6 +64,18 @@ db.exec(`
     event_id TEXT PRIMARY KEY,
     processed_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  -- id doubles as the cleaner's access token (e.g. /cleaner/<id>) — same
+  -- "unguessable id as the credential" pattern already used for booking
+  -- references, appropriate for a small trusted team rather than a full
+  -- per-employee login system.
+  CREATE TABLE IF NOT EXISTS cleaners (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone TEXT,
+    email TEXT,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // CREATE TABLE IF NOT EXISTS only applies the schema to a brand-new file — an
@@ -80,6 +93,7 @@ for (const ddl of [
   // 'before' for every existing row — they were all customer-submitted
   // pre-clean photos, since "after" photos didn't exist before this column.
   'ALTER TABLE booking_photos ADD COLUMN phase TEXT NOT NULL DEFAULT \'before\'',
+  'ALTER TABLE bookings ADD COLUMN assigned_cleaner_id TEXT REFERENCES cleaners(id)',
 ]) {
   try { db.exec(ddl); } catch { /* column already exists */ }
 }
@@ -325,6 +339,40 @@ export function isValidStatus(status) {
 
 function deserialize(row) {
   return { ...row, extras: JSON.parse(row.extras || '[]') };
+}
+
+// The cleaner's id IS their access token (crypto.randomUUID(), 122 bits of
+// randomness — not brute-forceable) — there's no separate password to set,
+// lose, or reset. Admin creates a cleaner, copies their link, sends it once.
+export function createCleaner({ name, phone, email }) {
+  const id = crypto.randomUUID();
+  db.prepare('INSERT INTO cleaners (id, name, phone, email) VALUES (?, ?, ?, ?)')
+    .run(id, name, phone ?? null, email ?? null);
+  return getCleaner(id);
+}
+
+export function getCleaner(id) {
+  return db.prepare('SELECT * FROM cleaners WHERE id = ?').get(id) ?? null;
+}
+
+export function listCleaners() {
+  return db.prepare('SELECT * FROM cleaners ORDER BY created_at DESC').all();
+}
+
+export function setCleanerActive(id, active) {
+  db.prepare('UPDATE cleaners SET active = ? WHERE id = ?').run(active ? 1 : 0, id);
+}
+
+export function assignBookingToCleaner(bookingId, cleanerId) {
+  db.prepare('UPDATE bookings SET assigned_cleaner_id = ?, updated_at = datetime(\'now\') WHERE id = ?')
+    .run(cleanerId, bookingId);
+}
+
+// Only ever called with an id that came from the cleaner's own access
+// token — never exposes another cleaner's jobs.
+export function listBookingsForCleaner(cleanerId) {
+  return db.prepare('SELECT * FROM bookings WHERE assigned_cleaner_id = ? ORDER BY booking_date ASC, booking_time ASC')
+    .all(cleanerId).map(deserialize);
 }
 
 export default db;

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="../js/reload-scroll-fix.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My jobs</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/img/logo-mark.svg">
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="cleaner.css">
+</head>
+<body>
+<div class="admin-wrap">
+  <div class="admin-header">
+    <h1 id="cleanerGreeting">My jobs</h1>
+    <button type="button" class="btn btn-ghost btn-sm" id="refreshBtn">Refresh</button>
+  </div>
+
+  <div id="invalidState" class="empty-state" hidden>This link isn't valid anymore. Ask your admin for a new one.</div>
+  <div class="loading-state" id="loadingState">Loading your jobs…</div>
+  <div class="empty-state" id="emptyState" hidden>No jobs assigned to you right now.</div>
+
+  <div id="jobsList" class="jobs-list"></div>
+</div>
+
+<div class="modal-overlay" id="jobModal" hidden>
+  <div class="modal modal-wide">
+    <button type="button" class="modal-close" id="jobModalClose" aria-label="Close">✕</button>
+    <h2 id="jobModalTitle">Job</h2>
+    <div id="jobModalBody"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
