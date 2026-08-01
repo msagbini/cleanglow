@@ -2,13 +2,16 @@ import { Router } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, listLeads, markReviewRequestSent } from '../db.js';
+import { listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, addBookingPhoto, listLeads, markReviewRequestSent } from '../db.js';
 import { getStripe } from './payments.js';
 import { config } from '../config.js';
 import { sendSms, reviewRequestMessage } from '../sms.js';
+import { sendCompletionPhotos } from '../email.js';
+import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
+const upload = createPhotoUpload(uploadsDir);
 
 const router = Router();
 
@@ -34,6 +37,16 @@ router.patch('/bookings/:id/status', async (req, res) => {
   if (status === 'completed' && !updated.review_request_sent_at && config.business.googleReviewUrl) {
     await sendSms(updated.phone, reviewRequestMessage(updated));
     markReviewRequestSent(updated.id);
+  }
+
+  // Delivers on the "before/after photos included" guarantee point — if the
+  // cleaning team uploaded after-photos before marking the job completed,
+  // the customer gets them by email right away instead of having to ask.
+  if (status === 'completed') {
+    const afterPhotos = listBookingPhotos(updated.id).filter(p => p.phase === 'after');
+    if (afterPhotos.length) {
+      await sendCompletionPhotos(updated, afterPhotos.map(p => path.join(uploadsDir, p.filename)));
+    }
   }
 
   res.json(updated);
@@ -109,10 +122,50 @@ router.get('/bookings/:id/photos', (req, res) => {
     id: p.id,
     originalName: p.original_name,
     sizeBytes: p.size_bytes,
+    phase: p.phase,
     createdAt: p.created_at,
     url: `/api/admin/bookings/${req.params.id}/photos/${encodeURIComponent(p.filename)}`,
   }));
   res.json({ photos });
+});
+
+// Lets the cleaning team attach "after" photos once the job is done — these
+// get emailed to the customer automatically when the booking is marked
+// completed (see PATCH /bookings/:id/status above). Same magic-byte
+// validation as the customer-facing upload; a trusted admin session doesn't
+// exempt a file from being checked.
+router.post('/bookings/:id/photos', (req, res) => {
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+  upload.array('photos', 8)(req, res, err => {
+    if (err) {
+      return res.status(400).json({ error: err.message || 'Could not upload photos' });
+    }
+    const files = req.files || [];
+
+    for (const file of files) {
+      const ext = path.extname(file.filename).toLowerCase();
+      if (!isValidImageFile(file.path, ext)) {
+        cleanupFiles(files.map(f => f.path));
+        return res.status(400).json({ error: 'One of the uploaded files is not a valid image' });
+      }
+    }
+
+    try {
+      for (const file of files) {
+        addBookingPhoto(booking.id, {
+          filename: file.filename,
+          originalName: file.originalname,
+          sizeBytes: file.size,
+          phase: 'after',
+        });
+      }
+    } catch (dbErr) {
+      return res.status(400).json({ error: dbErr.message });
+    }
+    res.status(201).json({ uploaded: files.length });
+  });
 });
 
 // Filenames are server-generated UUIDs (see routes/bookings.js), but we still

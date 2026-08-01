@@ -84,27 +84,40 @@
   }
 
   const photosModal = document.getElementById('photosModal');
-  const photosModalGrid = document.getElementById('photosModalGrid');
+  const photosModalGridBefore = document.getElementById('photosModalGridBefore');
+  const photosModalGridAfter = document.getElementById('photosModalGridAfter');
   const photosModalBookingId = document.getElementById('photosModalBookingId');
+  const afterPhotosForm = document.getElementById('afterPhotosForm');
+  const afterPhotosInput = document.getElementById('afterPhotosInput');
+  const afterPhotosStatus = document.getElementById('afterPhotosStatus');
+  let currentPhotosBookingId = null;
+
+  function renderPhotoGrid(el, photos, emptyMessage) {
+    if (!photos.length) {
+      el.innerHTML = `<p class="photos-modal-empty">${emptyMessage}</p>`;
+      return;
+    }
+    el.innerHTML = photos.map(p =>
+      `<a href="${p.url}" target="_blank" rel="noopener"><img src="${p.url}" alt="Property photo"></a>`
+    ).join('');
+  }
 
   async function openPhotosModal(bookingId) {
+    currentPhotosBookingId = bookingId;
     photosModalBookingId.textContent = bookingId;
-    photosModalGrid.innerHTML = '<p class="muted-text">Loading…</p>';
+    photosModalGridBefore.innerHTML = '<p class="muted-text">Loading…</p>';
+    photosModalGridAfter.innerHTML = '';
+    afterPhotosStatus.textContent = '';
     photosModal.hidden = false;
     document.body.style.overflow = 'hidden';
     try {
       const res = await fetch(`/api/admin/bookings/${encodeURIComponent(bookingId)}/photos`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not load photos');
-      if (!data.photos.length) {
-        photosModalGrid.innerHTML = '<p class="photos-modal-empty">No photos were uploaded for this booking.</p>';
-        return;
-      }
-      photosModalGrid.innerHTML = data.photos.map(p =>
-        `<a href="${p.url}" target="_blank" rel="noopener"><img src="${p.url}" alt="Property photo"></a>`
-      ).join('');
+      renderPhotoGrid(photosModalGridBefore, data.photos.filter(p => p.phase !== 'after'), 'No photos were submitted by the customer.');
+      renderPhotoGrid(photosModalGridAfter, data.photos.filter(p => p.phase === 'after'), 'No after photos uploaded yet.');
     } catch (err) {
-      photosModalGrid.innerHTML = `<p class="photos-modal-empty">${escapeHtml(err.message)}</p>`;
+      photosModalGridBefore.innerHTML = `<p class="photos-modal-empty">${escapeHtml(err.message)}</p>`;
     }
   }
 
@@ -116,6 +129,27 @@
   document.getElementById('photosModalClose').addEventListener('click', closePhotosModal);
   photosModal.addEventListener('click', e => {
     if (e.target === photosModal) closePhotosModal();
+  });
+
+  afterPhotosForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!afterPhotosInput.files.length || !currentPhotosBookingId) return;
+    afterPhotosStatus.textContent = 'Uploading…';
+    const formData = new FormData();
+    for (const file of afterPhotosInput.files) formData.append('photos', file);
+    try {
+      const res = await fetch(`/api/admin/bookings/${encodeURIComponent(currentPhotosBookingId)}/photos`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      afterPhotosInput.value = '';
+      afterPhotosStatus.textContent = '';
+      await openPhotosModal(currentPhotosBookingId);
+    } catch (err) {
+      afterPhotosStatus.textContent = err.message;
+    }
   });
 
   tbody.addEventListener('click', async e => {

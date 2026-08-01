@@ -62,10 +62,21 @@
 </div>
 
 <div class="modal-overlay" id="photosModal" hidden>
-  <div class="modal">
+  <div class="modal modal-wide">
     <button type="button" class="modal-close" id="photosModalClose" aria-label="Close">✕</button>
-    <h2>Property condition photos — <span id="photosModalBookingId"></span></h2>
-    <div class="photos-modal-grid" id="photosModalGrid"></div>
+    <h2>Property photos — <span id="photosModalBookingId"></span></h2>
+
+    <h4>Before (submitted by the customer)</h4>
+    <div class="photos-modal-grid" id="photosModalGridBefore"></div>
+
+    <h4>After (upload once the clean is done)</h4>
+    <div class="photos-modal-grid" id="photosModalGridAfter"></div>
+    <form id="afterPhotosForm" class="after-photos-form">
+      <input type="file" id="afterPhotosInput" accept="image/jpeg,image/png,image/webp" multiple>
+      <button type="submit" class="btn btn-primary btn-sm">Upload after photos</button>
+      <span id="afterPhotosStatus" class="muted-text"></span>
+    </form>
+    <p class="muted-text after-photos-note">Uploading these doesn't notify the customer by itself — they're emailed automatically the moment you mark this booking "Completed".</p>
   </div>
 </div>
 

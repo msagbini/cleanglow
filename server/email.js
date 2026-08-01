@@ -79,3 +79,28 @@ export async function sendCustomerConfirmation(booking) {
     }],
   });
 }
+
+// Fulfils the "before/after photos included" guarantee point — sent once a
+// booking is marked completed, only if the cleaning team actually uploaded
+// after-photos for it (see routes/admin.js).
+export async function sendCompletionPhotos(booking, afterPhotoPaths) {
+  await send({
+    to: booking.email,
+    subject: `Your clean is done — before/after photos (${booking.id})`,
+    text: [
+      `Hi ${booking.full_name},`,
+      '',
+      `Your end of lease clean at ${booking.address} is complete — attached are the after photos, as promised in our bond-back guarantee.`,
+      '',
+      `Reference: ${booking.id}`,
+      '',
+      `If anything doesn't look right, get in touch within 7 days and we'll re-clean it for free.`,
+      '',
+      `— ${config.business.name}`,
+    ].join('\n'),
+    attachments: afterPhotoPaths.map((filePath, i) => ({
+      filename: `after-${i + 1}${filePath.slice(filePath.lastIndexOf('.'))}`,
+      path: filePath,
+    })),
+  });
+}

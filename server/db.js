@@ -47,6 +47,7 @@ db.exec(`
     filename TEXT NOT NULL,
     original_name TEXT,
     size_bytes INTEGER,
+    phase TEXT NOT NULL DEFAULT 'before',
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_booking_photos_booking ON booking_photos (booking_id);
@@ -76,6 +77,9 @@ for (const ddl of [
   'ALTER TABLE bookings ADD COLUMN cycles_completed INTEGER NOT NULL DEFAULT 1',
   'ALTER TABLE bookings ADD COLUMN reminder_sent_at TEXT',
   'ALTER TABLE bookings ADD COLUMN review_request_sent_at TEXT',
+  // 'before' for every existing row — they were all customer-submitted
+  // pre-clean photos, since "after" photos didn't exist before this column.
+  'ALTER TABLE booking_photos ADD COLUMN phase TEXT NOT NULL DEFAULT \'before\'',
 ]) {
   try { db.exec(ddl); } catch { /* column already exists */ }
 }
@@ -144,23 +148,26 @@ export function insertBooking(fields, amountCents) {
 
 const MAX_PHOTOS_PER_BOOKING = 8;
 
-export function countPhotosForBooking(bookingId) {
-  const row = db.prepare('SELECT COUNT(*) as count FROM booking_photos WHERE booking_id = ?').get(bookingId);
+// 'before' (customer, at booking time) and 'after' (admin, once the clean is
+// done) are budgeted separately — a customer submitting 8 pre-clean photos
+// shouldn't leave no room for the cleaning team's after photos, or vice versa.
+export function countPhotosForBooking(bookingId, phase = 'before') {
+  const row = db.prepare('SELECT COUNT(*) as count FROM booking_photos WHERE booking_id = ? AND phase = ?').get(bookingId, phase);
   return row.count;
 }
 
-export function addBookingPhoto(bookingId, { filename, originalName, sizeBytes }) {
-  if (countPhotosForBooking(bookingId) >= MAX_PHOTOS_PER_BOOKING) {
+export function addBookingPhoto(bookingId, { filename, originalName, sizeBytes, phase = 'before' }) {
+  if (countPhotosForBooking(bookingId, phase) >= MAX_PHOTOS_PER_BOOKING) {
     throw new Error('Maximum number of photos reached for this booking');
   }
   db.prepare(
-    'INSERT INTO booking_photos (booking_id, filename, original_name, size_bytes) VALUES (?, ?, ?, ?)'
-  ).run(bookingId, filename, originalName ?? null, sizeBytes ?? null);
+    'INSERT INTO booking_photos (booking_id, filename, original_name, size_bytes, phase) VALUES (?, ?, ?, ?, ?)'
+  ).run(bookingId, filename, originalName ?? null, sizeBytes ?? null, phase);
 }
 
 export function listBookingPhotos(bookingId) {
   return db.prepare(
-    'SELECT id, filename, original_name, size_bytes, created_at FROM booking_photos WHERE booking_id = ? ORDER BY id ASC'
+    'SELECT id, filename, original_name, size_bytes, phase, created_at FROM booking_photos WHERE booking_id = ? ORDER BY id ASC'
   ).all(bookingId);
 }
 
