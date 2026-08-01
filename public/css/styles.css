@@ -2,6 +2,46 @@
    SpotlessExit — End of Lease Cleaning Booking Site
    ========================================================= */
 
+/* Self-hosted (not a Google Fonts <link>, which the CSP's connect/font-src
+   'self' would block anyway) — feedback was that the previous system-font
+   stack "looked very AI-generated/templated". Plus Jakarta Sans reads as a
+   distinct, warmer brand choice while staying just as legible. */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-800.woff2') format('woff2');
+}
+
 :root {
   --color-primary: #0f7a6b;
   --color-primary-dark: #0a5b4f;
@@ -33,7 +73,7 @@
   --shadow-md: 0 6px 18px rgba(16, 40, 34, 0.08);
   --shadow-lg: 0 12px 32px rgba(16, 40, 34, 0.12);
   --max-width: 1180px;
-  --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* Always light — a booking site should look the same for every visitor
