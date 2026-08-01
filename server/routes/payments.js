@@ -6,6 +6,7 @@ import {
 } from '../db.js';
 import { getFrequencyOption } from '../config.js';
 import { notifyPaidBooking, sendCustomerConfirmation } from '../email.js';
+import { getOrCreateReferralCodeForCustomer } from '../referrals.js';
 import { publicView } from './bookings.js';
 
 const router = Router();
@@ -23,7 +24,10 @@ async function markPaidOnce(booking, subscriptionId) {
   if (booking.status === 'paid') return booking;
   const paid = markBookingStatus(booking.id, 'paid');
   if (!paid.notified_at) {
-    await Promise.all([notifyPaidBooking(paid), sendCustomerConfirmation(paid)]);
+    // Only given out once a real payment has landed — a pending_payment
+    // booking that never completes shouldn't hand out a shareable code.
+    const referralCode = getOrCreateReferralCodeForCustomer(paid);
+    await Promise.all([notifyPaidBooking(paid), sendCustomerConfirmation(paid, referralCode)]);
     markNotified(paid.id);
   }
   return paid;

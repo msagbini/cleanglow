@@ -7,6 +7,7 @@ import { listBookingPhotos, markReviewRequestSent } from './db.js';
 import { config } from './config.js';
 import { sendSms, reviewRequestMessage } from './sms.js';
 import { sendCompletionPhotos } from './email.js';
+import { issueReferralRewardIfDue } from './referrals.js';
 
 export async function handleBookingCompleted(booking, uploadsDir) {
   // One-time review request, only once, and only if a real review link has
@@ -15,6 +16,10 @@ export async function handleBookingCompleted(booking, uploadsDir) {
     await sendSms(booking.phone, reviewRequestMessage(booking));
     markReviewRequestSent(booking.id);
   }
+
+  // If this booking was the result of a friend's referral code, this is the
+  // moment the referrer's reward unlocks — completed, not merely paid.
+  await issueReferralRewardIfDue(booking);
 
   // Delivers on the "before/after photos included" guarantee point — if the
   // cleaning team uploaded after-photos before marking the job completed,

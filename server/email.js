@@ -56,7 +56,7 @@ export async function notifyPaidBooking(booking) {
   });
 }
 
-export async function sendCustomerConfirmation(booking) {
+export async function sendCustomerConfirmation(booking, referralCode) {
   const lines = [
     `Hi ${booking.full_name},`,
     '',
@@ -65,9 +65,17 @@ export async function sendCustomerConfirmation(booking) {
     ...bookingSummaryLines(booking),
     '',
     `We'll be in touch to coordinate access to ${booking.address}.`,
-    '',
-    `— ${config.business.name}`,
   ];
+  if (referralCode) {
+    const symbol = config.business.currencySymbol;
+    const amount = `${symbol}${((config.booking.referral?.friendDiscountCents ?? 2000) / 100).toFixed(0)}`;
+    lines.push(
+      '',
+      `Know someone else who needs an end of lease clean? Share your code below — they get ${amount} off their first booking, and once their clean is complete, you get ${amount} credit towards your next one.`,
+      `Your code: ${referralCode.code}`,
+    );
+  }
+  lines.push('', `— ${config.business.name}`);
   await send({
     to: booking.email,
     subject: `Booking confirmed — ${booking.id}`,

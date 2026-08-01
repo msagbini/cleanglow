@@ -108,6 +108,7 @@
       { "value": "17:00", "label": "5:00pm - 8:00pm" }
     ],
     "promoCodes": { "WELCOME10": 0.10, "CLEAN5": 0.05, "WELCOME5": 0.05 },
+    "referral": { "friendDiscountCents": 2000, "referrerRewardCents": 2000 },
     "maxConcurrentBookingsPerSlot": 1,
     "earlyCancellationMinCycles": 3,
     "frequencyOptions": [

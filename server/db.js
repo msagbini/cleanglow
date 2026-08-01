@@ -76,6 +76,37 @@ db.exec(`
     active INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  -- One reusable code per customer, shared with as many friends as they like.
+  CREATE TABLE IF NOT EXISTS referral_codes (
+    code TEXT PRIMARY KEY,
+    owner_email TEXT NOT NULL,
+    owner_phone TEXT,
+    owner_name TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  -- One row per friend who redeemed a referral code — tracks whether the
+  -- referrer's reward has already been paid out for this specific friend.
+  CREATE TABLE IF NOT EXISTS referral_redemptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    referral_code TEXT NOT NULL REFERENCES referral_codes(code),
+    referred_booking_id TEXT NOT NULL UNIQUE REFERENCES bookings(id),
+    referred_email TEXT NOT NULL,
+    referred_phone TEXT,
+    reward_issued INTEGER NOT NULL DEFAULT 0,
+    reward_code TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  -- Single-use, owner-locked $ credit issued to a referrer once their
+  -- friend's job is actually completed (not merely paid).
+  CREATE TABLE IF NOT EXISTS reward_codes (
+    code TEXT PRIMARY KEY,
+    owner_email TEXT NOT NULL,
+    owner_phone TEXT,
+    amount_cents INTEGER NOT NULL,
+    used INTEGER NOT NULL DEFAULT 0,
+    used_booking_id TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // CREATE TABLE IF NOT EXISTS only applies the schema to a brand-new file — an
@@ -107,11 +138,18 @@ function deriveReferencePrefix(name) {
 }
 const REFERENCE_PREFIX = deriveReferencePrefix(config.business.name);
 
-function generateReference() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+// Shared by booking references, referral codes, and reward codes — excludes
+// visually-ambiguous characters (0/O, 1/I) since these get read aloud or
+// typed in by hand.
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function randomCodeSuffix(length = 6) {
   let code = '';
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return `${REFERENCE_PREFIX}-${code}`;
+  for (let i = 0; i < length; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+  return code;
+}
+
+function generateReference() {
+  return `${REFERENCE_PREFIX}-${randomCodeSuffix()}`;
 }
 
 // Bookings in these statuses occupy a time slot; cancelled/expired ones free it up.
@@ -189,9 +227,17 @@ export function listBookingPhotos(bookingId) {
 // form, before they've necessarily finished or paid — lets the business
 // follow up (by SMS, or by hand) with anyone who starts a booking and
 // doesn't come back to complete it.
+export function normaliseEmail(email) {
+  return email ? String(email).trim().toLowerCase().slice(0, 200) : null;
+}
+
+export function normalisePhone(phone) {
+  return phone ? String(phone).replace(/\D/g, '').slice(0, 10) : null;
+}
+
 export function saveLead({ email, phone }) {
-  const normalisedEmail = email ? String(email).trim().toLowerCase().slice(0, 200) : null;
-  const normalisedPhone = phone ? String(phone).replace(/\D/g, '').slice(0, 10) : null;
+  const normalisedEmail = normaliseEmail(email);
+  const normalisedPhone = normalisePhone(phone);
   if (!normalisedEmail && !normalisedPhone) return;
 
   // One open (not yet reminded/converted) lead per email+phone pair, updated
@@ -214,8 +260,8 @@ export function saveLead({ email, phone }) {
 // Called once a real booking is created, so a lead that converts doesn't
 // later get a "did you forget something?" reminder.
 export function markLeadsConvertedFor({ email, phone }) {
-  const normalisedEmail = email ? String(email).trim().toLowerCase() : null;
-  const normalisedPhone = phone ? String(phone).replace(/\D/g, '') : null;
+  const normalisedEmail = normaliseEmail(email);
+  const normalisedPhone = normalisePhone(phone);
   db.prepare(`
     UPDATE leads SET converted_at = datetime('now')
     WHERE converted_at IS NULL
@@ -373,6 +419,72 @@ export function assignBookingToCleaner(bookingId, cleanerId) {
 export function listBookingsForCleaner(cleanerId) {
   return db.prepare('SELECT * FROM bookings WHERE assigned_cleaner_id = ? ORDER BY booking_date ASC, booking_time ASC')
     .all(cleanerId).map(deserialize);
+}
+
+// A brand-new customer has no bookings under their email/phone yet — used to
+// stop an existing customer from posing as "a friend" to keep re-claiming
+// the referral discount under a different code each time. Email is compared
+// case-insensitively (booking.email is stored as typed, never lower-cased);
+// phone is already normalised to a bare 10-digit string at booking time, so a
+// direct match is enough.
+export function hasBookingForContact(email, phone) {
+  return !!db.prepare(
+    'SELECT 1 FROM bookings WHERE LOWER(email) = LOWER(?) OR (? IS NOT NULL AND phone = ?) LIMIT 1'
+  ).get(email, phone, phone);
+}
+
+export function createReferralCode({ email, phone, name }) {
+  const findStmt = db.prepare('SELECT code FROM referral_codes WHERE code = ?');
+  let code;
+  do { code = `FRIEND-${randomCodeSuffix()}`; } while (findStmt.get(code));
+  db.prepare('INSERT INTO referral_codes (code, owner_email, owner_phone, owner_name) VALUES (?, ?, ?, ?)')
+    .run(code, email, phone ?? null, name ?? null);
+  return getReferralCode(code);
+}
+
+export function getReferralCode(code) {
+  return db.prepare('SELECT * FROM referral_codes WHERE code = ?').get(code) ?? null;
+}
+
+// One reusable code per customer — a second paid booking from the same
+// person reuses their existing code instead of minting (and having to
+// re-send) a new one.
+export function getReferralCodeByOwner(email, phone) {
+  return db.prepare(
+    'SELECT * FROM referral_codes WHERE LOWER(owner_email) = LOWER(?) OR (? IS NOT NULL AND owner_phone = ?) ORDER BY created_at ASC LIMIT 1'
+  ).get(email, phone, phone) ?? null;
+}
+
+export function insertReferralRedemption({ referralCode, referredBookingId, referredEmail, referredPhone }) {
+  db.prepare(
+    'INSERT INTO referral_redemptions (referral_code, referred_booking_id, referred_email, referred_phone) VALUES (?, ?, ?, ?)'
+  ).run(referralCode, referredBookingId, referredEmail, referredPhone ?? null);
+}
+
+export function getReferralRedemptionByBooking(bookingId) {
+  return db.prepare('SELECT * FROM referral_redemptions WHERE referred_booking_id = ?').get(bookingId) ?? null;
+}
+
+export function markReferralRewardIssued(bookingId, rewardCode) {
+  db.prepare('UPDATE referral_redemptions SET reward_issued = 1, reward_code = ? WHERE referred_booking_id = ?')
+    .run(rewardCode, bookingId);
+}
+
+export function createRewardCode({ email, phone, amountCents }) {
+  const findStmt = db.prepare('SELECT code FROM reward_codes WHERE code = ?');
+  let code;
+  do { code = `CREDIT-${randomCodeSuffix()}`; } while (findStmt.get(code));
+  db.prepare('INSERT INTO reward_codes (code, owner_email, owner_phone, amount_cents) VALUES (?, ?, ?, ?)')
+    .run(code, email, phone ?? null, amountCents);
+  return getRewardCode(code);
+}
+
+export function getRewardCode(code) {
+  return db.prepare('SELECT * FROM reward_codes WHERE code = ?').get(code) ?? null;
+}
+
+export function markRewardCodeUsed(code, bookingId) {
+  db.prepare('UPDATE reward_codes SET used = 1, used_booking_id = ? WHERE code = ?').run(bookingId, code);
 }
 
 export default db;

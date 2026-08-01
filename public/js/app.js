@@ -965,11 +965,21 @@
       const raw = els.promoCode.value.trim();
       const code = raw.toUpperCase();
       state.promoDiscount = cfg.booking.promoCodes[code] || 0;
+      // FRIEND-/CREDIT- codes are referral/reward codes — dynamic and
+      // customer-specific, so they can't be checked from this static config.
+      // The server resolves them (and applies the real discount) at
+      // checkout, so we only give neutral feedback here, never a false
+      // "invalid" for what might be a perfectly good code.
+      const looksLikeReferralCode = /^(FRIEND|CREDIT)-/.test(code);
       if (!raw) {
         promoFeedback.hidden = true;
       } else if (state.promoDiscount > 0) {
         promoFeedback.hidden = false;
         promoFeedback.textContent = `✓ Code applied: ${Math.round(state.promoDiscount * 100)}% off`;
+        promoFeedback.className = 'promo-feedback promo-feedback-valid';
+      } else if (looksLikeReferralCode) {
+        promoFeedback.hidden = false;
+        promoFeedback.textContent = 'We\'ll verify this code and apply your discount at checkout.';
         promoFeedback.className = 'promo-feedback promo-feedback-valid';
       } else {
         promoFeedback.hidden = false;

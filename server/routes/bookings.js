@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, markLeadsConvertedFor } from '../db.js';
+import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, markLeadsConvertedFor, markRewardCodeUsed } from '../db.js';
 import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, isValidSizeValue, deriveUrgencyForDate, config } from '../config.js';
 import { buildBookingIcs } from '../ics.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
+import { resolveDiscountCode, recordReferralRedemption } from '../referrals.js';
 
 const router = Router();
 
@@ -95,7 +96,16 @@ router.post('/', (req, res) => {
     frequency,
   };
 
-  const amountCents = computeAmountCents(fields);
+  // Static promo codes are still handled by computeAmountCents itself; a
+  // FRIEND-/CREDIT- code resolves here (self-referral, one-per-new-customer,
+  // and single-use/owner-locked rules all enforced inside) as a flat $ amount
+  // taken off the total after the usual percentage-based pricing.
+  const discount = resolveDiscountCode(fields.promoCode, { email: fields.email, phone: fields.phone });
+  let amountCents = computeAmountCents(fields);
+  if (discount?.amountOffCents > 0) {
+    amountCents = Math.max(0, amountCents - discount.amountOffCents);
+  }
+
   let booking;
   try {
     booking = insertBooking(fields, amountCents);
@@ -105,6 +115,13 @@ router.post('/', (req, res) => {
     }
     throw err;
   }
+
+  // No awaits between resolveDiscountCode's checks above and these writes —
+  // the whole handler runs to completion before any other request can be
+  // processed, so a reward code can't be redeemed twice by two requests
+  // racing each other.
+  if (discount?.type === 'referral') recordReferralRedemption(discount.code, booking);
+  if (discount?.type === 'reward') markRewardCodeUsed(discount.code, booking.id);
 
   markLeadsConvertedFor({ email: fields.email, phone: fields.phone });
 
