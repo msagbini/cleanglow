@@ -40,7 +40,11 @@
    regardless of their OS/browser color scheme preference. */
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* Without this, jumping to any #anchor (nav links, "Book now", footer links)
+   scrolls the target flush to the very top of the viewport — right behind
+   the 72px sticky header, hiding the section's own heading. This reserves
+   that space for every anchor jump on the site, not just one link. */
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
 body {
   margin: 0;
   font-family: var(--font);
@@ -171,8 +175,8 @@ input, select, textarea { font-family: inherit; }
 .section-alt { background: var(--color-bg-alt); }
 .section-head { max-width: 640px; margin: 0 auto 48px; text-align: center; }
 .eyebrow {
-  display: inline-block; color: var(--color-primary); font-weight: 700; font-size: .82rem;
-  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px;
+  display: inline-block; color: var(--color-primary); font-weight: 700; font-size: 1rem;
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px;
 }
 .section-head h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
 
