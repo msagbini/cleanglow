@@ -63,10 +63,24 @@
         <p class="result-ref">Booking reference: <strong>${data.id}</strong></p>
         ${isRecurring ? `<p class="result-ref">You can cancel the recurring plan any time by contacting us.</p>` : ''}
         <div class="result-actions">
-          <a class="btn btn-ghost" href="/api/bookings/${encodeURIComponent(data.id)}/calendar.ics"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg> Add to calendar</a>
+          <a class="btn btn-ghost" id="calendarLink" href="/api/bookings/${encodeURIComponent(data.id)}/calendar.ics"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg> Add to calendar</a>
           <a class="btn btn-primary" href="/index.html">Back to home</a>
         </div>
+        <p class="result-ref result-autocal-note">Your calendar file should have started downloading automatically — open it to add the appointment. Didn't get it? Use the button above.</p>
       `);
+      // No browser API lets a site silently write into someone's Google/Apple
+      // calendar without an OAuth consent flow — this is the closest thing to
+      // "automatic" that's actually possible: the .ics download itself starts
+      // without waiting for a click, the visible button above stays as a
+      // manual fallback for whenever they're ready to open it.
+      setTimeout(() => {
+        const link = document.createElement('a');
+        link.href = document.getElementById('calendarLink').href;
+        link.download = '';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }, 900);
     } else {
       render(`
         <div class="result-icon">⏳</div>

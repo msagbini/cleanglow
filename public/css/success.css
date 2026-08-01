@@ -4,5 +4,6 @@
 .result-summary { background: var(--color-bg-alt); border-radius: var(--radius-sm); padding: 18px; text-align: left; font-size: .9rem; margin: 20px 0; line-height: 1.7; }
 .result-ref { font-size: .85rem; color: var(--color-muted); margin-bottom: 22px; }
 .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.result-autocal-note { margin: 16px 0 0; }
 .spinner { width: 34px; height: 34px; border: 3px solid var(--color-border); border-top-color: var(--color-primary); border-radius: 50%; margin: 0 auto 16px; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
