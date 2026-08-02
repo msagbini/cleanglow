@@ -9,9 +9,12 @@ import {
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
 import { handleBookingCompleted } from '../bookingCompletion.js';
 import { getCancellationInfo, cancelSubscription } from '../subscriptions.js';
+import { runBackupOnce } from '../dbBackup.js';
+import { toCsv } from '../csv.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
+const backupsDir = path.join(__dirname, '..', 'data', 'backups');
 const upload = createPhotoUpload(uploadsDir);
 
 const router = Router();
@@ -137,6 +140,50 @@ router.get('/bookings/:id/photos/:filename', (req, res) => {
   res.sendFile(filePath);
 });
 
+// Full exports for bookkeeping/tax time or a manual off-site backup — a
+// higher limit than the dashboard's own listBookings() call (which is
+// paginated for the UI), since this is meant to be the whole ledger.
+router.get('/bookings.csv', (req, res) => {
+  const bookings = listBookings({ limit: 100000 });
+  const csv = toCsv(bookings, [
+    { label: 'Reference', value: b => b.id },
+    { label: 'Status', value: b => b.status },
+    { label: 'Customer name', value: b => b.full_name },
+    { label: 'Email', value: b => b.email },
+    { label: 'Phone', value: b => b.phone },
+    { label: 'Address', value: b => b.address },
+    { label: 'Postcode', value: b => b.postcode },
+    { label: 'Property type', value: b => b.property_type },
+    { label: 'Bedrooms', value: b => b.bedrooms },
+    { label: 'Bathrooms', value: b => b.bathrooms },
+    { label: 'Extras', value: b => b.extras.join('; ') },
+    { label: 'Booking date', value: b => b.booking_date },
+    { label: 'Booking time', value: b => b.booking_time },
+    { label: 'Frequency', value: b => b.frequency },
+    { label: 'Promo code', value: b => b.promo_code ?? '' },
+    { label: 'Amount', value: b => (b.amount_cents / 100).toFixed(2) },
+    { label: 'Currency', value: b => b.currency },
+    { label: 'Agent email', value: b => b.agent_email ?? '' },
+    { label: 'Created at', value: b => b.created_at },
+  ]);
+  res.set('Content-Type', 'text/csv; charset=utf-8');
+  res.set('Content-Disposition', `attachment; filename="bookings-${new Date().toISOString().slice(0, 10)}.csv"`);
+  res.send(csv);
+});
+
+router.get('/leads.csv', (req, res) => {
+  const leads = listLeads({ limit: 100000 });
+  const csv = toCsv(leads, [
+    { label: 'Email', value: l => l.email ?? '' },
+    { label: 'Phone', value: l => l.phone ?? '' },
+    { label: 'Created at', value: l => l.created_at },
+    { label: 'Status', value: l => l.converted_at ? 'converted' : (l.reminded_at ? 'reminded' : 'open') },
+  ]);
+  res.set('Content-Type', 'text/csv; charset=utf-8');
+  res.set('Content-Disposition', `attachment; filename="leads-${new Date().toISOString().slice(0, 10)}.csv"`);
+  res.send(csv);
+});
+
 router.get('/leads', (req, res) => {
   const leads = listLeads().map(l => ({
     id: l.id,
@@ -182,6 +229,27 @@ router.patch('/bookings/:id/assign-cleaner', (req, res) => {
   }
   assignBookingToCleaner(booking.id, cleanerId || null);
   res.json(getBooking(booking.id));
+});
+
+// Lets the business owner pull a copy of the database off Railway's volume
+// themselves (e.g. onto their own laptop) without needing Railway CLI/SSH
+// access — the daily automatic backups (see server/dbBackup.js) otherwise
+// only ever live on the same volume as the live database.
+router.get('/backup/latest', (req, res) => {
+  fs.mkdirSync(backupsDir, { recursive: true });
+  let files = fs.readdirSync(backupsDir).filter(f => f.startsWith('bookings-') && f.endsWith('.sqlite')).sort();
+  if (!files.length) {
+    // No backup taken yet (e.g. moments after a fresh deploy) — take one now
+    // rather than telling the admin to come back tomorrow.
+    runBackupOnce();
+    files = fs.readdirSync(backupsDir).filter(f => f.startsWith('bookings-') && f.endsWith('.sqlite')).sort();
+  }
+  const latest = files[files.length - 1];
+  const filePath = path.join(backupsDir, latest);
+  if (!filePath.startsWith(backupsDir) || !fs.existsSync(filePath)) {
+    return res.status(500).json({ error: 'Could not create a backup right now.' });
+  }
+  res.download(filePath, latest);
 });
 
 export default router;

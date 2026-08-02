@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="js/reload-scroll-fix.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{SITE_TITLE}}</title>
+<meta name="description" content="{{SITE_DESCRIPTION}}">
+<link rel="canonical" href="{{CANONICAL_URL}}">
+<meta property="og:title" content="{{SITE_TITLE}}">
+<meta property="og:description" content="{{SITE_DESCRIPTION}}">
+<meta property="og:url" content="{{CANONICAL_URL}}">
+<meta property="og:image" content="{{SITE_OG_IMAGE}}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="{{SITE_ICON_HREF}}">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/suburb.css">
+<script type="application/ld+json">{{JSONLD}}</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo">
+      <span class="logo-mark"><img src="{{SITE_ICON_HREF}}" alt=""></span>
+      <span class="logo-text">{{SITE_NAME}}</span>
+    </a>
+    <div class="header-actions">
+      <a href="tel:{{PHONE_HREF}}" class="phone-link">📞 {{PHONE_DISPLAY}}</a>
+      <a href="/#booking" class="btn btn-primary btn-sm">Book now</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <span class="eyebrow">END OF LEASE CLEANING · {{SUBURB_NAME}}</span>
+        <h1>End of lease cleaning in <span class="accent">{{SUBURB_NAME}}</span>, done right the first time.</h1>
+        <p>Moving out of a rental in {{SUBURB_NAME}}? Our fully insured cleaning team follows a property-manager-approved checklist and backs every job with a 100% bond-back guarantee* — get an instant online quote and book in under 3 minutes.</p>
+        <div class="hero-cta">
+          <a href="/#booking" class="btn btn-primary btn-lg">Get an instant quote</a>
+          <a href="/#checklist" class="btn btn-ghost btn-lg">See the full checklist</a>
+        </div>
+        <ul class="hero-trust">
+          <li>Fully insured &amp; police-checked cleaners</li>
+          <li>100% bond-back guarantee*</li>
+          <li>Free re-clean within {{RECLEAN_WINDOW_DAYS}} days</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Why {{SUBURB_NAME}} renters choose {{SITE_NAME}}</h2>
+      <div class="suburb-points">
+        <div><h3>Instant, transparent pricing</h3><p>See your exact quote before you book — no call-outs, no hidden fees, priced from your property's size and extras.</p></div>
+        <div><h3>Bond-back guarantee*</h3><p>If your agent flags a checklist item, we re-clean it for free. Conditions apply — see our guarantee terms on the home page.</p></div>
+        <div><h3>Before/after photo proof</h3><p>Every clean comes with photo evidence you can forward straight to your property manager.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Also servicing nearby areas</h2>
+      <nav class="suburb-links">
+            {{OTHER_SUBURBS_LINKS}}
+      </nav>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-bottom">
+    <span>© {{SITE_NAME}}. <a href="/">Back to home</a></span>
+  </div>
+</footer>
+</body>
+</html>

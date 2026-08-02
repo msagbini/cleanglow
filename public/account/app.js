@@ -47,12 +47,18 @@
   function bookingCard(b) {
     const canManage = b.accountRole === 'customer' && b.hasActiveSubscription;
     const canShareProof = ['paid', 'completed'].includes(b.status);
+    // Financial details (amount, billing frequency) are only ever sent for
+    // the paying customer's own bookings — never for a property manager
+    // viewing via agent_email, so this is undefined rather than hidden here.
+    const amountLine = b.amount != null
+      ? ` · ${b.currency.toUpperCase()} $${b.amount.toFixed(2)}${b.frequency !== 'once' ? ` · ${escapeHtml(b.frequency)}` : ''}`
+      : '';
     return `
       <div class="account-booking-card" data-id="${b.id}">
         <div class="account-booking-top">
           <div>
             <div class="account-booking-address">${escapeHtml(b.address)}</div>
-            <div class="account-booking-meta">${escapeHtml(b.bookingDate)} · ${escapeHtml(b.bookingTime)} · ${b.currency.toUpperCase()} $${b.amount.toFixed(2)}${b.frequency !== 'once' ? ` · ${escapeHtml(b.frequency)}` : ''}</div>
+            <div class="account-booking-meta">${escapeHtml(b.bookingDate)} · ${escapeHtml(b.bookingTime)}${amountLine}</div>
           </div>
           <div class="account-booking-badges">
             ${b.accountRole === 'agent' ? '<span class="agent-badge">Property manager view</span>' : ''}

@@ -131,10 +131,13 @@
     document.getElementById('recleanWindowHours').textContent = formatWindow(business.recleanWindowHours);
     document.getElementById('faqRecleanWindowHours').textContent = formatWindow(business.recleanWindowHours);
 
+    // Links to the server-rendered suburb landing pages (see server/suburbs.js)
+    // — matches its slugify() exactly, so these always resolve to a real page.
+    const slugify = name => name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '');
     const areasCol = document.getElementById('footerServiceAreas');
     business.serviceAreas.forEach(area => {
       const a = document.createElement('a');
-      a.href = '#booking';
+      a.href = `/end-of-lease-cleaning-${slugify(area)}`;
       a.textContent = area;
       areasCol.appendChild(a);
     });

@@ -16,8 +16,10 @@ import leadsRouter from './routes/leads.js';
 import { adminAuth } from './middleware/adminAuth.js';
 import { requireSameOrigin } from './middleware/requireSameOrigin.js';
 import { renderIndexHtml } from './renderIndex.js';
+import { getSuburbBySlug, renderSuburbHtml } from './suburbs.js';
 import { startAbandonedLeadSweep } from './leadSweep.js';
 import { startBookingReminderSweep } from './bookingReminders.js';
+import { startBackupSweep } from './dbBackup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '..', 'public');
@@ -101,6 +103,17 @@ app.get(['/', '/index.html'], (req, res) => {
   const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
   res.type('html').send(renderIndexHtml(baseUrl));
 });
+
+// Suburb landing pages — one per configured service area, e.g.
+// /end-of-lease-cleaning-st-kilda. The path prefix doesn't match any real
+// static file, so this is safe to register ahead of express.static.
+app.get('/end-of-lease-cleaning-:slug', (req, res, next) => {
+  const suburb = getSuburbBySlug(req.params.slug);
+  if (!suburb) return next();
+  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  res.type('html').send(renderSuburbHtml(suburb, baseUrl));
+});
+
 app.use(seoRouter);
 
 app.use(express.static(publicDir));
@@ -162,6 +175,7 @@ const server = app.listen(port, () => {
   }
   startAbandonedLeadSweep();
   startBookingReminderSweep();
+  startBackupSweep();
 });
 
 // Railway sends SIGTERM before replacing a container on redeploy — without

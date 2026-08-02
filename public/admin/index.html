@@ -14,7 +14,11 @@
 <div class="admin-wrap">
   <div class="admin-header">
     <h1>📋 Bookings panel</h1>
-    <button class="btn btn-ghost btn-sm" id="refreshBtn">Refresh</button>
+    <div class="admin-header-actions">
+      <a class="btn btn-ghost btn-sm" href="/api/admin/bookings.csv">Export CSV</a>
+      <a class="btn btn-ghost btn-sm" href="/api/admin/backup/latest">Download backup</a>
+      <button class="btn btn-ghost btn-sm" id="refreshBtn">Refresh</button>
+    </div>
   </div>
 
   <div class="stat-row" id="statRow"></div>
@@ -52,7 +56,10 @@
 
   <div class="admin-header admin-header-spaced">
     <h1>📞 Abandoned leads</h1>
-    <span class="muted-text">Started a booking but didn't finish — follow up by phone or wait for the SMS reminder.</span>
+    <div class="admin-header-actions">
+      <span class="muted-text">Started a booking but didn't finish — follow up by phone or wait for the SMS reminder.</span>
+      <a class="btn btn-ghost btn-sm" href="/api/admin/leads.csv">Export CSV</a>
+    </div>
   </div>
   <div class="table-wrap">
     <table>

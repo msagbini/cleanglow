@@ -69,8 +69,12 @@ router.get('/me', requireCustomerSession, (req, res) => {
   res.json({ email: req.customerEmail });
 });
 
+// A property manager viewing via agent_email only ever needs to confirm a
+// job happened and get the proof link — not what the tenant paid or how
+// often they're billed. Financial fields are only ever included for the
+// paying customer's own view of their own booking.
 function accountBookingView(booking) {
-  return {
+  const base = {
     id: booking.id,
     accountRole: booking.accountRole,
     status: booking.status,
@@ -80,10 +84,14 @@ function accountBookingView(booking) {
     address: booking.address,
     bookingDate: booking.booking_date,
     bookingTime: booking.booking_time,
+  };
+  if (booking.accountRole !== 'customer') return base;
+  return {
+    ...base,
     frequency: booking.frequency,
     amount: booking.amount_cents / 100,
     currency: booking.currency,
-    hasActiveSubscription: booking.accountRole === 'customer' && !!booking.stripe_subscription_id && booking.status === 'paid',
+    hasActiveSubscription: !!booking.stripe_subscription_id && booking.status === 'paid',
     cyclesCompleted: booking.cycles_completed,
   };
 }
