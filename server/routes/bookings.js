@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, markLeadsConvertedFor, markRewardCodeUsed } from '../db.js';
+import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, listBookingPhotos, markLeadsConvertedFor, markRewardCodeUsed } from '../db.js';
 import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, isValidSizeValue, deriveUrgencyForDate, config } from '../config.js';
 import { buildBookingIcs } from '../ics.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
@@ -73,6 +74,14 @@ router.post('/', (req, res) => {
   }
   const frequency = body.frequency && isValidFrequency(body.frequency) ? String(body.frequency) : 'once';
 
+  let agentEmail = null;
+  if (body.agentEmail) {
+    if (!EMAIL_RE.test(body.agentEmail)) {
+      return res.status(400).json({ error: 'Invalid property manager email address' });
+    }
+    agentEmail = String(body.agentEmail).trim().slice(0, 200);
+  }
+
   const fields = {
     propertyType: String(body.propertyType),
     bedrooms: String(body.bedrooms),
@@ -94,6 +103,7 @@ router.post('/', (req, res) => {
     postcode,
     promoCode: body.promoCode ? String(body.promoCode).slice(0, 30) : null,
     frequency,
+    agentEmail,
   };
 
   // Static promo codes are still handled by computeAmountCents itself; a
@@ -188,6 +198,67 @@ router.get('/:id/calendar.ics', (req, res) => {
   res.set('Content-Type', 'text/calendar; charset=utf-8');
   res.set('Content-Disposition', `attachment; filename="${booking.id}.ics"`);
   res.send(ics);
+});
+
+// "Proof of clean" — a shareable, unauthenticated page a customer can send
+// straight to their property manager/agent for the bond return. The booking
+// reference is the only credential (same unguessable-id trust model as
+// GET /:id above); deliberately narrower than publicView — no email/phone,
+// since this link is meant to be forwarded to a third party.
+const SAFE_FILENAME_RE = /^[a-f0-9-]+\.(jpg|png|webp)$/;
+
+export function proofView(booking) {
+  return {
+    id: booking.id,
+    status: booking.status,
+    propertyType: booking.property_type,
+    bedrooms: booking.bedrooms,
+    bathrooms: booking.bathrooms,
+    address: booking.address,
+    bookingDate: booking.booking_date,
+    bookingTime: booking.booking_time,
+  };
+}
+
+function requireProofEligible(req, res) {
+  const booking = getBooking(req.params.id);
+  if (!booking) {
+    res.status(404).json({ error: 'Booking not found' });
+    return null;
+  }
+  if (!['paid', 'completed'].includes(booking.status)) {
+    res.status(409).json({ error: 'This booking is not confirmed yet' });
+    return null;
+  }
+  return booking;
+}
+
+router.get('/:id/proof', (req, res) => {
+  const booking = requireProofEligible(req, res);
+  if (!booking) return;
+  const photos = listBookingPhotos(booking.id).map(p => ({
+    phase: p.phase,
+    url: `/api/bookings/${booking.id}/proof/photos/${encodeURIComponent(p.filename)}`,
+  }));
+  res.json({ booking: proofView(booking), photos, checklist: config.checklist, business: { name: config.business.name, logoUrl: config.business.logoUrl } });
+});
+
+router.get('/:id/proof/photos/:filename', (req, res) => {
+  const booking = requireProofEligible(req, res);
+  if (!booking) return;
+  const { filename } = req.params;
+  if (!SAFE_FILENAME_RE.test(filename)) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+  const photos = listBookingPhotos(booking.id);
+  if (!photos.some(p => p.filename === filename)) {
+    return res.status(404).json({ error: 'Photo not found for this booking' });
+  }
+  const filePath = path.join(uploadsDir, filename);
+  if (!filePath.startsWith(uploadsDir) || !fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+  res.sendFile(filePath);
 });
 
 export function publicView(booking) {

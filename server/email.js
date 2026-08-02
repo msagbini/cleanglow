@@ -65,6 +65,8 @@ export async function sendCustomerConfirmation(booking, referralCode) {
     ...bookingSummaryLines(booking),
     '',
     `We'll be in touch to coordinate access to ${booking.address}.`,
+    '',
+    `Manage this booking anytime (view details, or cancel a recurring clean) at ${process.env.PUBLIC_BASE_URL || ''}/account/ — just enter this email, no password needed.`,
   ];
   if (referralCode) {
     const symbol = config.business.currencySymbol;
@@ -85,6 +87,51 @@ export async function sendCustomerConfirmation(booking, referralCode) {
       content: buildBookingIcs(booking, config.business),
       contentType: 'text/calendar',
     }],
+  });
+}
+
+// Passwordless login — the email itself is the only "credential" a customer
+// needs to remember. The link is single-use and expires in 15 minutes
+// (enforced server-side in db.js's consumeMagicLink), so this being
+// forwarded or sitting in an old inbox isn't a standing access risk.
+export async function sendMagicLink(email, verifyUrl) {
+  await send({
+    to: email,
+    subject: `Your ${config.business.name} account link`,
+    text: [
+      `Hi,`,
+      '',
+      `Click below to access your ${config.business.name} account (your bookings, referral code and credits):`,
+      '',
+      verifyUrl,
+      '',
+      `This link works once and expires in 15 minutes. If you didn't request it, you can ignore this email.`,
+      '',
+      `— ${config.business.name}`,
+    ].join('\n'),
+  });
+}
+
+// Sent automatically to the property manager/agency email the customer
+// optionally provided at booking time, once the job is marked completed —
+// they get the evidence for the bond return without the tenant having to
+// remember to forward anything themselves.
+export async function sendAgentProofLink(booking) {
+  const proofUrl = `${process.env.PUBLIC_BASE_URL || ''}/proof/${booking.id}`;
+  await send({
+    to: booking.agent_email,
+    subject: `Proof of clean — ${booking.address} (${booking.id})`,
+    text: [
+      `Hi,`,
+      '',
+      `${config.business.name} has completed an end of lease clean at ${booking.address}, booked by ${booking.full_name}.`,
+      '',
+      `View the checklist and before/after photos here: ${proofUrl}`,
+      '',
+      `Reference: ${booking.id}`,
+      '',
+      `— ${config.business.name}`,
+    ].join('\n'),
   });
 }
 

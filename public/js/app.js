@@ -70,6 +70,7 @@
     sumUrgency: document.getElementById('sumUrgency'),
     sumTotal: document.getElementById('sumTotal'),
     promoCode: document.getElementById('promoCode'),
+    agentEmail: document.getElementById('agentEmail'),
   };
 
   /* ============ Rendering from /api/config ============ */
@@ -755,6 +756,7 @@
       postcode: document.getElementById('postcode').value,
       promoCode: els.promoCode.value || null,
       frequency: state.frequency,
+      agentEmail: els.agentEmail.value || null,
     };
 
     setSubmitting(true);

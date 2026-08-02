@@ -9,9 +9,10 @@ import { Router } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { getCleaner, listBookingsForCleaner, getBooking, markBookingStatus, listBookingPhotos, addBookingPhoto } from '../db.js';
+import { getCleaner, listBookingsForCleaner, getBooking, markBookingStatus, listBookingPhotos, addBookingPhoto, insertJobPing, hasJobPing } from '../db.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
 import { handleBookingCompleted } from '../bookingCompletion.js';
+import { sendSms, onWayMessage } from '../sms.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
@@ -47,6 +48,7 @@ function cleanerBookingView(booking) {
     phone: booking.phone,
     address: booking.address,
     postcode: booking.postcode,
+    onWaySent: hasJobPing(booking.id, 'on_way'),
   };
 }
 
@@ -69,6 +71,17 @@ function getOwnJobOr404(req, res) {
   }
   return booking;
 }
+
+// Best-effort courtesy SMS, not a status change — insertJobPing's UNIQUE
+// constraint means a double-tap (or a retried request) can't send it twice.
+router.post('/:token/bookings/:id/on-way', requireActiveCleaner, async (req, res) => {
+  const booking = getOwnJobOr404(req, res);
+  if (!booking) return;
+  const sent = insertJobPing(booking.id, 'on_way');
+  if (!sent) return res.status(409).json({ error: 'Already sent for this job' });
+  await sendSms(booking.phone, onWayMessage(booking));
+  res.json({ ok: true });
+});
 
 // Deliberately narrower than the admin equivalent — a cleaner can mark a job
 // done, nothing else (can't cancel, can't fake a paid status, etc.).

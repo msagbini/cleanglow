@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="../js/reload-scroll-fix.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My account</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/img/logo-mark.svg">
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../css/account.css">
+</head>
+<body>
+<div class="account-page">
+  <div class="account-wrap">
+    <div class="account-brand">
+      <img src="/img/logo-mark.svg" alt="" class="account-logo">
+      <span>CleanGlow</span>
+    </div>
+
+    <!-- Logged-out: request a login link -->
+    <section class="account-card" id="loginView">
+      <h1>My account</h1>
+      <p class="muted-text">Enter the email you booked with and we'll send you a secure link — no password needed.</p>
+      <form id="requestLinkForm" class="account-login-form">
+        <input type="email" id="loginEmail" placeholder="you@example.com" required>
+        <button type="submit" class="btn btn-primary">Send login link</button>
+      </form>
+      <p id="loginFeedback" class="account-feedback" hidden></p>
+    </section>
+
+    <!-- Logged-in: bookings, referral, rewards -->
+    <section class="account-card" id="portalView" hidden>
+      <div class="account-header">
+        <h1 id="portalGreeting">My account</h1>
+        <button type="button" class="btn btn-ghost btn-sm" id="logoutBtn">Log out</button>
+      </div>
+
+      <div class="account-section" id="referralSection">
+        <h2>Refer a friend</h2>
+        <p class="muted-text">Share your code — your friend gets <span id="friendDiscountAmount">$20</span> off their first clean, and once it's done, you get <span id="referrerDiscountAmount">$20</span> credit towards your next one.</p>
+        <div class="referral-code-box" id="referralCodeBox" hidden>
+          <code id="referralCodeText"></code>
+          <button type="button" class="btn btn-ghost btn-sm" id="copyReferralBtn">Copy</button>
+        </div>
+        <p class="muted-text" id="noReferralYet" hidden>Your code will appear here once your first booking is paid.</p>
+        <div id="rewardsList" class="rewards-list"></div>
+      </div>
+
+      <div class="account-section">
+        <h2>Your bookings</h2>
+        <div id="bookingsList" class="account-bookings-list"></div>
+        <p class="empty-state" id="noBookings" hidden>No bookings yet.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cancelModal" hidden>
+  <div class="modal">
+    <button type="button" class="modal-close" id="cancelModalClose" aria-label="Close">✕</button>
+    <h2>Cancel subscription</h2>
+    <div id="cancelModalBody"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

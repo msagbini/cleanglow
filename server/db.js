@@ -107,6 +107,34 @@ db.exec(`
     used_booking_id TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  -- One-time, short-lived tokens emailed to a customer to log into the
+  -- account portal — the passwordless "magic link" pattern, so there's no
+  -- password to store, reset, or leak.
+  CREATE TABLE IF NOT EXISTS magic_links (
+    token TEXT PRIMARY KEY,
+    email TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    expires_at TEXT NOT NULL,
+    used INTEGER NOT NULL DEFAULT 0
+  );
+  -- Issued once a magic link is redeemed; the token itself (stored in an
+  -- httpOnly cookie) is the credential, same "unguessable id as bearer
+  -- token" pattern as booking references and cleaner links.
+  CREATE TABLE IF NOT EXISTS customer_sessions (
+    token TEXT PRIMARY KEY,
+    email TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    expires_at TEXT NOT NULL
+  );
+  -- Best-effort SMS status pings a cleaner can send from their panel (e.g.
+  -- "on my way") — logged so a job can't be pinged twice by accident.
+  CREATE TABLE IF NOT EXISTS job_pings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    booking_id TEXT NOT NULL REFERENCES bookings(id),
+    ping_type TEXT NOT NULL,
+    sent_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(booking_id, ping_type)
+  );
 `);
 
 // CREATE TABLE IF NOT EXISTS only applies the schema to a brand-new file — an
@@ -125,6 +153,11 @@ for (const ddl of [
   // pre-clean photos, since "after" photos didn't exist before this column.
   'ALTER TABLE booking_photos ADD COLUMN phase TEXT NOT NULL DEFAULT \'before\'',
   'ALTER TABLE bookings ADD COLUMN assigned_cleaner_id TEXT REFERENCES cleaners(id)',
+  // Optional — set by the customer at booking time so the property manager
+  // handling their lease can automatically get the proof-of-clean link and,
+  // if they book more properties through us, see them all via the same
+  // magic-link portal (read-only, since they're not the paying customer).
+  'ALTER TABLE bookings ADD COLUMN agent_email TEXT',
 ]) {
   try { db.exec(ddl); } catch { /* column already exists */ }
 }
@@ -185,15 +218,16 @@ export function insertBooking(fields, amountCents) {
     INSERT INTO bookings (
       id, property_type, bedrooms, bathrooms, sqm, furnished, notes_property,
       extras, key_access, booking_date, booking_time, urgency,
-      full_name, email, phone, address, postcode, promo_code, frequency, amount_cents, currency
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      full_name, email, phone, address, postcode, promo_code, frequency, amount_cents, currency, agent_email
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
     id, fields.propertyType, fields.bedrooms, fields.bathrooms, fields.sqm ?? null,
     fields.furnished ?? null, fields.notesProperty ?? null, JSON.stringify(fields.extras ?? []),
     fields.keyAccess ?? null, fields.bookingDate, fields.bookingTime, fields.urgency,
     fields.fullName, fields.email, fields.phone, fields.address, fields.postcode,
-    fields.promoCode ?? null, fields.frequency ?? 'once', amountCents, config.business.currency
+    fields.promoCode ?? null, fields.frequency ?? 'once', amountCents, config.business.currency,
+    fields.agentEmail ?? null
   );
   return getBooking(id);
 }
@@ -485,6 +519,76 @@ export function getRewardCode(code) {
 
 export function markRewardCodeUsed(code, bookingId) {
   db.prepare('UPDATE reward_codes SET used = 1, used_booking_id = ? WHERE code = ?').run(bookingId, code);
+}
+
+export function listRewardCodesForOwner(email) {
+  return db.prepare('SELECT * FROM reward_codes WHERE LOWER(owner_email) = LOWER(?) ORDER BY created_at DESC').all(email);
+}
+
+const MAGIC_LINK_TTL_MINUTES = 15;
+const CUSTOMER_SESSION_TTL_DAYS = 30;
+
+export function createMagicLink(email) {
+  const token = crypto.randomUUID();
+  db.prepare(
+    `INSERT INTO magic_links (token, email, expires_at) VALUES (?, ?, datetime('now', '+${MAGIC_LINK_TTL_MINUTES} minutes'))`
+  ).run(token, email);
+  return token;
+}
+
+export function consumeMagicLink(token) {
+  const row = db.prepare(
+    `SELECT * FROM magic_links WHERE token = ? AND used = 0 AND expires_at > datetime('now')`
+  ).get(token);
+  if (!row) return null;
+  db.prepare('UPDATE magic_links SET used = 1 WHERE token = ?').run(token);
+  return row;
+}
+
+export function createCustomerSession(email) {
+  const token = crypto.randomUUID();
+  db.prepare(
+    `INSERT INTO customer_sessions (token, email, expires_at) VALUES (?, ?, datetime('now', '+${CUSTOMER_SESSION_TTL_DAYS} days'))`
+  ).run(token, email);
+  return token;
+}
+
+export function getCustomerSession(token) {
+  return db.prepare(
+    `SELECT * FROM customer_sessions WHERE token = ? AND expires_at > datetime('now')`
+  ).get(token) ?? null;
+}
+
+export function deleteCustomerSession(token) {
+  db.prepare('DELETE FROM customer_sessions WHERE token = ?').run(token);
+}
+
+// Powers the account portal: a regular customer sees bookings under their
+// own email; a property manager who was only ever set as agent_email on
+// someone else's booking sees those too, tagged read-only, via the exact
+// same login. LEFT JOIN-free UNION keeps the two roles from ever mixing up
+// which one a given row is.
+export function listBookingsForAccount(email) {
+  const rows = db.prepare(`
+    SELECT *, 'customer' as account_role FROM bookings WHERE LOWER(email) = LOWER(?)
+    UNION ALL
+    SELECT *, 'agent' as account_role FROM bookings WHERE agent_email IS NOT NULL AND LOWER(agent_email) = LOWER(?) AND LOWER(email) != LOWER(?)
+    ORDER BY booking_date DESC, booking_time DESC
+  `).all(email, email, email);
+  return rows.map(row => ({ ...deserialize(row), accountRole: row.account_role }));
+}
+
+export function hasJobPing(bookingId, pingType) {
+  return !!db.prepare('SELECT 1 FROM job_pings WHERE booking_id = ? AND ping_type = ?').get(bookingId, pingType);
+}
+
+export function insertJobPing(bookingId, pingType) {
+  try {
+    db.prepare('INSERT INTO job_pings (booking_id, ping_type) VALUES (?, ?)').run(bookingId, pingType);
+    return true;
+  } catch {
+    return false; // UNIQUE constraint — already sent, don't send it twice
+  }
 }
 
 export default db;

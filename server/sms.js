@@ -53,5 +53,13 @@ export function reminderMessage(booking) {
 export function reviewRequestMessage(booking) {
   const { business } = config;
   const reviewUrl = business.googleReviewUrl;
-  return `Hi ${booking.full_name.split(' ')[0]}, thanks for booking with ${business.name}! If you were happy with the clean, a quick Google review really helps us out: ${reviewUrl}`;
+  const proofUrl = `${process.env.PUBLIC_BASE_URL || ''}/proof/${booking.id}`;
+  return `Hi ${booking.full_name.split(' ')[0]}, your clean is done! View your before/after photos: ${proofUrl}. If you were happy, a quick Google review really helps us out: ${reviewUrl}`;
+}
+
+// A best-effort ping the cleaner can send from their panel — not tied to
+// any booking status change, just a courtesy heads-up.
+export function onWayMessage(booking) {
+  const { business } = config;
+  return `Hi ${booking.full_name.split(' ')[0]}, your ${business.name} cleaner is on the way for your booking at ${booking.address} (${booking.booking_time} slot). See you soon!`;
 }

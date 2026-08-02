@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="../js/reload-scroll-fix.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proof of clean</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/img/logo-mark.svg">
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="proof.css">
+</head>
+<body>
+<div class="proof-page">
+  <div class="proof-wrap" id="proofWrap" hidden>
+    <div class="proof-header">
+      <div class="proof-brand">
+        <img src="/img/logo-mark.svg" alt="" class="proof-logo">
+        <span id="proofBusinessName">CleanGlow</span>
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm no-print" id="printBtn">Print / Save as PDF</button>
+    </div>
+
+    <h1>Proof of Clean</h1>
+    <p class="proof-meta" id="proofMeta"></p>
+    <div class="proof-verified-badge">✔ Verified booking — CleanGlow</div>
+
+    <section class="proof-section">
+      <h2>Photos</h2>
+      <div id="proofPhotosBefore" class="proof-photo-block"></div>
+      <div id="proofPhotosAfter" class="proof-photo-block"></div>
+      <p class="muted-text" id="noPhotosNote" hidden>No photos were uploaded for this clean.</p>
+    </section>
+
+    <section class="proof-section">
+      <h2>Included in every clean</h2>
+      <div class="proof-checklist-grid" id="proofChecklist"></div>
+    </section>
+
+    <section class="proof-section" id="guaranteeSection">
+      <h2 id="guaranteeTitle"></h2>
+      <p id="guaranteeDescription"></p>
+      <ul id="guaranteePoints"></ul>
+    </section>
+  </div>
+
+  <div class="proof-error" id="proofError" hidden>
+    <h1>Not available</h1>
+    <p id="proofErrorText">This proof-of-clean link isn't available.</p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

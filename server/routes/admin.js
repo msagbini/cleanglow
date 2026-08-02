@@ -6,10 +6,9 @@ import {
   listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, addBookingPhoto, listLeads,
   createCleaner, listCleaners, getCleaner, setCleanerActive, assignBookingToCleaner,
 } from '../db.js';
-import { getStripe } from './payments.js';
-import { config } from '../config.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
 import { handleBookingCompleted } from '../bookingCompletion.js';
+import { getCancellationInfo, cancelSubscription } from '../subscriptions.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
@@ -49,58 +48,17 @@ router.patch('/bookings/:id/status', async (req, res) => {
 router.get('/bookings/:id/cancellation-info', (req, res) => {
   const booking = getBooking(req.params.id);
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
-  const minCycles = config.booking.earlyCancellationMinCycles ?? 0;
-  const cyclesShort = Math.max(0, minCycles - booking.cycles_completed);
-  res.json({
-    cyclesCompleted: booking.cycles_completed,
-    minCycles,
-    feeApplies: cyclesShort > 0,
-    feeCents: cyclesShort > 0 ? booking.amount_cents : 0,
-  });
+  res.json(getCancellationInfo(booking));
 });
 
 router.post('/bookings/:id/cancel-subscription', async (req, res) => {
   const booking = getBooking(req.params.id);
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
-  if (!booking.stripe_subscription_id) {
-    return res.status(400).json({ error: 'This booking has no active subscription' });
-  }
-
-  const stripe = getStripe();
-  if (!stripe) return res.status(500).json({ error: 'Stripe is not configured on the server.' });
 
   const chargeFeeCents = Number(req.body?.chargeFeeCents) || 0;
-  if (chargeFeeCents > 0) {
-    try {
-      const subscription = await stripe.subscriptions.retrieve(booking.stripe_subscription_id);
-      const paymentMethod = subscription.default_payment_method;
-      if (!paymentMethod) {
-        return res.status(502).json({ error: 'No card on file for this subscription — cancel manually from the Stripe dashboard instead.' });
-      }
-      await stripe.paymentIntents.create({
-        amount: chargeFeeCents,
-        currency: booking.currency,
-        customer: subscription.customer,
-        payment_method: paymentMethod,
-        off_session: true,
-        confirm: true,
-        description: `Early cancellation fee — Booking ${booking.id}`,
-      });
-    } catch (err) {
-      console.error('[stripe] Error charging early-cancellation fee:', err.message);
-      return res.status(502).json({ error: `Could not charge the cancellation fee (${err.message}) — subscription was NOT cancelled.` });
-    }
-  }
-
-  try {
-    await stripe.subscriptions.cancel(booking.stripe_subscription_id);
-  } catch (err) {
-    console.error('[stripe] Error cancelling subscription:', err.message);
-    return res.status(502).json({ error: 'Could not cancel the subscription with Stripe.' });
-  }
-
-  const updated = markBookingStatus(req.params.id, 'cancelled');
-  res.json(updated);
+  const result = await cancelSubscription(booking, chargeFeeCents);
+  if (!result.ok) return res.status(result.status).json({ error: result.error });
+  res.json(result.booking);
 });
 
 router.get('/bookings/:id/photos', (req, res) => {

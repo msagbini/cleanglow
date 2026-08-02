@@ -106,6 +106,11 @@
       </form>
 
       <div class="job-modal-actions">
+        ${job.status !== 'completed'
+          ? (job.onWaySent
+            ? `<span class="status-badge status-paid">"On my way" sent ✓</span>`
+            : `<button type="button" class="btn btn-ghost" id="onWayBtn">Notify: on my way</button>`)
+          : ''}
         ${job.status === 'completed'
           ? `<span class="status-badge status-completed">Already marked completed</span>`
           : `<button type="button" class="btn btn-success" id="markCompleteBtn">Mark job as completed</button>`}
@@ -134,6 +139,24 @@
         status.textContent = err.message;
       }
     });
+
+    const onWayBtn = document.getElementById('onWayBtn');
+    if (onWayBtn) {
+      onWayBtn.addEventListener('click', async () => {
+        onWayBtn.disabled = true;
+        onWayBtn.textContent = 'Sending…';
+        try {
+          const res = await api(`/bookings/${encodeURIComponent(id)}/on-way`, { method: 'POST' });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Could not send');
+          onWayBtn.outerHTML = '<span class="status-badge status-paid">"On my way" sent ✓</span>';
+        } catch (err) {
+          onWayBtn.disabled = false;
+          onWayBtn.textContent = 'Notify: on my way';
+          alert(err.message);
+        }
+      });
+    }
 
     const completeBtn = document.getElementById('markCompleteBtn');
     if (completeBtn) {

@@ -6,7 +6,7 @@ import path from 'node:path';
 import { listBookingPhotos, markReviewRequestSent } from './db.js';
 import { config } from './config.js';
 import { sendSms, reviewRequestMessage } from './sms.js';
-import { sendCompletionPhotos } from './email.js';
+import { sendCompletionPhotos, sendAgentProofLink } from './email.js';
 import { issueReferralRewardIfDue } from './referrals.js';
 
 export async function handleBookingCompleted(booking, uploadsDir) {
@@ -20,6 +20,13 @@ export async function handleBookingCompleted(booking, uploadsDir) {
   // If this booking was the result of a friend's referral code, this is the
   // moment the referrer's reward unlocks — completed, not merely paid.
   await issueReferralRewardIfDue(booking);
+
+  // Automatic evidence delivery to the property manager, if one was named
+  // at booking time — the differentiator over a business that only sends
+  // photos if the tenant remembers to forward them.
+  if (booking.agent_email) {
+    await sendAgentProofLink(booking);
+  }
 
   // Delivers on the "before/after photos included" guarantee point — if the
   // cleaning team uploaded after-photos before marking the job completed,

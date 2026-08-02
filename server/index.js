@@ -10,6 +10,7 @@ import paymentsRouter, { webhookHandler } from './routes/payments.js';
 import configRouter from './routes/config.js';
 import adminRouter from './routes/admin.js';
 import cleanersRouter from './routes/cleaners.js';
+import accountRouter from './routes/account.js';
 import seoRouter from './routes/seo.js';
 import leadsRouter from './routes/leads.js';
 import { adminAuth } from './middleware/adminAuth.js';
@@ -66,10 +67,17 @@ const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHea
 // load alone is ~7-8 requests: static assets + bookings/leads/cleaners) never
 // gets rate-limited by their own legitimate use; only repeated wrong guesses do.
 const adminLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false, skipSuccessfulRequests: true });
+// Sending a login-link email costs us nothing to abuse for a would-be
+// spammer (no proof of ownership needed to request one) — a much tighter
+// cap than general API traffic makes repeatedly email-bombing a real
+// customer's inbox impractical, independent of the account itself being
+// impossible to break into without the email.
+const accountLinkLimiter = rateLimit({ windowMs: 60 * 60 * 1000, limit: 5, standardHeaders: true, legacyHeaders: false });
 app.use('/api/', apiLimiter);
 app.use('/api/bookings', writeLimiter);
 app.use('/api/checkout-session', writeLimiter);
 app.use('/api/leads', writeLimiter);
+app.use('/api/account/request-link', accountLinkLimiter);
 
 // Gate /admin (static UI) and /api/admin (data) before the public static
 // middleware below, which would otherwise serve public/admin/* unprotected.
@@ -80,6 +88,11 @@ app.use('/api/admin', adminLimiter, adminAuth, requireSameOrigin, adminRouter);
 // itself (see routes/cleaners.js), the same trust model as a booking
 // reference. requireSameOrigin still applies to the mutating routes.
 app.use('/api/cleaner', requireSameOrigin, cleanersRouter);
+
+// Cookie-based auth (see middleware/requireCustomerSession.js) — unlike
+// Basic Auth, cookies get SameSite protection, but requireSameOrigin is
+// still applied as a second layer on every mutating route here.
+app.use('/api/account', requireSameOrigin, accountRouter);
 
 // Serve index.html with its SEO meta tags (title, description, canonical
 // URL) filled in from config/business.json, ahead of the static middleware
@@ -98,6 +111,12 @@ app.use(express.static(publicDir));
 // an actual static file, i.e. a genuine cleaner token.
 app.get('/cleaner/:token', (req, res) => {
   res.sendFile(path.join(publicDir, 'cleaner', 'index.html'));
+});
+
+// Same reasoning as /cleaner/:token above — registered after express.static
+// so /proof/app.js and /proof/proof.css are served as themselves first.
+app.get('/proof/:id', (req, res) => {
+  res.sendFile(path.join(publicDir, 'proof', 'index.html'));
 });
 
 app.use('/api/bookings', bookingsRouter);
