@@ -46,11 +46,11 @@
   },
   "booking": {
     "serviceTypes": [
-      { "value": "apartment", "label": "Apartment", "icon": "🏢", "surcharge": 0 },
-      { "value": "house", "label": "House", "icon": "🏠", "surcharge": 40 },
-      { "value": "studio", "label": "Studio", "icon": "🛏️", "surcharge": -20 },
+      { "value": "apartment", "label": "Apartment", "icon": "apartment", "surcharge": 0 },
+      { "value": "house", "label": "House", "icon": "house", "surcharge": 40 },
+      { "value": "studio", "label": "Studio", "icon": "studio", "surcharge": -20 },
       {
-        "value": "office", "label": "Office", "icon": "🏢", "surcharge": 30,
+        "value": "office", "label": "Office", "icon": "office", "surcharge": 30,
         "sizeFieldLabel": "Rooms",
         "sizeFieldOptionLabels": ["Small office (1 room)", "2 rooms", "3 rooms", "4 rooms", "5 rooms", "6+ rooms"]
       }
@@ -80,15 +80,15 @@
       "defaultValue": "1"
     },
     "extras": [
-      { "key": "oven", "label": "Inside Oven Clean", "icon": "🍳", "price": 65 },
-      { "key": "fridge", "label": "Fridge Inside & Out", "icon": "🧊", "price": 35 },
-      { "key": "carpet", "label": "Carpet Steam Cleaning", "icon": "🧺", "price": 120 },
-      { "key": "windows", "label": "Interior Windows", "icon": "🪟", "price": 60 },
-      { "key": "walls", "label": "Wall Spot Cleaning", "icon": "🧱", "price": 45 },
-      { "key": "balcony", "label": "Balcony / Patio", "icon": "🌿", "price": 40 },
-      { "key": "garage", "label": "Garage / Storage", "icon": "🚗", "price": 50 },
-      { "key": "curtains", "label": "Curtains", "icon": "🪡", "price": 85, "perUnit": true, "unitLabel": "curtain", "maxQuantity": 10 },
-      { "key": "blinds", "label": "Blinds", "icon": "🎚️", "price": 25, "perUnit": true, "unitLabel": "blind", "maxQuantity": 15 }
+      { "key": "oven", "label": "Inside Oven Clean", "icon": "oven", "price": 65 },
+      { "key": "fridge", "label": "Fridge Inside & Out", "icon": "fridge", "price": 35 },
+      { "key": "carpet", "label": "Carpet Steam Cleaning", "icon": "rug", "price": 120 },
+      { "key": "windows", "label": "Interior Windows", "icon": "window", "price": 60 },
+      { "key": "walls", "label": "Wall Spot Cleaning", "icon": "roller", "price": 45 },
+      { "key": "balcony", "label": "Balcony / Patio", "icon": "balcony", "price": 40 },
+      { "key": "garage", "label": "Garage / Storage", "icon": "garage", "price": 50 },
+      { "key": "curtains", "label": "Curtains", "icon": "curtains", "price": 85, "perUnit": true, "unitLabel": "curtain", "maxQuantity": 10 },
+      { "key": "blinds", "label": "Blinds", "icon": "blinds", "price": 25, "perUnit": true, "unitLabel": "blind", "maxQuantity": 15 }
     ],
     "urgencyOptions": [
       { "value": "standard", "label": "Standard (48h+)", "surcharge": 0, "minDaysAhead": 2 },

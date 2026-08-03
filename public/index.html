@@ -270,9 +270,17 @@
             <input type="text" id="promoCode" name="promoCode" placeholder="e.g. WELCOME10">
             <p class="promo-feedback" id="promoFeedback" hidden></p>
 
-            <label class="field-label" for="agentEmail">Property manager / agency email (optional)</label>
-            <input type="email" id="agentEmail" name="agentEmail" placeholder="agent@agency.com.au">
-            <p class="field-hint">We'll automatically send them proof of the clean (checklist + before/after photos) once it's done.</p>
+            <div class="checkbox-row">
+              <label class="checkbox-line">
+                <input type="checkbox" id="agentEmailToggle">
+                Notify my property manager automatically once the clean is done (optional)
+              </label>
+            </div>
+            <div id="agentEmailWrap" hidden>
+              <label class="field-label" for="agentEmail">Property manager / agency email</label>
+              <input type="email" id="agentEmail" name="agentEmail" placeholder="agent@agency.com.au">
+              <p class="field-hint">We'll send them proof of the clean (checklist + before/after photos) once it's done.</p>
+            </div>
 
             <div class="checkbox-row">
               <label class="checkbox-line">

@@ -29,6 +29,18 @@
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3Z"/></svg>',
     badge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>',
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a8 8 0 0 1 14-5l2-2"/><path d="M20 2v5h-5"/><path d="M20 15a8 8 0 0 1-14 5l-2 2"/><path d="M4 22v-5h5"/></svg>',
+    // Property types (booking form pills + hero quote preview)
+    apartment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><rect x="7.5" y="7" width="2.5" height="2.5"/><rect x="14" y="7" width="2.5" height="2.5"/><rect x="7.5" y="13" width="2.5" height="2.5"/><rect x="14" y="13" width="2.5" height="2.5"/><line x1="12" y1="21" x2="12" y2="18"/></svg>',
+    house: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/><rect x="10" y="14" width="4" height="6"/></svg>',
+    studio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5"/><path d="M2 18h20"/><path d="M4 11V7a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4"/></svg>',
+    office: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="13" x2="21" y2="13"/></svg>',
+    // Extras
+    oven: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="7" x2="8.01" y2="7"/><line x1="12" y1="7" x2="12.01" y2="7"/><line x1="16" y1="7" x2="16.01" y2="7"/><rect x="6" y="11" width="12" height="8" rx="1"/><circle cx="12" cy="15" r="2"/></svg>',
+    fridge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="1.5"/><line x1="6" y1="9" x2="18" y2="9"/><line x1="9" y1="4" x2="9" y2="7"/><line x1="9" y1="11" x2="9" y2="14"/></svg>',
+    balcony: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 3-3 6 0 9 3-3 3-6 0-9Z"/><line x1="12" y1="12" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg>',
+    garage: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l2-5a2 2 0 0 1 2-1h10a2 2 0 0 1 2 1l2 5"/><rect x="2" y="11" width="20" height="7" rx="1.5"/><circle cx="7" cy="18" r="1.5"/><circle cx="17" cy="18" r="1.5"/></svg>',
+    curtains: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="20" y2="4"/><path d="M6 4c0 6 2 8 2 16"/><path d="M18 4c0 6-2 8-2 16"/></svg>',
+    blinds: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="1"/><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/></svg>',
   };
 
   // "168 hours" reads oddly next to marketing copy that says "7 days" —
@@ -176,8 +188,8 @@
     const sampleType = booking.serviceTypes[0];
     const total = sampleSize.price + sampleType.surcharge + sampleExtras.reduce((s, e) => s + e.price, 0);
     document.getElementById('heroCardRows').innerHTML = `
-      <div class="hero-card-row"><span>${sampleType.icon} ${sampleType.label} ${sampleSize.label}</span><span>from ${business.currencySymbol}${sampleSize.price}</span></div>
-      ${sampleExtras.map(e => `<div class="hero-card-row"><span>${e.icon} ${e.label}</span><span>+ ${business.currencySymbol}${e.price}</span></div>`).join('')}
+      <div class="hero-card-row"><span><span class="inline-icon">${ICONS[sampleType.icon] || ''}</span>${sampleType.label} ${sampleSize.label}</span><span>from ${business.currencySymbol}${sampleSize.price}</span></div>
+      ${sampleExtras.map(e => `<div class="hero-card-row"><span><span class="inline-icon">${ICONS[e.icon] || ''}</span>${e.label}</span><span>+ ${business.currencySymbol}${e.price}</span></div>`).join('')}
       <div class="hero-card-row hero-card-total"><span>Estimated total</span><span>${business.currencySymbol}${total}</span></div>
     `;
   }
@@ -254,7 +266,7 @@
     state.frequency = booking.frequencyOptions?.[0]?.value || 'once';
 
     document.getElementById('propertyTypePills').innerHTML = booking.serviceTypes.map((t, i) => `
-      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${t.value}">${t.icon} ${t.label}</button>
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${t.value}"><span class="inline-icon">${ICONS[t.icon] || ''}</span>${t.label}</button>
     `).join('');
     state.propertyType = booking.serviceTypes[0].value;
 
@@ -267,7 +279,7 @@
 
     document.getElementById('extrasGrid').innerHTML = booking.extras.map(e => e.perUnit ? `
       <div class="extra-card extra-card-unit">
-        <span class="extra-icon">${e.icon}</span>
+        <span class="extra-icon">${ICONS[e.icon] || e.icon}</span>
         <span class="extra-name">${e.label}</span>
         <span class="extra-price">${cfg.business.currencySymbol}${e.price} per ${e.unitLabel || 'unit'}</span>
         <div class="extra-qty">
@@ -280,7 +292,7 @@
     ` : `
       <label class="extra-card">
         <input type="checkbox" name="extras" value="${e.key}" data-price="${e.price}" data-label="${e.label}">
-        <span class="extra-icon">${e.icon}</span>
+        <span class="extra-icon">${ICONS[e.icon] || e.icon}</span>
         <span class="extra-name">${e.label}</span>
         <span class="extra-price">+${cfg.business.currencySymbol}${e.price}</span>
       </label>
@@ -953,6 +965,10 @@
     document.getElementById('email').addEventListener('blur', captureLead);
     document.getElementById('phone').addEventListener('blur', captureLead);
     document.getElementById('keyAccess').addEventListener('change', updatePriceSummary);
+    document.getElementById('agentEmailToggle').addEventListener('change', e => {
+      document.getElementById('agentEmailWrap').hidden = !e.target.checked;
+      if (!e.target.checked) els.agentEmail.value = '';
+    });
     const extrasGrid = document.getElementById('extrasGrid');
     extrasGrid.addEventListener('change', updatePriceSummary);
     extrasGrid.addEventListener('input', updatePriceSummary);

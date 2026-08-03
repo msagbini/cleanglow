@@ -346,7 +346,15 @@ input:invalid:not(:placeholder-shown):required { border-color: var(--color-dange
 .extra-card:hover { border-color: var(--color-primary); }
 .extra-card input { position: absolute; left: 14px; top: 16px; width: 16px; height: 16px; accent-color: var(--color-primary); }
 .extra-card:has(input:checked) { border-color: var(--color-primary); background: var(--color-primary-light); }
-.extra-icon { font-size: 1.1rem; }
+.extra-icon { font-size: 1.1rem; color: var(--color-primary-dark); }
+.extra-icon svg { width: 20px; height: 20px; }
+
+/* Shared wrapper for an ICONS SVG sitting inline next to text (pills,
+   hero quote-preview rows) — vertical-align nudges it onto the text baseline
+   since these buttons/rows are plain inline flow, not flex containers. */
+.inline-icon { display: inline-flex; vertical-align: -3px; margin-right: 5px; color: var(--color-primary-dark); }
+.inline-icon svg { width: 15px; height: 15px; }
+.pill.active .inline-icon { color: #fff; }
 .extra-name { font-size: .86rem; font-weight: 600; color: var(--color-ink); }
 .extra-price { font-size: .85rem; color: var(--color-primary-text); font-weight: 700; }
 
