@@ -1028,6 +1028,53 @@
 
     updatePriceSummary();
     showStep(1, false);
+
+    await checkResumePayment();
+  }
+
+  // If Stripe checkout was cancelled or a card was declined, the customer
+  // lands back here via a URL carrying their existing booking id (see
+  // cancel_url in server/routes/payments.js) — their time slot is already
+  // held, so this offers a one-click way to pay again instead of silently
+  // hitting "that slot is taken" if they try to fill out the form fresh.
+  async function checkResumePayment() {
+    const bookingId = new URLSearchParams(location.search).get('resume');
+    if (!bookingId) return;
+
+    let booking;
+    try {
+      const res = await fetch(`/api/bookings/${encodeURIComponent(bookingId)}`);
+      if (!res.ok) return;
+      booking = await res.json();
+    } catch {
+      return;
+    }
+    if (booking.status !== 'pending_payment') return;
+
+    const banner = document.getElementById('resumeBanner');
+    document.getElementById('resumeBookingRef').textContent = booking.id;
+    banner.hidden = false;
+    document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    document.getElementById('resumePaymentBtn').addEventListener('click', async e => {
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      btn.textContent = 'Redirecting…';
+      try {
+        const res = await fetch('/api/checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookingId: booking.id }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.url) throw new Error(data.error || 'Could not resume payment');
+        window.location.href = data.url;
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Resume payment';
+        showToast(err.message);
+      }
+    });
   }
 
   init().catch(err => {

@@ -302,6 +302,17 @@ input, select, textarea { font-family: inherit; }
    sat right on top of the step-number circles, reported as looking like a
    glitchy transition instead of a deliberate highlight. */
 .booking-wrap { padding: 16px; margin: -16px; border-radius: var(--radius-lg); }
+.resume-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  background: #fff4e8; border: 1.5px solid #ffc98f; border-radius: var(--radius-sm);
+  padding: 16px 20px; margin-bottom: 20px;
+}
+.resume-banner p { margin: 0; font-size: .92rem; color: #7a4a12; flex: 1; min-width: 220px; }
+.resume-banner[hidden] { display: none; }
+@media (prefers-color-scheme: dark) {
+  .resume-banner { background: #3a2a12; border-color: #6b4a1e; }
+  .resume-banner p { color: #ffcf94; }
+}
 .booking-arrival-highlight { border-radius: var(--radius-lg); animation: bookingArrivalPulse 1.1s ease-out; }
 
 .booking-panel {

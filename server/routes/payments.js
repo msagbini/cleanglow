@@ -76,7 +76,11 @@ router.post('/checkout-session', async (req, res) => {
       line_items: [{ price_data: priceData, quantity: 1 }],
       metadata: { bookingId: booking.id, frequency: booking.frequency },
       success_url: `${baseUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/index.html#booking`,
+      // Carries the booking id back so the customer isn't dumped on a blank
+      // form after a failed/cancelled card — the booking row already exists
+      // (and its time slot is already held), the frontend picks this up to
+      // offer a one-click "resume payment" instead of making them start over.
+      cancel_url: `${baseUrl}/index.html?resume=${booking.id}#booking`,
     });
 
     attachStripeSession(booking.id, session.id);
