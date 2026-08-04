@@ -391,11 +391,11 @@
       <h4>4. Property access</h4><p>The customer is responsible for providing a valid access method for the booked time slot, and for the re-clean visit described above if one is requested.</p>
       <h4>5. Recurring plans and early cancellation</h4><p>Weekly, fortnightly and monthly plans are billed automatically at a discounted rate that reflects the ongoing, repeat nature of the service. If a recurring plan is cancelled before the minimum of ${state.config.booking.earlyCancellationMinCycles ?? 3} cleans has been completed, a one-off early-cancellation fee equal to one visit at the discounted rate applies, charged to the card on file, to recover the discount given on the assumption of ongoing business. This fee does not apply once the minimum number of cleans has been completed — the plan can then be cancelled at any time with no fee.</p>`;
     legalContent.privacy.body = `<p>Your personal data is used only to manage your booking and communicate with you about the service.</p>
-      <h4>Data we collect</h4><p>Name, email, phone number and the address of the property to be cleaned.</p>
-      <h4>How we use it</h4><p>We don't share your data with third parties other than the team assigned to your service.</p>
+      <h4>Data we collect</h4><p>Name, email, phone number, the address of the property to be cleaned, and any before/after photos submitted for the job. If you choose to notify a property manager, we also collect their email address for that one purpose.</p>
+      <h4>How we use it</h4><p>We don't share your data with third parties other than the cleaning team assigned to your service and, only if you choose to provide one, the property manager/agent email you give us — used solely to send them proof that the agreed clean was completed.</p>
       <h4>Your rights</h4><p>You can request access to, correction of, or deletion of your data by emailing ${business.email}.</p>`;
     legalContent.cookies.body = `<p>This site doesn't use tracking, advertising or analytics cookies.</p>
-      <h4>What we do use</h4><p>Only what's strictly needed to run the booking form itself while you have it open — no data is stored in your browser between visits.</p>
+      <h4>What we do use</h4><p>A single cookie is set only if you log into your account at /account — it keeps you signed in for up to 30 days so you don't have to request a new login link every visit. If you never log in, no cookie is stored in your browser between visits.</p>
       <h4>Stripe</h4><p>When you reach the payment screen, our payment processor Stripe may set its own cookies there for fraud prevention. That happens on Stripe's own site, under their <a href="https://stripe.com/privacy" target="_blank" rel="noopener">privacy policy</a>, not ours.</p>`;
   }
 
