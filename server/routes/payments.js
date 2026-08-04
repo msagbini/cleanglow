@@ -7,6 +7,7 @@ import {
 import { getFrequencyOption } from '../config.js';
 import { notifyPaidBooking, sendCustomerConfirmation } from '../email.js';
 import { getOrCreateReferralCodeForCustomer } from '../referrals.js';
+import { sendOwnerPush } from '../push.js';
 import { publicView } from './bookings.js';
 
 const router = Router();
@@ -27,7 +28,15 @@ async function markPaidOnce(booking, subscriptionId) {
     // Only given out once a real payment has landed — a pending_payment
     // booking that never completes shouldn't hand out a shareable code.
     const referralCode = getOrCreateReferralCodeForCustomer(paid);
-    await Promise.all([notifyPaidBooking(paid), sendCustomerConfirmation(paid, referralCode)]);
+    const amount = `${(paid.amount_cents / 100).toFixed(2)} ${paid.currency.toUpperCase()}`;
+    await Promise.all([
+      notifyPaidBooking(paid),
+      sendCustomerConfirmation(paid, referralCode),
+      // A second, independent notification channel for the owner — works
+      // even if SMTP isn't configured yet, since it needs no email/SMS
+      // setup at all (see server/push.js).
+      sendOwnerPush('Nueva reserva pagada', `${paid.full_name} — ${amount}\n${paid.booking_date} ${paid.booking_time}\n${paid.address}\nRef: ${paid.id}`),
+    ]);
     markNotified(paid.id);
   }
   return paid;
