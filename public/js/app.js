@@ -200,8 +200,8 @@
   }
 
   function renderServices(cfg) {
-    document.getElementById('servicesGrid').innerHTML = cfg.servicesShowcase.map(s => `
-      <article class="service-card">
+    document.getElementById('servicesGrid').innerHTML = cfg.servicesShowcase.map((s, i) => `
+      <article class="service-card reveal reveal-delay-${(i % 4) + 1}">
         <div class="service-icon">${ICONS[s.icon] || s.icon}</div>
         <h3>${s.title}</h3>
         <p>${s.description}</p>
@@ -212,8 +212,8 @@
   function renderChecklist(cfg) {
     const { checklist } = cfg;
     document.getElementById('checklistIntro').textContent = checklist.intro;
-    document.getElementById('checklistColumns').innerHTML = checklist.columns.map(col => `
-      <ul class="checklist">${col.map(item => `<li>✔ ${item}</li>`).join('')}</ul>
+    document.getElementById('checklistColumns').innerHTML = checklist.columns.map((col, i) => `
+      <ul class="checklist reveal reveal-delay-${i + 1}">${col.map(item => `<li>✔ ${item}</li>`).join('')}</ul>
     `).join('');
     const disclaimer = checklist.guarantee.disclaimer
       ? `<p class="guarantee-disclaimer">${checklist.guarantee.disclaimer} <a href="#" data-modal="terms">Guarantee Terms</a></p>`
@@ -227,8 +227,8 @@
   }
 
   function renderPricingTiers(cfg) {
-    document.getElementById('pricingGrid').innerHTML = cfg.pricingTiers.map(tier => `
-      <div class="price-card ${tier.featured ? 'featured' : ''}">
+    document.getElementById('pricingGrid').innerHTML = cfg.pricingTiers.map((tier, i) => `
+      <div class="price-card reveal reveal-delay-${i + 1} ${tier.featured ? 'featured' : ''}">
         ${tier.featured ? '<span class="price-tag">Most booked</span>' : ''}
         <h3>${tier.label}</h3>
         <p class="price">from ${cfg.business.currencySymbol}${tier.priceFrom}</p>
@@ -508,7 +508,15 @@
     }
     document.getElementById('sumTotalLabel').textContent = isRecurring ? `Total per visit (${frequencyOption.label.toLowerCase()})` : 'Estimated total';
 
-    els.sumTotal.textContent = `${currencySymbol}${total.toFixed(0)}`;
+    const formattedTotal = `${currencySymbol}${total.toFixed(0)}`;
+    if (els.sumTotal.textContent !== formattedTotal && els.sumTotal.textContent !== '—') {
+      els.sumTotal.classList.remove('price-pulse');
+      // Force a reflow so re-adding the class restarts the animation even
+      // when the price changes twice in quick succession (e.g. two clicks).
+      void els.sumTotal.offsetWidth;
+      els.sumTotal.classList.add('price-pulse');
+    }
+    els.sumTotal.textContent = formattedTotal;
 
     const gst = computeGstComponent(total);
     const taxNote = document.getElementById('sumTaxNote');
@@ -1029,7 +1037,36 @@
     updatePriceSummary();
     showStep(1, false);
 
+    initScrollEffects();
     await checkResumePayment();
+  }
+
+  // Reveals .reveal elements the first time they scroll into view, and adds
+  // a subtle shadow to the sticky header once the page has scrolled past
+  // the hero — both purely cosmetic, so failing quietly (e.g. no
+  // IntersectionObserver support) never blocks the page from working.
+  function initScrollEffects() {
+    const revealTargets = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window && revealTargets.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      revealTargets.forEach(el => observer.observe(el));
+    } else {
+      revealTargets.forEach(el => el.classList.add('is-visible'));
+    }
+
+    const header = document.querySelector('.site-header');
+    if (header) {
+      const toggleHeaderShadow = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+      toggleHeaderShadow();
+      window.addEventListener('scroll', toggleHeaderShadow, { passive: true });
+    }
   }
 
   // If Stripe checkout was cancelled or a card was declined, the customer
