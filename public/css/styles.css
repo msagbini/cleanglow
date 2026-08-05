@@ -263,9 +263,16 @@ input, select, textarea { font-family: inherit; }
 .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .price-card {
   background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);
-  padding: 32px; text-align: center; position: relative;
+  padding: 32px; text-align: center; position: relative; transition: transform .2s ease, box-shadow .2s ease;
 }
 .price-card.featured { border-color: var(--color-primary); box-shadow: var(--shadow-md); transform: scale(1.03); }
+/* The whole card is clickable when it has a preset size (see app.js) — not
+   just the "Book this size" button at the bottom, which is easy to miss as
+   a small tap target on a phone. */
+.price-card[data-preset-bedrooms] { cursor: pointer; }
+.price-card[data-preset-bedrooms]:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.price-card.featured[data-preset-bedrooms]:hover { transform: scale(1.03) translateY(-4px); }
+.price-card[data-preset-bedrooms]:hover .price-card-select { background: var(--color-primary-dark); }
 .price-tag {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
   background: var(--color-accent); color: var(--color-ink); font-size: .78rem; font-weight: 700;

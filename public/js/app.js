@@ -228,23 +228,26 @@
 
   function renderPricingTiers(cfg) {
     document.getElementById('pricingGrid').innerHTML = cfg.pricingTiers.map((tier, i) => `
-      <div class="price-card reveal reveal-delay-${i + 1} ${tier.featured ? 'featured' : ''}">
+      <div class="price-card reveal reveal-delay-${i + 1} ${tier.featured ? 'featured' : ''}" ${tier.presetBedrooms ? `data-preset-bedrooms="${tier.presetBedrooms}"` : ''}>
         ${tier.featured ? '<span class="price-tag">Most booked</span>' : ''}
         <h3>${tier.label}</h3>
         <p class="price">from ${cfg.business.currencySymbol}${tier.priceFrom}</p>
         <ul>${tier.features.map(f => `<li>${f}</li>`).join('')}</ul>
-        ${tier.presetBedrooms ? `<button type="button" class="btn btn-primary btn-sm price-card-select" data-preset-bedrooms="${tier.presetBedrooms}">Book this size</button>` : ''}
+        ${tier.presetBedrooms ? `<button type="button" class="btn btn-primary btn-sm price-card-select">Book this size</button>` : ''}
       </div>
     `).join('');
   }
 
-  // Jumping in from a pricing card should land the customer on a wizard
-  // that's already set up for the size they picked, not an empty form they
-  // have to fill in again from scratch.
+  // The whole card is the tap target, not just the button at the bottom —
+  // a click anywhere in a price-card (including on the button itself, whose
+  // own click bubbles up here) pre-fills the wizard. The button stays a
+  // real <button> so keyboard/screen-reader users still get one clearly
+  // labelled, natively focusable control rather than an entire div acting
+  // as an unlabelled button.
   document.getElementById('pricingGrid').addEventListener('click', e => {
-    const btn = e.target.closest('.price-card-select');
-    if (!btn) return;
-    els.bedrooms.value = btn.dataset.presetBedrooms;
+    const card = e.target.closest('.price-card[data-preset-bedrooms]');
+    if (!card) return;
+    els.bedrooms.value = card.dataset.presetBedrooms;
     updatePriceSummary();
     const wrap = document.querySelector('.booking-wrap');
     document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
