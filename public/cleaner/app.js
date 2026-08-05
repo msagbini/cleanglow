@@ -89,7 +89,8 @@
         <div><strong>Phone</strong>${escapeHtml(job.phone)}</div>
         <div><strong>Address</strong>${escapeHtml(job.address)}, ${escapeHtml(job.postcode)}</div>
         <div><strong>Property</strong>${escapeHtml(job.propertyType)} · ${escapeHtml(job.bedrooms)} bed · ${job.bathrooms} bath(s)${job.sqm ? ` · ${job.sqm}m²` : ''}</div>
-        <div><strong>Key access</strong>${escapeHtml(job.keyAccess || 'Not specified')}</div>
+        <div><strong>Key access</strong>${job.keyAccess === 'keybox' ? 'Lockbox / key code' : 'Customer present'}</div>
+        ${job.keyAccess === 'keybox' ? `<div><strong>Lockbox details</strong>${escapeHtml(job.accessInstructions || 'Not provided — call the customer')}</div>` : ''}
         <div><strong>Extras</strong>${job.extras && job.extras.length ? escapeHtml(job.extras.join(', ')) : 'None'}</div>
       </div>
       ${job.notesProperty ? `<div class="job-notes">${escapeHtml(job.notesProperty)}</div>` : ''}

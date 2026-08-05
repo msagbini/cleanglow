@@ -60,7 +60,7 @@
         <td><strong>${b.id}</strong></td>
         <td><span class="status-badge status-${b.status}">${STATUS_LABEL[b.status] || b.status}</span></td>
         <td>${escapeHtml(b.full_name)}<br><span class="muted-text">${escapeHtml(b.email)} · ${escapeHtml(b.phone)}</span></td>
-        <td>${escapeHtml(b.property_type)} · ${escapeHtml(b.bedrooms)} bed · ${b.bathrooms} bath(s)<br><span class="muted-text">${escapeHtml(b.address)}</span></td>
+        <td>${escapeHtml(b.property_type)} · ${escapeHtml(b.bedrooms)} bed · ${b.bathrooms} bath(s)<br><span class="muted-text">${escapeHtml(b.address)}</span><br><span class="muted-text">${b.key_access === 'keybox' ? `🔑 ${escapeHtml(b.access_instructions || 'No instructions given')}` : '🚪 Present at property'}</span></td>
         <td>${b.booking_date}<br><span class="muted-text">${b.booking_time}</span></td>
         <td>${escapeHtml(FREQUENCY_LABEL[b.frequency] || b.frequency)}${b.stripe_subscription_id ? '<br><span class="muted-text">recurring</span>' : ''}</td>
         <td><strong>${b.currency === 'aud' ? '$' : b.currency}${(b.amount_cents / 100).toFixed(2)}</strong></td>

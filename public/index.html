@@ -28,11 +28,12 @@
   "@type": "FAQPage",
   "mainEntity": [
     { "@type": "Question", "name": "What happens if my landlord isn't satisfied?", "acceptedAnswer": { "@type": "Answer", "text": "We offer a free re-clean guarantee within 7 days of the service if any checklist item doesn't meet your landlord's or agent's standards." } },
-    { "@type": "Question", "name": "Do I need to be there during the clean?", "acceptedAnswer": { "@type": "Answer", "text": "It's not required. You can arrange a lockbox, coordinate with a neighbour/building manager, or with your property manager during booking." } },
+    { "@type": "Question", "name": "Do I need to be there during the clean?", "acceptedAnswer": { "@type": "Answer", "text": "It's not required. You can provide a lockbox or key code instead during booking." } },
     { "@type": "Question", "name": "Do you bring your own products and equipment?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity." } },
     { "@type": "Question", "name": "How long does the clean take?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours." } },
     { "@type": "Question", "name": "Can I cancel or change the date?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment." } },
-    { "@type": "Question", "name": "Does the price include GST?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees." } }
+    { "@type": "Question", "name": "Does the price include GST?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees." } },
+    { "@type": "Question", "name": "What if I'm running late or can't be there?", "acceptedAnswer": { "@type": "Answer", "text": "We allow a short grace period if you're running late. Extended delays or no access at all can incur a waiting fee or, past a certain point, a lockout fee — see our terms & conditions for the exact amounts. Choosing a lockbox instead of being present avoids this risk entirely." } }
   ]
 }
 </script>
@@ -215,6 +216,14 @@
 
             <label class="field-label" for="keyAccess" data-i18n="form.keyAccess">How will we access the property?</label>
             <select id="keyAccess" name="keyAccess"></select>
+
+            <div id="accessInstructionsWrap" hidden>
+              <label class="field-label" for="accessInstructions" data-i18n="form.accessInstructions">Lockbox location &amp; code *</label>
+              <textarea id="accessInstructions" name="accessInstructions" rows="2" placeholder="e.g. Key safe by the front door, code 4471" data-i18n-placeholder="form.accessInstructionsPlaceholder"></textarea>
+              <p class="field-hint" data-i18n="form.accessInstructionsHint">Please be specific — this is what the cleaning team will use to get in.</p>
+            </div>
+
+            <p class="field-hint access-policy-note" id="accessPolicyNote"></p>
           </fieldset>
 
           <!-- STEP 3: DATE -->
@@ -354,7 +363,7 @@
       </div>
       <div class="accordion-item">
         <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q2">Do I need to be there during the clean?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a2">It's not required. You can arrange a lockbox, coordinate with a neighbour/building manager, or with your property manager during booking.</p></div>
+        <div class="accordion-panel"><p data-i18n="faq.a2">It's not required. You can provide a lockbox or key code instead during booking.</p></div>
       </div>
       <div class="accordion-item">
         <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q3">Do you bring your own products and equipment?</button>
@@ -371,6 +380,10 @@
       <div class="accordion-item">
         <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q6">Does the price include GST?</button>
         <div class="accordion-panel"><p data-i18n="faq.a6">Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees.</p></div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q7">What if I'm running late or can't be there?</button>
+        <div class="accordion-panel"><p data-i18n="faq.a7">We allow a short grace period if you're running late. Extended delays or no access at all can incur a waiting fee or, past a certain point, a lockout fee — see our terms & conditions for the exact amounts. Choosing a lockbox/key code instead of being present avoids this risk entirely.</p></div>
       </div>
     </div>
   </div>

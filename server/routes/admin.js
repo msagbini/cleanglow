@@ -157,6 +157,8 @@ router.get('/bookings.csv', (req, res) => {
     { label: 'Bedrooms', value: b => b.bedrooms },
     { label: 'Bathrooms', value: b => b.bathrooms },
     { label: 'Extras', value: b => b.extras.join('; ') },
+    { label: 'Key access', value: b => b.key_access === 'keybox' ? 'Lockbox / key code' : 'Present at property' },
+    { label: 'Access instructions', value: b => b.access_instructions ?? '' },
     { label: 'Booking date', value: b => b.booking_date },
     { label: 'Booking time', value: b => b.booking_time },
     { label: 'Frequency', value: b => b.frequency },

@@ -97,10 +97,16 @@
     ],
     "keyAccessOptions": [
       { "value": "present", "label": "I'll be there", "surcharge": 0 },
-      { "value": "keybox", "label": "Lockbox / key code", "surcharge": 0 },
-      { "value": "neighbor", "label": "Pick-up from a neighbour / building manager", "surcharge": 15 },
-      { "value": "agent", "label": "Coordinate with property manager", "surcharge": 20 }
+      { "value": "keybox", "label": "Lockbox / key code", "surcharge": 0 }
     ],
+    "accessPolicy": {
+      "gracePeriodMinutes": 15,
+      "lateFeePerBlockCents": 2500,
+      "lateFeeBlockMinutes": 15,
+      "lockoutThresholdMinutes": 45,
+      "lockoutFeeCents": 8000
+    },
+    "maxBookingHorizonDays": 90,
     "timeSlots": [
       { "value": "08:00", "label": "8:00am - 11:00am" },
       { "value": "11:00", "label": "11:00am - 2:00pm" },

@@ -39,6 +39,7 @@ const sizePriceByValue = Object.fromEntries(config.booking.sizeField.options.map
 const serviceTypeSurchargeByValue = Object.fromEntries(config.booking.serviceTypes.map(t => [t.value, t.surcharge]));
 const urgencySurchargeByValue = Object.fromEntries(config.booking.urgencyOptions.map(u => [u.value, u.surcharge]));
 const keyAccessSurchargeByValue = Object.fromEntries((config.booking.keyAccessOptions ?? []).map(k => [k.value, k.surcharge ?? 0]));
+const validKeyAccessValues = new Set((config.booking.keyAccessOptions ?? []).map(k => k.value));
 const validExtraKeys = new Set(Object.keys(extraPriceByKey));
 const frequencyByValue = Object.fromEntries((config.booking.frequencyOptions ?? []).map(f => [f.value, f]));
 
@@ -122,6 +123,26 @@ export function isValidExtraKey(key) {
 // bedrooms value that doesn't match any catalog option.
 export function isValidSizeValue(value) {
   return String(value) in sizeOptionByValue;
+}
+
+export function isValidKeyAccessValue(value) {
+  return validKeyAccessValues.has(value);
+}
+
+// Without an upper bound, nothing stopped a booking for a nonsense date far
+// in the future (e.g. the browser's native date picker letting a customer
+// scroll to the year 2122) — a fixed calendar-year cutoff would itself break
+// every December, when booking into January is completely normal. A rolling
+// N-day horizon handles both: always bounded, and never needs a year-end
+// special case.
+export function isValidBookingDate(dateStr) {
+  const chosen = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(chosen.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const maxDate = new Date(today);
+  maxDate.setDate(maxDate.getDate() + (config.booking.maxBookingHorizonDays ?? 90));
+  return chosen >= today && chosen <= maxDate;
 }
 
 // Extras are a flat array of keys, one entry per unit (e.g. 3 curtains ==

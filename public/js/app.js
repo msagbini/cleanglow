@@ -318,12 +318,45 @@
 
     document.getElementById('keyAccess').innerHTML = booking.keyAccessOptions
       .map(o => `<option value="${o.value}">${o.label}${o.surcharge ? ` (+${cfg.business.currencySymbol}${o.surcharge})` : ''}</option>`).join('');
+    updateAccessPolicyUI(cfg);
 
     document.getElementById('bookingTime').innerHTML = booking.timeSlots
       .map(o => `<option value="${o.value}">${o.label}</option>`).join('');
 
     state.urgency = booking.urgencyOptions[0].value;
     state.urgencySurcharge = booking.urgencyOptions[0].surcharge;
+  }
+
+  // Removing the "we'll coordinate access" style options left exactly two
+  // paths: the customer is there in person (which carries a real lateness
+  // risk that can cascade into the next job — see the terms & conditions'
+  // Property Access & Lateness section) or a lockbox (which sidesteps that
+  // risk entirely, provided the code they give us actually works). This note
+  // makes that trade-off visible at the moment they're choosing, instead of
+  // only in the terms modal nobody reads before booking.
+  function updateAccessPolicyUI(cfg) {
+    const value = document.getElementById('keyAccess').value;
+    const wrap = document.getElementById('accessInstructionsWrap');
+    const note = document.getElementById('accessPolicyNote');
+    const isKeybox = value === 'keybox';
+    wrap.hidden = !isKeybox;
+    document.getElementById('accessInstructions').required = isKeybox;
+
+    const policy = cfg.booking.accessPolicy;
+    const symbol = cfg.business.currencySymbol;
+    if (isKeybox) {
+      note.textContent = CGI18N.t('access.policyNoteKeybox', '✓ No lateness risk — the team lets themselves in with the code you provide below.');
+    } else if (policy) {
+      note.textContent = CGI18N.tf(
+        'access.policyNotePresent',
+        (grace, fee, block, lockoutMin, lockoutFee) =>
+          `If you'll be there in person, please be on time — we allow a ${grace}-minute grace period. After that, a ${fee} fee applies per extra ${block} minutes, and if there's still no access after ${lockoutMin} minutes we'll need to treat it as a lockout (${lockoutFee} fee) and reschedule. Choosing a lockbox avoids this entirely.`,
+        policy.gracePeriodMinutes, `${symbol}${(policy.lateFeePerBlockCents / 100).toFixed(0)}`,
+        policy.lateFeeBlockMinutes, policy.lockoutThresholdMinutes, `${symbol}${(policy.lockoutFeeCents / 100).toFixed(0)}`
+      );
+    } else {
+      note.textContent = '';
+    }
   }
 
   // "Bedrooms" doesn't make sense for an office — swap the field label and
@@ -395,6 +428,9 @@
 
   function renderLegalContentEs(cfg) {
     const { business } = cfg;
+    const accessPolicy = cfg.booking.accessPolicy ?? {};
+    const accessLateFee = `${business.currencySymbol}${((accessPolicy.lateFeePerBlockCents ?? 0) / 100).toFixed(0)}`;
+    const accessLockoutFee = `${business.currencySymbol}${((accessPolicy.lockoutFeeCents ?? 0) / 100).toFixed(0)}`;
     legalContent.terms.title = 'Términos y Condiciones';
     legalContent.privacy.title = 'Política de Privacidad';
     legalContent.cookies.title = 'Cookies';
@@ -409,8 +445,14 @@
       </ul>
       <p><strong>Qué significa — y qué no significa — "garantía 100% de devolución del depósito":</strong> describe nuestro compromiso de volver a limpiar los ítems del checklist hasta que cumplan un estándar profesional. <strong>No</strong> es una garantía del monto del depósito en sí. Que tu depósito se devuelva en su totalidad es una decisión de tu arrendador, administrador de propiedad o (en caso de disputa) la autoridad de arrendamiento correspondiente, según factores fuera de nuestro control — por ejemplo daños a la propiedad, renta impaga, estado del jardín/césped, o artículos faltantes.</p>
       <p><strong>Qué no cubre:</strong> daños preexistentes, desgaste normal, moho, olores o manchas causados por condiciones previas a nuestro servicio, ítems fuera del checklist acordado al reservar, y solicitudes de re-limpieza hechas después de la ventana de ${formatWindow(business.recleanWindowHours)} o donde no se dio acceso.</p>
-      <h4>4. Acceso a la propiedad</h4><p>El cliente es responsable de proporcionar un método de acceso válido para el horario reservado, y para la visita de re-limpieza descrita arriba si se solicita una.</p>
-      <h4>5. Planes recurrentes y cancelación anticipada</h4><p>Los planes semanales, quincenales y mensuales se facturan automáticamente a una tarifa con descuento que refleja la naturaleza continua y repetida del servicio. Si un plan recurrente se cancela antes de completar el mínimo de ${state.config.booking.earlyCancellationMinCycles ?? 3} limpiezas, aplica una tarifa única de cancelación anticipada equivalente a una visita a la tarifa con descuento, cobrada a la tarjeta registrada, para recuperar el descuento otorgado bajo el supuesto de negocio continuo. Esta tarifa no aplica una vez completado el número mínimo de limpiezas — el plan puede cancelarse en cualquier momento sin costo a partir de entonces.</p>`;
+      <h4>4. Acceso a la Propiedad y Tardanza</h4>
+      <p>El método de acceso elegido al reservar — que estés presente, o una caja de seguridad/código — determina cómo entra nuestro equipo. Si eliges caja de seguridad, la ubicación y el código deben indicarse en el formulario de reserva; si cambian antes de la cita, avísanos de inmediato.</p>
+      <p>Si vas a estar presente: damos <strong>${accessPolicy.gracePeriodMinutes} minutos de gracia</strong> sin costo desde el inicio de tu horario reservado. Después de eso, se aplica una tarifa de <strong>${accessLateFee}</strong> por cada ${accessPolicy.lateFeeBlockMinutes} minutos adicionales que nuestro equipo espera, ya que ese tiempo se le resta directamente a otras reservas de ese día. Si sigue sin haber acceso después de <strong>${accessPolicy.lockoutThresholdMinutes} minutos</strong> en total, trataremos la cita como un caso de bloqueo: se aplica una tarifa de bloqueo de <strong>${accessLockoutFee}</strong>, la visita se cancela, y deberá reservarse de nuevo como una cita nueva (sujeta a disponibilidad) en vez de completarse ese mismo día.</p>
+      <h4>5. Servicios Básicos y Condiciones de Trabajo Seguras</h4>
+      <p>Debe haber agua y electricidad conectadas y accesibles en la propiedad para la cita reservada — si no las hay, puede aplicar la misma política de tardanza/bloqueo anterior, ya que nuestro equipo podría no poder completar la limpieza. Nuestro equipo puede negarse a limpiar o pausar el trabajo, sin que cuente como una cita incumplida de su parte, si la propiedad presenta un riesgo real de seguridad (ej. un animal agresivo sin control, materiales peligrosos expuestos, peligro estructural) — por favor indica cualquier situación relevante en las notas de la propiedad al reservar.</p>
+      <h4>6. Cancelaciones o Retrasos por Parte de ${business.name}</h4>
+      <p>En raras ocasiones podríamos necesitar cancelar o reprogramar una cita nosotros mismos — por ejemplo, clima severo, enfermedad de un miembro del equipo, o un problema con el vehículo. En estos casos te avisaremos lo antes posible y te ofreceremos una reprogramación gratuita para el próximo horario disponible, o un reembolso completo si prefieres no reservar de nuevo. Nunca se aplica ninguna tarifa por una cancelación o retraso de nuestra parte.</p>
+      <h4>7. Planes recurrentes y cancelación anticipada</h4><p>Los planes semanales, quincenales y mensuales se facturan automáticamente a una tarifa con descuento que refleja la naturaleza continua y repetida del servicio. Si un plan recurrente se cancela antes de completar el mínimo de ${state.config.booking.earlyCancellationMinCycles ?? 3} limpiezas, aplica una tarifa única de cancelación anticipada equivalente a una visita a la tarifa con descuento, cobrada a la tarjeta registrada, para recuperar el descuento otorgado bajo el supuesto de negocio continuo. Esta tarifa no aplica una vez completado el número mínimo de limpiezas — el plan puede cancelarse en cualquier momento sin costo a partir de entonces.</p>`;
     legalContent.privacy.body = `<p>Tus datos personales se usan únicamente para gestionar tu reserva y comunicarnos contigo sobre el servicio.</p>
       <h4>Datos que recopilamos</h4><p>Nombre, email, número de teléfono, la dirección de la propiedad a limpiar, y cualquier foto antes/después enviada para el trabajo. Si eliges notificar a un administrador de propiedad, también recopilamos su dirección de email para ese único propósito.</p>
       <h4>Cómo los usamos</h4><p>No compartimos tus datos con terceros salvo el equipo de limpieza asignado a tu servicio y, solo si eliges proporcionarlo, el email del administrador de propiedad/agente que nos indiques — usado únicamente para enviarle la prueba de que la limpieza acordada se completó.</p>
@@ -423,6 +465,9 @@
   function renderLegalContent(cfg) {
     if (CGI18N.getLang() === 'es') return renderLegalContentEs(cfg);
     const { business } = cfg;
+    const accessPolicy = cfg.booking.accessPolicy ?? {};
+    const accessLateFee = `${business.currencySymbol}${((accessPolicy.lateFeePerBlockCents ?? 0) / 100).toFixed(0)}`;
+    const accessLockoutFee = `${business.currencySymbol}${((accessPolicy.lockoutFeeCents ?? 0) / 100).toFixed(0)}`;
     legalContent.terms.body = `<p>By booking a service with ${business.name} you agree to the following terms:</p>
       <h4>1. Bookings and payment</h4><p>The price shown is an estimate based on the details you provide. The final amount is confirmed after the team's initial inspection.</p>
       <h4>2. Cancellations</h4><p>You can cancel or reschedule for free up to 24 hours before your appointment. Later cancellations may incur a 20% fee.</p>
@@ -434,8 +479,14 @@
       </ul>
       <p><strong>What "100% bond-back guarantee" means — and doesn't mean:</strong> it describes our commitment to re-clean checklist items until they meet a professional standard. It is <strong>not</strong> a guarantee of the bond amount itself. Whether your bond is returned in full is a decision made by your landlord, property manager, or (if disputed) the relevant tenancy authority, based on factors outside our control — for example property damage, unpaid rent, garden/lawn condition, or missing items.</p>
       <p><strong>What isn't covered:</strong> pre-existing damage, fair wear and tear, mould, odours or staining caused by conditions that existed before our service, items outside the checklist agreed at booking, and re-clean requests made after the ${formatWindow(business.recleanWindowHours)} reporting window or where access wasn't provided.</p>
-      <h4>4. Property access</h4><p>The customer is responsible for providing a valid access method for the booked time slot, and for the re-clean visit described above if one is requested.</p>
-      <h4>5. Recurring plans and early cancellation</h4><p>Weekly, fortnightly and monthly plans are billed automatically at a discounted rate that reflects the ongoing, repeat nature of the service. If a recurring plan is cancelled before the minimum of ${state.config.booking.earlyCancellationMinCycles ?? 3} cleans has been completed, a one-off early-cancellation fee equal to one visit at the discounted rate applies, charged to the card on file, to recover the discount given on the assumption of ongoing business. This fee does not apply once the minimum number of cleans has been completed — the plan can then be cancelled at any time with no fee.</p>`;
+      <h4>4. Property Access & Lateness</h4>
+      <p>The access method chosen at booking — you being present, or a lockbox/key code — determines how our team gets in. If you choose a lockbox, its location and code must be given in the booking form; if either changes before the appointment, let us know immediately.</p>
+      <p>If you'll be present: we allow a <strong>${accessPolicy.gracePeriodMinutes}-minute grace period</strong> from the start of your booked time slot at no charge. After that, a <strong>${accessLateFee}</strong> fee applies for each additional ${accessPolicy.lateFeeBlockMinutes} minutes our team waits, since that time is taken directly from other customers' bookings that day. If access still hasn't been provided after <strong>${accessPolicy.lockoutThresholdMinutes} minutes</strong> total, we'll treat the appointment as a lockout: a <strong>${accessLockoutFee}</strong> lockout fee applies, the visit is cancelled, and it will need to be rebooked as a new appointment (subject to availability) rather than completed the same day.</p>
+      <h4>5. Utilities & Safe Working Conditions</h4>
+      <p>Working water and electricity must be connected and accessible at the property for the booked appointment — if they aren't, the lateness/lockout policy above may apply, as our team may be unable to complete the clean. Our team may decline or pause a clean, without it counting as a missed appointment on their part, if the property presents a genuine safety risk (e.g. an uncontrolled aggressive animal, exposed hazardous materials, structural danger) — please disclose anything relevant in the property notes at booking.</p>
+      <h4>6. Cancellations or Delays by ${business.name}</h4>
+      <p>On rare occasions we may need to cancel or reschedule an appointment ourselves — for example severe weather, a team member's illness, or a vehicle issue. In these cases you'll be notified as early as possible and offered a free reschedule to the next available slot, or a full refund if you'd prefer not to rebook. No fee ever applies for a cancellation or delay on our side.</p>
+      <h4>7. Recurring plans and early cancellation</h4><p>Weekly, fortnightly and monthly plans are billed automatically at a discounted rate that reflects the ongoing, repeat nature of the service. If a recurring plan is cancelled before the minimum of ${state.config.booking.earlyCancellationMinCycles ?? 3} cleans has been completed, a one-off early-cancellation fee equal to one visit at the discounted rate applies, charged to the card on file, to recover the discount given on the assumption of ongoing business. This fee does not apply once the minimum number of cleans has been completed — the plan can then be cancelled at any time with no fee.</p>`;
     legalContent.privacy.body = `<p>Your personal data is used only to manage your booking and communicate with you about the service.</p>
       <h4>Data we collect</h4><p>Name, email, phone number, the address of the property to be cleaned, and any before/after photos submitted for the job. If you choose to notify a property manager, we also collect their email address for that one purpose.</p>
       <h4>How we use it</h4><p>We don't share your data with third parties other than the cleaning team assigned to your service and, only if you choose to provide one, the property manager/agent email you give us — used solely to send them proof that the agreed clean was completed.</p>
@@ -638,6 +689,11 @@
         showToast(CGI18N.t('toast.pastDate', 'The date can\'t be in the past'));
         return false;
       }
+      const maxDateVal = document.getElementById('bookingDate').max;
+      if (maxDateVal && dateVal > maxDateVal) {
+        showToast(CGI18N.t('toast.dateTooFar', 'Please pick a date within the next few months'));
+        return false;
+      }
       const timeSelect = document.getElementById('bookingTime');
       const selectedOption = timeSelect.options[timeSelect.selectedIndex];
       if (selectedOption && selectedOption.disabled) {
@@ -830,6 +886,7 @@
       notesProperty: document.getElementById('notesProperty').value,
       extras,
       keyAccess: document.getElementById('keyAccess').value,
+      accessInstructions: document.getElementById('accessInstructions').value || null,
       bookingDate: document.getElementById('bookingDate').value,
       bookingTime: document.getElementById('bookingTime').value,
       urgency: state.urgency,
@@ -1054,7 +1111,10 @@
     }
     document.getElementById('email').addEventListener('blur', captureLead);
     document.getElementById('phone').addEventListener('blur', captureLead);
-    document.getElementById('keyAccess').addEventListener('change', updatePriceSummary);
+    document.getElementById('keyAccess').addEventListener('change', () => {
+      updateAccessPolicyUI(cfg);
+      updatePriceSummary();
+    });
     document.getElementById('agentEmailToggle').addEventListener('change', e => {
       document.getElementById('agentEmailWrap').hidden = !e.target.checked;
       if (!e.target.checked) els.agentEmail.value = '';
@@ -1102,6 +1162,13 @@
 
     const dateInput = document.getElementById('bookingDate');
     dateInput.min = new Date().toISOString().split('T')[0];
+    // A rolling horizon (not a fixed calendar-year cutoff) so nothing needs
+    // special-casing in December for a January booking — see the matching
+    // isValidBookingDate in server/config.js, which enforces this
+    // independently either way.
+    const maxBookingDate = new Date();
+    maxBookingDate.setDate(maxBookingDate.getDate() + (cfg.booking.maxBookingHorizonDays ?? 90));
+    dateInput.max = maxBookingDate.toISOString().split('T')[0];
     dateInput.addEventListener('change', () => {
       refreshTimeSlotAvailability();
       updateUrgencyBadge();

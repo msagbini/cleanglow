@@ -41,6 +41,7 @@ function cleanerBookingView(booking) {
     extras: booking.extras,
     sqm: booking.sqm,
     keyAccess: booking.key_access,
+    accessInstructions: booking.access_instructions,
     notesProperty: booking.notes_property,
     bookingDate: booking.booking_date,
     bookingTime: booking.booking_time,

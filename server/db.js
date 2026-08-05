@@ -162,6 +162,10 @@ for (const ddl of [
   // send their confirmation email, reminders and SMS in the same language,
   // instead of always defaulting to English.
   'ALTER TABLE bookings ADD COLUMN language TEXT NOT NULL DEFAULT \'en\'',
+  // Only meaningful when key_access = 'keybox' — the lockbox location and
+  // code, collected up front at booking time rather than coordinated later,
+  // so the cleaning team always has what they need to get in.
+  'ALTER TABLE bookings ADD COLUMN access_instructions TEXT',
 ]) {
   try { db.exec(ddl); } catch { /* column already exists */ }
 }
@@ -222,8 +226,8 @@ export function insertBooking(fields, amountCents) {
     INSERT INTO bookings (
       id, property_type, bedrooms, bathrooms, sqm, furnished, notes_property,
       extras, key_access, booking_date, booking_time, urgency,
-      full_name, email, phone, address, postcode, promo_code, frequency, amount_cents, currency, agent_email, language
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      full_name, email, phone, address, postcode, promo_code, frequency, amount_cents, currency, agent_email, language, access_instructions
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
     id, fields.propertyType, fields.bedrooms, fields.bathrooms, fields.sqm ?? null,
@@ -231,7 +235,7 @@ export function insertBooking(fields, amountCents) {
     fields.keyAccess ?? null, fields.bookingDate, fields.bookingTime, fields.urgency,
     fields.fullName, fields.email, fields.phone, fields.address, fields.postcode,
     fields.promoCode ?? null, fields.frequency ?? 'once', amountCents, config.business.currency,
-    fields.agentEmail ?? null, fields.language === 'es' ? 'es' : 'en'
+    fields.agentEmail ?? null, fields.language === 'es' ? 'es' : 'en', fields.accessInstructions ?? null
   );
   return getBooking(id);
 }

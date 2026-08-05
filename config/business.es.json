@@ -69,9 +69,7 @@
     ],
     "keyAccessOptions": [
       { "label": "Estaré presente" },
-      { "label": "Caja de seguridad / código de llave" },
-      { "label": "Retiro con un vecino / administrador del edificio" },
-      { "label": "Coordinar con el administrador de la propiedad" }
+      { "label": "Caja de seguridad / código de llave" }
     ],
     "timeSlots": [
       { "label": "8:00 - 11:00" },

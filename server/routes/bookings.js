@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, listBookingPhotos, markLeadsConvertedFor, markRewardCodeUsed } from '../db.js';
-import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, isValidSizeValue, deriveUrgencyForDate, config, getPublicConfig } from '../config.js';
+import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, isValidSizeValue, isValidKeyAccessValue, isValidBookingDate, deriveUrgencyForDate, config, getPublicConfig } from '../config.js';
 import { buildBookingIcs } from '../ics.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
 import { resolveDiscountCode, recordReferralRedemption } from '../referrals.js';
@@ -16,7 +16,7 @@ const upload = createPhotoUpload(uploadsDir);
 
 const REQUIRED_FIELDS = [
   'propertyType', 'bedrooms', 'bathrooms', 'bookingDate', 'bookingTime',
-  'fullName', 'email', 'phone', 'address', 'postcode',
+  'fullName', 'email', 'phone', 'address', 'postcode', 'keyAccess',
 ];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -68,11 +68,21 @@ router.post('/', (req, res) => {
       return res.status(400).json({ error: `Too many units selected for extra: ${key}` });
     }
   }
-  const bookingDateOnly = new Date(`${body.bookingDate}T00:00:00`);
-  if (Number.isNaN(bookingDateOnly.getTime())) {
-    return res.status(400).json({ error: 'Invalid booking date' });
+  if (!isValidBookingDate(body.bookingDate)) {
+    return res.status(400).json({ error: `Booking date must be between today and ${config.booking.maxBookingHorizonDays ?? 90} days from now` });
   }
   const frequency = body.frequency && isValidFrequency(body.frequency) ? String(body.frequency) : 'once';
+
+  if (!isValidKeyAccessValue(body.keyAccess)) {
+    return res.status(400).json({ error: 'Invalid property access method selected' });
+  }
+  let accessInstructions = null;
+  if (body.keyAccess === 'keybox') {
+    accessInstructions = String(body.accessInstructions ?? '').trim().slice(0, 500);
+    if (!accessInstructions) {
+      return res.status(400).json({ error: 'Please provide the lockbox location and code' });
+    }
+  }
 
   let agentEmail = null;
   if (body.agentEmail) {
@@ -90,7 +100,8 @@ router.post('/', (req, res) => {
     furnished: body.furnished ?? null,
     notesProperty: body.notesProperty ? String(body.notesProperty).slice(0, 2000) : null,
     extras,
-    keyAccess: body.keyAccess ?? null,
+    keyAccess: body.keyAccess,
+    accessInstructions,
     bookingDate: body.bookingDate,
     bookingTime: body.bookingTime,
     // Derived server-side from the date — see computeAmountCents — so the
