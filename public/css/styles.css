@@ -486,7 +486,11 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
 .cta-final .btn-primary:hover { background: #f0f0f0; }
 
 /* ---------- Footer ---------- */
-.site-footer { background: #0d1a15; color: rgba(255,255,255,.75); padding: 56px 0 0; }
+/* Bottom padding leaves clearance for the fixed WhatsApp/back-to-top
+   buttons (52px + 24px offset ≈ 76px, rounded up) — without it, scrolling
+   all the way down puts the last footer row directly underneath those
+   buttons instead of past them. */
+.site-footer { background: #0d1a15; color: rgba(255,255,255,.75); padding: 56px 0 90px; }
 .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; padding-bottom: 40px; }
 /* .logo defaults to --color-ink (near-black) for the white header — on the
    footer's dark background that measured ~1.1:1 contrast, effectively
