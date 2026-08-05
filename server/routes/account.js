@@ -93,6 +93,13 @@ function accountBookingView(booking) {
     currency: booking.currency,
     hasActiveSubscription: !!booking.stripe_subscription_id && booking.status === 'paid',
     cyclesCompleted: booking.cycles_completed,
+    // Contact/property fields only used client-side to power "Book again" —
+    // an agent has no reason to see the tenant's name or phone number.
+    sqm: booking.sqm,
+    furnished: booking.furnished,
+    postcode: booking.postcode,
+    fullName: booking.full_name,
+    phone: booking.phone,
   };
 }
 

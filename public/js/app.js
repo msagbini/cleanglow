@@ -1042,6 +1042,8 @@
 
     initScrollEffects();
     await checkResumePayment();
+    applyReferralCodeFromUrl();
+    applyRebookPrefill();
   }
 
   // Reveals .reveal elements the first time they scroll into view, and adds
@@ -1115,6 +1117,50 @@
         showToast(err.message);
       }
     });
+  }
+
+  // A referral share link (see the account portal's "Share" button) carries
+  // the friend's code as ?ref=FRIEND-XXXX so they don't have to type it in —
+  // it's the same promoCode field the server already resolves at checkout.
+  function applyReferralCodeFromUrl() {
+    const ref = new URLSearchParams(location.search).get('ref');
+    if (!ref) return;
+    els.promoCode.value = ref;
+    els.promoCode.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    history.replaceState(null, '', location.pathname + location.hash);
+  }
+
+  // "Book again" from the account portal stashes the previous booking's
+  // property/contact details in sessionStorage (see account/app.js) and
+  // sends the customer here with ?rebook=1 — same-tab, same-origin, so the
+  // data never travels through a URL or server log.
+  function applyRebookPrefill() {
+    if (new URLSearchParams(location.search).get('rebook') !== '1') return;
+    const raw = sessionStorage.getItem('cg_rebook_prefill');
+    sessionStorage.removeItem('cg_rebook_prefill');
+    history.replaceState(null, '', location.pathname + location.hash);
+    if (!raw) return;
+    let data;
+    try { data = JSON.parse(raw); } catch { return; }
+
+    if (data.propertyType) {
+      const pillBtn = document.querySelector(`#propertyTypePills .pill[data-value="${CSS.escape(data.propertyType)}"]`);
+      if (pillBtn) pillBtn.click();
+    }
+    if (data.bedrooms != null) els.bedrooms.value = data.bedrooms;
+    if (data.bathrooms != null) els.bathrooms.value = data.bathrooms;
+    if (data.sqm != null) document.getElementById('sqm').value = data.sqm;
+    if (data.furnished) document.getElementById('furnished').value = data.furnished;
+    if (data.fullName) document.getElementById('fullName').value = data.fullName;
+    if (data.phone) document.getElementById('phone').value = data.phone;
+    if (data.email) document.getElementById('email').value = data.email;
+    if (data.address) document.getElementById('address').value = data.address;
+    if (data.postcode) document.getElementById('postcode').value = data.postcode;
+
+    updatePriceSummary();
+    document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast('Your previous property details are pre-filled — please pick a new date and time.');
   }
 
   init().catch(err => {

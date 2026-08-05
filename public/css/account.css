@@ -10,13 +10,19 @@
 .account-feedback { margin-top: 14px; font-size: .9rem; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--color-bg-alt); }
 .account-feedback.account-feedback-error { background: color-mix(in srgb, #d0342c 10%, var(--color-bg)); color: #a3271f; }
 
-.account-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.account-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
 .account-header h1 { margin: 0; }
+/* The greeting embeds the customer's own email address, which can run much
+   longer than "My account" — cap it well below the default h1 size and let
+   it wrap instead of forcing the header wider than the viewport. */
+#portalGreeting { font-size: 1.3rem; overflow-wrap: anywhere; min-width: 0; flex: 1 1 200px; }
 .account-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-border); }
 .account-section h2 { margin: 0 0 6px; font-size: 1.1rem; }
 
-.referral-code-box { display: flex; align-items: center; gap: 10px; background: var(--color-bg-alt); border-radius: var(--radius-sm); padding: 12px 16px; margin-top: 14px; }
-.referral-code-box code { font-size: 1.15rem; font-weight: 700; letter-spacing: .03em; color: var(--color-primary-text); }
+.referral-code-box { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; background: var(--color-bg-alt); border-radius: var(--radius-sm); padding: 12px 16px; margin-top: 14px; }
+.referral-code-box code { font-size: 1.15rem; font-weight: 700; letter-spacing: .03em; color: var(--color-primary-text); margin-right: auto; }
+.share-whatsapp-btn { display: inline-flex; align-items: center; gap: 6px; background: #25d366; border-color: #25d366; }
+.share-whatsapp-btn:hover { background: #1ebe5a; border-color: #1ebe5a; }
 
 .rewards-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
 .reward-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); background: var(--color-bg-alt); font-size: .9rem; }

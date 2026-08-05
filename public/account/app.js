@@ -47,6 +47,7 @@
   function bookingCard(b) {
     const canManage = b.accountRole === 'customer' && b.hasActiveSubscription;
     const canShareProof = ['paid', 'completed'].includes(b.status);
+    const canBookAgain = b.accountRole === 'customer';
     // Financial details (amount, billing frequency) are only ever sent for
     // the paying customer's own bookings — never for a property manager
     // viewing via agent_email, so this is undefined rather than hidden here.
@@ -68,6 +69,7 @@
         <div class="account-booking-actions">
           ${canShareProof ? `<a class="btn btn-ghost btn-sm" href="/proof/${b.id}" target="_blank" rel="noopener">View proof of clean</a>` : ''}
           ${canManage ? `<button type="button" class="btn btn-ghost btn-sm manage-sub-btn" data-id="${b.id}">Manage subscription</button>` : ''}
+          ${canBookAgain ? `<button type="button" class="btn btn-primary btn-sm book-again-btn" data-id="${b.id}">Book again</button>` : ''}
         </div>
       </div>`;
   }
@@ -76,16 +78,45 @@
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  let lastBookings = [];
+  let accountEmail = '';
+
   async function loadBookings() {
     const res = await fetch('/api/account/bookings');
     if (!res.ok) return;
     const { bookings } = await res.json();
+    lastBookings = bookings;
     const list = document.getElementById('bookingsList');
     document.getElementById('noBookings').hidden = bookings.length > 0;
     list.innerHTML = bookings.map(bookingCard).join('');
     list.querySelectorAll('.manage-sub-btn').forEach(btn => {
       btn.addEventListener('click', () => openCancelModal(btn.dataset.id));
     });
+    list.querySelectorAll('.book-again-btn').forEach(btn => {
+      btn.addEventListener('click', () => bookAgain(btn.dataset.id));
+    });
+  }
+
+  // Carries a previous booking's property/contact details over to the
+  // homepage booking form via sessionStorage (same-origin, same-tab
+  // navigation) rather than a query string, so a tenant's name/phone/address
+  // never end up sitting in the browser history or server access logs.
+  function bookAgain(bookingId) {
+    const booking = lastBookings.find(b => b.id === bookingId);
+    if (!booking) return;
+    sessionStorage.setItem('cg_rebook_prefill', JSON.stringify({
+      propertyType: booking.propertyType,
+      bedrooms: booking.bedrooms,
+      bathrooms: booking.bathrooms,
+      sqm: booking.sqm,
+      furnished: booking.furnished,
+      address: booking.address,
+      postcode: booking.postcode,
+      fullName: booking.fullName,
+      phone: booking.phone,
+      email: accountEmail,
+    }));
+    location.href = '/?rebook=1#booking';
   }
 
   async function loadReferral() {
@@ -101,6 +132,8 @@
       box.hidden = false;
       noneYet.hidden = true;
       document.getElementById('referralCodeText').textContent = data.code;
+      document.getElementById('shareReferralBtn').dataset.code = data.code;
+      document.getElementById('shareReferralBtn').dataset.discount = data.friendDiscount;
     } else {
       box.hidden = true;
       noneYet.hidden = false;
@@ -122,6 +155,16 @@
       btn.textContent = 'Copied!';
       setTimeout(() => { btn.textContent = original; }, 1500);
     }).catch(() => {});
+  });
+
+  document.getElementById('shareReferralBtn').addEventListener('click', e => {
+    const btn = e.currentTarget;
+    const code = btn.dataset.code;
+    const discount = btn.dataset.discount;
+    if (!code) return;
+    const bookingUrl = `${location.origin}/?ref=${encodeURIComponent(code)}#booking`;
+    const message = `I've used CleanGlow for my end of lease clean and it made getting my bond back so much easier. Use my code ${code} for ${discount} off your first clean: ${bookingUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
   });
 
   const cancelModal = document.getElementById('cancelModal');
@@ -189,6 +232,7 @@
       return;
     }
     const { email } = await res.json();
+    accountEmail = email;
     loginView.hidden = true;
     portalView.hidden = false;
     document.getElementById('portalGreeting').textContent = `Hi, ${email}`;
