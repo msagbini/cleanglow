@@ -158,6 +158,10 @@ for (const ddl of [
   // if they book more properties through us, see them all via the same
   // magic-link portal (read-only, since they're not the paying customer).
   'ALTER TABLE bookings ADD COLUMN agent_email TEXT',
+  // The language the customer had the site set to at booking time — used to
+  // send their confirmation email, reminders and SMS in the same language,
+  // instead of always defaulting to English.
+  'ALTER TABLE bookings ADD COLUMN language TEXT NOT NULL DEFAULT \'en\'',
 ]) {
   try { db.exec(ddl); } catch { /* column already exists */ }
 }
@@ -218,8 +222,8 @@ export function insertBooking(fields, amountCents) {
     INSERT INTO bookings (
       id, property_type, bedrooms, bathrooms, sqm, furnished, notes_property,
       extras, key_access, booking_date, booking_time, urgency,
-      full_name, email, phone, address, postcode, promo_code, frequency, amount_cents, currency, agent_email
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      full_name, email, phone, address, postcode, promo_code, frequency, amount_cents, currency, agent_email, language
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
     id, fields.propertyType, fields.bedrooms, fields.bathrooms, fields.sqm ?? null,
@@ -227,7 +231,7 @@ export function insertBooking(fields, amountCents) {
     fields.keyAccess ?? null, fields.bookingDate, fields.bookingTime, fields.urgency,
     fields.fullName, fields.email, fields.phone, fields.address, fields.postcode,
     fields.promoCode ?? null, fields.frequency ?? 'once', amountCents, config.business.currency,
-    fields.agentEmail ?? null
+    fields.agentEmail ?? null, fields.language === 'es' ? 'es' : 'en'
   );
   return getBooking(id);
 }

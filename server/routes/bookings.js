@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { insertBooking, getBooking, isSlotAvailable, SlotUnavailableError, addBookingPhoto, listBookingPhotos, markLeadsConvertedFor, markRewardCodeUsed } from '../db.js';
-import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, isValidSizeValue, deriveUrgencyForDate, config } from '../config.js';
+import { computeAmountCents, isValidExtraKey, isValidExtraQuantity, isValidFrequency, isValidSizeValue, deriveUrgencyForDate, config, getPublicConfig } from '../config.js';
 import { buildBookingIcs } from '../ics.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
 import { resolveDiscountCode, recordReferralRedemption } from '../referrals.js';
@@ -104,6 +104,7 @@ router.post('/', (req, res) => {
     promoCode: body.promoCode ? String(body.promoCode).slice(0, 30) : null,
     frequency,
     agentEmail,
+    language: body.language === 'es' ? 'es' : 'en',
   };
 
   // Static promo codes are still handled by computeAmountCents itself; a
@@ -240,7 +241,8 @@ router.get('/:id/proof', (req, res) => {
     phase: p.phase,
     url: `/api/bookings/${booking.id}/proof/photos/${encodeURIComponent(p.filename)}`,
   }));
-  res.json({ booking: proofView(booking), photos, checklist: config.checklist, business: { name: config.business.name, logoUrl: config.business.logoUrl } });
+  const publicConfig = getPublicConfig(req.query.lang === 'es' ? 'es' : 'en');
+  res.json({ booking: proofView(booking), photos, checklist: publicConfig.checklist, business: { name: config.business.name, logoUrl: config.business.logoUrl } });
 });
 
 router.get('/:id/proof/photos/:filename', (req, res) => {

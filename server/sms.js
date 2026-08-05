@@ -46,20 +46,32 @@ export function abandonedBookingMessage(baseUrl) {
 
 export function reminderMessage(booking) {
   const { business } = config;
-  const dateFormatted = new Date(`${booking.booking_date}T00:00:00`).toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
-  return `Hi ${booking.full_name.split(' ')[0]}, reminder: your ${business.name} clean is coming up on ${dateFormatted} (${booking.booking_time} slot) at ${booking.address}. Reply or call ${business.phoneDisplay} if you need to reschedule.`;
+  const isEs = booking.language === 'es';
+  const dateFormatted = new Date(`${booking.booking_date}T00:00:00`).toLocaleDateString(isEs ? 'es-AU' : 'en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
+  const firstName = booking.full_name.split(' ')[0];
+  return isEs
+    ? `Hola ${firstName}, recordatorio: tu limpieza con ${business.name} es el ${dateFormatted} (horario ${booking.booking_time}) en ${booking.address}. Responde o llama al ${business.phoneDisplay} si necesitas reprogramar.`
+    : `Hi ${firstName}, reminder: your ${business.name} clean is coming up on ${dateFormatted} (${booking.booking_time} slot) at ${booking.address}. Reply or call ${business.phoneDisplay} if you need to reschedule.`;
 }
 
 export function reviewRequestMessage(booking) {
   const { business } = config;
+  const isEs = booking.language === 'es';
   const reviewUrl = business.googleReviewUrl;
-  const proofUrl = `${process.env.PUBLIC_BASE_URL || ''}/proof/${booking.id}`;
-  return `Hi ${booking.full_name.split(' ')[0]}, your clean is done! View your before/after photos: ${proofUrl}. If you were happy, a quick Google review really helps us out: ${reviewUrl}`;
+  const proofUrl = `${process.env.PUBLIC_BASE_URL || ''}/proof/${booking.id}${isEs ? '?lang=es' : ''}`;
+  const firstName = booking.full_name.split(' ')[0];
+  return isEs
+    ? `Hola ${firstName}, ¡tu limpieza está lista! Mira tus fotos antes/después: ${proofUrl}. Si quedaste conforme, una reseña rápida en Google nos ayuda mucho: ${reviewUrl}`
+    : `Hi ${firstName}, your clean is done! View your before/after photos: ${proofUrl}. If you were happy, a quick Google review really helps us out: ${reviewUrl}`;
 }
 
 // A best-effort ping the cleaner can send from their panel — not tied to
 // any booking status change, just a courtesy heads-up.
 export function onWayMessage(booking) {
   const { business } = config;
-  return `Hi ${booking.full_name.split(' ')[0]}, your ${business.name} cleaner is on the way for your booking at ${booking.address} (${booking.booking_time} slot). See you soon!`;
+  const isEs = booking.language === 'es';
+  const firstName = booking.full_name.split(' ')[0];
+  return isEs
+    ? `Hola ${firstName}, tu limpiador de ${business.name} está en camino para tu reserva en ${booking.address} (horario ${booking.booking_time}). ¡Nos vemos pronto!`
+    : `Hi ${firstName}, your ${business.name} cleaner is on the way for your booking at ${booking.address} (${booking.booking_time} slot). See you soon!`;
 }

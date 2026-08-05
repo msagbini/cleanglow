@@ -18,22 +18,25 @@
         <img src="/img/logo-mark.svg" alt="" class="proof-logo">
         <span id="proofBusinessName">CleanGlow</span>
       </a>
-      <button type="button" class="btn btn-ghost btn-sm no-print" id="printBtn">Print / Save as PDF</button>
+      <div class="proof-header-actions">
+        <button type="button" class="lang-toggle no-print" id="langToggle" aria-label="Switch language">ES</button>
+        <button type="button" class="btn btn-ghost btn-sm no-print" id="printBtn" data-i18n="proof.print">Print / Save as PDF</button>
+      </div>
     </div>
 
-    <h1>Proof of Clean</h1>
+    <h1 data-i18n="proof.title">Proof of Clean</h1>
     <p class="proof-meta" id="proofMeta"></p>
-    <div class="proof-verified-badge">✔ Verified booking — CleanGlow</div>
+    <div class="proof-verified-badge" data-i18n="proof.verifiedBadge">✔ Verified booking — CleanGlow</div>
 
     <section class="proof-section">
-      <h2>Photos</h2>
+      <h2 data-i18n="proof.photos">Photos</h2>
       <div id="proofPhotosBefore" class="proof-photo-block"></div>
       <div id="proofPhotosAfter" class="proof-photo-block"></div>
-      <p class="muted-text" id="noPhotosNote" hidden>No photos were uploaded for this clean.</p>
+      <p class="muted-text" id="noPhotosNote" hidden data-i18n="proof.noPhotos">No photos were uploaded for this clean.</p>
     </section>
 
     <section class="proof-section">
-      <h2>Included in every clean</h2>
+      <h2 data-i18n="proof.included">Included in every clean</h2>
       <div class="proof-checklist-grid" id="proofChecklist"></div>
     </section>
 
@@ -45,11 +48,12 @@
   </div>
 
   <div class="proof-error" id="proofError" hidden>
-    <h1>Not available</h1>
-    <p id="proofErrorText">This proof-of-clean link isn't available.</p>
+    <h1 data-i18n="proof.notAvailable">Not available</h1>
+    <p id="proofErrorText" data-i18n="proof.notAvailableText">This proof-of-clean link isn't available.</p>
   </div>
 </div>
 
+<script src="../js/i18n.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -43,6 +43,26 @@ function bookingSummaryLines(booking) {
   return lines;
 }
 
+function bookingSummaryLinesEs(booking) {
+  const symbol = config.business.currencySymbol;
+  const amount = `${symbol}${(booking.amount_cents / 100).toFixed(2)}`;
+  const lines = [
+    `Referencia: ${booking.id}`,
+    `Servicio: ${booking.property_type} · ${booking.bedrooms} dorm · ${booking.bathrooms} baño(s)`,
+    `Extras: ${booking.extras.join(', ') || 'ninguno'}`,
+    `Fecha: ${booking.booking_date} · horario ${booking.booking_time} · urgencia: ${booking.urgency}`,
+    `Total: ${amount}`,
+  ];
+  const gstCents = computeGstComponentCents(booking.amount_cents);
+  if (gstCents > 0) {
+    lines.push(`(incluye ${symbol}${(gstCents / 100).toFixed(2)} de GST)`);
+  }
+  if (config.business.abn) {
+    lines.push(`ABN: ${config.business.abn}`);
+  }
+  return lines;
+}
+
 export async function notifyPaidBooking(booking) {
   const lines = [
     `Customer: ${booking.full_name} (${booking.email}, ${booking.phone})`,
@@ -57,7 +77,18 @@ export async function notifyPaidBooking(booking) {
 }
 
 export async function sendCustomerConfirmation(booking, referralCode) {
-  const lines = [
+  const isEs = booking.language === 'es';
+  const lines = isEs ? [
+    `Hola ${booking.full_name},`,
+    '',
+    `Tu reserva con ${config.business.name} fue confirmada y el pago se procesó correctamente.`,
+    '',
+    ...bookingSummaryLinesEs(booking),
+    '',
+    `Nos pondremos en contacto para coordinar el acceso a ${booking.address}.`,
+    '',
+    `Gestiona esta reserva cuando quieras (ver detalles, o cancelar una limpieza recurrente) en ${process.env.PUBLIC_BASE_URL || ''}/account/ — solo ingresa este email, sin necesidad de contraseña.`,
+  ] : [
     `Hi ${booking.full_name},`,
     '',
     `Your booking with ${config.business.name} has been confirmed and payment processed successfully.`,
@@ -73,14 +104,16 @@ export async function sendCustomerConfirmation(booking, referralCode) {
     const amount = `${symbol}${((config.booking.referral?.friendDiscountCents ?? 2000) / 100).toFixed(0)}`;
     lines.push(
       '',
-      `Know someone else who needs an end of lease clean? Share your code below — they get ${amount} off their first booking, and once their clean is complete, you get ${amount} credit towards your next one.`,
-      `Your code: ${referralCode.code}`,
+      isEs
+        ? `¿Conoces a alguien más que necesite una limpieza de fin de contrato? Comparte tu código — obtienen ${amount} de descuento en su primera reserva, y una vez que su limpieza esté completa, tú recibes ${amount} de crédito para tu próxima limpieza.`
+        : `Know someone else who needs an end of lease clean? Share your code below — they get ${amount} off their first booking, and once their clean is complete, you get ${amount} credit towards your next one.`,
+      isEs ? `Tu código: ${referralCode.code}` : `Your code: ${referralCode.code}`,
     );
   }
   lines.push('', `— ${config.business.name}`);
   await send({
     to: booking.email,
-    subject: `Booking confirmed — ${booking.id}`,
+    subject: isEs ? `Reserva confirmada — ${booking.id}` : `Booking confirmed — ${booking.id}`,
     text: lines.join('\n'),
     attachments: [{
       filename: `${booking.id}.ics`,
@@ -94,11 +127,26 @@ export async function sendCustomerConfirmation(booking, referralCode) {
 // needs to remember. The link is single-use and expires in 15 minutes
 // (enforced server-side in db.js's consumeMagicLink), so this being
 // forwarded or sitting in an old inbox isn't a standing access risk.
-export async function sendMagicLink(email, verifyUrl) {
+// `lang` comes from the account portal's current toggle state at the moment
+// the link was requested (see server/routes/account.js) — there's no
+// booking to read a stored language from at this point, since a magic link
+// covers every booking tied to that email, possibly in different languages.
+export async function sendMagicLink(email, verifyUrl, lang) {
+  const isEs = lang === 'es';
   await send({
     to: email,
-    subject: `Your ${config.business.name} account link`,
-    text: [
+    subject: isEs ? `Tu enlace de acceso a ${config.business.name}` : `Your ${config.business.name} account link`,
+    text: (isEs ? [
+      `Hola,`,
+      '',
+      `Haz clic abajo para acceder a tu cuenta de ${config.business.name} (tus reservas, código de referido y créditos):`,
+      '',
+      verifyUrl,
+      '',
+      `Este enlace funciona una sola vez y expira en 15 minutos. Si no lo solicitaste, puedes ignorar este email.`,
+      '',
+      `— ${config.business.name}`,
+    ] : [
       `Hi,`,
       '',
       `Click below to access your ${config.business.name} account (your bookings, referral code and credits):`,
@@ -108,7 +156,7 @@ export async function sendMagicLink(email, verifyUrl) {
       `This link works once and expires in 15 minutes. If you didn't request it, you can ignore this email.`,
       '',
       `— ${config.business.name}`,
-    ].join('\n'),
+    ]).join('\n'),
   });
 }
 
@@ -117,11 +165,22 @@ export async function sendMagicLink(email, verifyUrl) {
 // they get the evidence for the bond return without the tenant having to
 // remember to forward anything themselves.
 export async function sendAgentProofLink(booking) {
-  const proofUrl = `${process.env.PUBLIC_BASE_URL || ''}/proof/${booking.id}`;
+  const isEs = booking.language === 'es';
+  const proofUrl = `${process.env.PUBLIC_BASE_URL || ''}/proof/${booking.id}${isEs ? '?lang=es' : ''}`;
   await send({
     to: booking.agent_email,
-    subject: `Proof of clean — ${booking.address} (${booking.id})`,
-    text: [
+    subject: isEs ? `Prueba de limpieza — ${booking.address} (${booking.id})` : `Proof of clean — ${booking.address} (${booking.id})`,
+    text: (isEs ? [
+      `Hola,`,
+      '',
+      `${config.business.name} completó una limpieza de fin de contrato en ${booking.address}, reservada por ${booking.full_name}.`,
+      '',
+      `Consulta el checklist y las fotos antes/después aquí: ${proofUrl}`,
+      '',
+      `Referencia: ${booking.id}`,
+      '',
+      `— ${config.business.name}`,
+    ] : [
       `Hi,`,
       '',
       `${config.business.name} has completed an end of lease clean at ${booking.address}, booked by ${booking.full_name}.`,
@@ -131,7 +190,7 @@ export async function sendAgentProofLink(booking) {
       `Reference: ${booking.id}`,
       '',
       `— ${config.business.name}`,
-    ].join('\n'),
+    ]).join('\n'),
   });
 }
 
@@ -139,10 +198,21 @@ export async function sendAgentProofLink(booking) {
 // booking is marked completed, only if the cleaning team actually uploaded
 // after-photos for it (see routes/admin.js).
 export async function sendCompletionPhotos(booking, afterPhotoPaths) {
+  const isEs = booking.language === 'es';
   await send({
     to: booking.email,
-    subject: `Your clean is done — before/after photos (${booking.id})`,
-    text: [
+    subject: isEs ? `Tu limpieza está lista — fotos antes/después (${booking.id})` : `Your clean is done — before/after photos (${booking.id})`,
+    text: (isEs ? [
+      `Hola ${booking.full_name},`,
+      '',
+      `Tu limpieza de fin de contrato en ${booking.address} está completa — adjuntamos las fotos de después, tal como prometimos en nuestra garantía de devolución del depósito.`,
+      '',
+      `Referencia: ${booking.id}`,
+      '',
+      `Si algo no se ve bien, contáctanos dentro de 7 días y lo volveremos a limpiar sin costo.`,
+      '',
+      `— ${config.business.name}`,
+    ] : [
       `Hi ${booking.full_name},`,
       '',
       `Your end of lease clean at ${booking.address} is complete — attached are the after photos, as promised in our bond-back guarantee.`,
@@ -152,7 +222,7 @@ export async function sendCompletionPhotos(booking, afterPhotoPaths) {
       `If anything doesn't look right, get in touch within 7 days and we'll re-clean it for free.`,
       '',
       `— ${config.business.name}`,
-    ].join('\n'),
+    ]).join('\n'),
     attachments: afterPhotoPaths.map((filePath, i) => ({
       filename: `after-${i + 1}${filePath.slice(filePath.lastIndexOf('.'))}`,
       path: filePath,

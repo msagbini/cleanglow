@@ -1,0 +1,114 @@
+{
+  "business": {
+    "seoTitle": "CleanGlow | Limpieza de Fin de Contrato y Devolución de Depósito en Melbourne",
+    "badgeText": "✔ Garantía 100% de Devolución del Depósito*",
+    "heroTitleHtml": "Limpieza de fin de contrato que <span class=\"accent\">te ayuda a recuperar tu depósito</span>, sin el estrés.",
+    "heroDescription": "Equipos profesionales, seguro de responsabilidad civil completo y un checklist aprobado por administradores de propiedades. Reserva en 3 minutos y obtén una cotización al instante.",
+    "tagline": "Limpieza de fin de contrato con garantía 100% de devolución del depósito*",
+    "seoDescription": "Reserva tu limpieza de fin de contrato en línea con garantía 100% de devolución del depósito (aplican condiciones). Cotizaciones instantáneas, checklist de inspección completo y limpiadores profesionales verificados en Melbourne.",
+    "footerDescription": "Limpieza profesional de fin de contrato con garantía 100% de devolución del depósito.* Consulta los términos de la garantía.",
+    "heroTrust": [
+      { "text": "Limpiadores con seguro y antecedentes verificados" },
+      { "text": "Garantía 100% de devolución del depósito*" },
+      { "text": "Re-limpieza gratuita dentro de 7 días" }
+    ],
+    "guaranteeFootnote": "*La garantía de devolución del depósito significa que volveremos a limpiar gratis cualquier ítem acordado del checklist hasta que cumpla un estándar profesional. No garantiza el monto del depósito en sí, que decide tu arrendador o administrador de la propiedad. Aplican condiciones —",
+    "stats": [
+      { "value": "100%", "label": "garantía de devolución del depósito*" },
+      { "value": "Asegurado", "label": "cobertura de responsabilidad civil" },
+      { "value": "24-48h", "label": "disponibilidad promedio" },
+      { "value": "7 días", "label": "ventana de re-limpieza gratuita" }
+    ]
+  },
+  "booking": {
+    "serviceTypes": [
+      { "label": "Apartamento" },
+      { "label": "Casa" },
+      { "label": "Estudio" },
+      {
+        "label": "Oficina",
+        "sizeFieldLabel": "Habitaciones",
+        "sizeFieldOptionLabels": ["Oficina pequeña (1 habitación)", "2 habitaciones", "3 habitaciones", "4 habitaciones", "5 habitaciones", "6+ habitaciones"]
+      }
+    ],
+    "sizeField": {
+      "label": "Dormitorios",
+      "options": [
+        { "label": "Estudio (0 dorm)" },
+        { "label": "1 Dormitorio" },
+        { "label": "2 Dormitorios" },
+        { "label": "3 Dormitorios" },
+        { "label": "4 Dormitorios" },
+        { "label": "5+ Dormitorios" }
+      ]
+    },
+    "secondaryField": {
+      "label": "Baños",
+      "options": [
+        { "label": "1 Baño" },
+        { "label": "2 Baños" },
+        { "label": "3 Baños" },
+        { "label": "4+ Baños" }
+      ]
+    },
+    "extras": [
+      { "label": "Limpieza interior del horno" },
+      { "label": "Refrigerador por dentro y fuera" },
+      { "label": "Limpieza a vapor de alfombras" },
+      { "label": "Ventanas interiores" },
+      { "label": "Limpieza de manchas en paredes" },
+      { "label": "Balcón / Patio" },
+      { "label": "Garaje / Bodega" },
+      { "label": "Cortinas", "unitLabel": "cortina" },
+      { "label": "Persianas", "unitLabel": "persiana" }
+    ],
+    "urgencyOptions": [
+      { "label": "Estándar (48h+)" },
+      { "label": "Día siguiente" },
+      { "label": "Mismo día" }
+    ],
+    "keyAccessOptions": [
+      { "label": "Estaré presente" },
+      { "label": "Caja de seguridad / código de llave" },
+      { "label": "Retiro con un vecino / administrador del edificio" },
+      { "label": "Coordinar con el administrador de la propiedad" }
+    ],
+    "timeSlots": [
+      { "label": "8:00 - 11:00" },
+      { "label": "11:00 - 14:00" },
+      { "label": "14:00 - 17:00" },
+      { "label": "17:00 - 20:00" }
+    ],
+    "frequencyOptions": [
+      { "label": "Limpieza única" },
+      { "label": "Semanal" },
+      { "label": "Quincenal" },
+      { "label": "Mensual" }
+    ]
+  },
+  "servicesShowcase": [
+    { "title": "Limpieza Estándar de Fin de Contrato", "description": "Cocina, baños, dormitorios, áreas comunes, pisos, interruptores, zócalos y puertas. La base de toda limpieza de depósito." },
+    { "title": "Limpieza Profunda de Cocina", "description": "Horno, campana extractora, encimera y refrigerador por dentro y fuera, más un desengrasado completo de gabinetes interiores." },
+    { "title": "Alfombras y Tapicería", "description": "Limpieza a vapor de alfombras y sofás para eliminar manchas, olores y ácaros." },
+    { "title": "Ventanas y Vidrios", "description": "Ventanas interiores, marcos y rieles sin manchas ni residuos." },
+    { "title": "Paredes y Garaje", "description": "Limpieza de manchas en paredes, áreas de almacenamiento, garaje, balcón o patio." }
+  ],
+  "checklist": {
+    "intro": "Nuestro checklist de más de 60 puntos fue creado junto a administradores de propiedades para maximizar la devolución de tu depósito. Marca lo que aplica a tu propiedad y lo incluiremos en tu reserva.",
+    "columns": [
+      ["Interior y exterior de armarios", "Zócalos y marcos de puertas", "Interruptores y enchufes", "Rejillas y ventilas de calefacción", "Lavamanos y grifos sin sarro", "Azulejos y lechada del baño"],
+      ["Horno, encimera y campana extractora", "Refrigerador y congelador", "Ventanas interiores y rieles", "Pisos aspirados y trapeados", "Balcón, patio o terraza", "Telarañas y limpieza en altura"]
+    ],
+    "guarantee": {
+      "title": "Garantía de Devolución del Depósito*",
+      "description": "Si tu arrendador o agente señala un ítem de tu checklist acordado, lo volveremos a limpiar gratis — las veces que sea necesario para cumplir un estándar profesional. Repórtalo dentro de 7 días y danos acceso, y ahí estaremos.",
+      "points": ["Equipos de limpieza asegurados y verificados", "Factura detallada para tu administrador de propiedad", "Fotos de antes/después incluidas"],
+      "disclaimer": "*Cubre la re-limpieza de ítems acordados del checklist reportados dentro de la ventana indicada arriba. No cubre daños preexistentes, desgaste normal, ni la decisión final del arrendador sobre el depósito —"
+    }
+  },
+  "pricingTiers": [
+    { "label": "Estudio / 1 Dormitorio", "features": ["Limpieza estándar completa", "Cocina y 1 baño", "Pisos y superficies"] },
+    { "label": "2-3 Dormitorios", "features": ["Limpieza estándar completa", "Hasta 2 baños", "Limpieza profunda de cocina opcional"] },
+    { "label": "4+ Dormitorios", "features": ["Limpieza estándar completa", "Hasta 3 baños", "Equipo ampliado"] }
+  ]
+}

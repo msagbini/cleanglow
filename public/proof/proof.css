@@ -1,6 +1,7 @@
 .proof-page { min-height: 100vh; background: var(--color-bg-alt); padding: 32px 16px; display: flex; justify-content: center; }
 .proof-wrap { width: 100%; max-width: 760px; background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); border: 1px solid var(--color-border); padding: 36px; }
 .proof-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.proof-header-actions { display: flex; align-items: center; gap: 10px; }
 .proof-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--color-primary-text); text-decoration: none; }
 .proof-logo { width: 30px; height: 30px; }
 .proof-meta { color: var(--color-muted); margin-top: 4px; }

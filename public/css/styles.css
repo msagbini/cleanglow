@@ -169,6 +169,12 @@ input, select, textarea { font-family: inherit; }
   display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;
   border-radius: 50%; background: var(--color-primary-light); font-size: 1.05rem; flex-shrink: 0;
 }
+.lang-toggle {
+  display: flex; align-items: center; justify-content: center; min-width: 38px; height: 38px; padding: 0 10px;
+  border-radius: 999px; border: 1.5px solid var(--color-border); background: var(--color-surface);
+  font-size: .8rem; font-weight: 700; letter-spacing: .02em; color: var(--color-ink); flex-shrink: 0; cursor: pointer;
+}
+.lang-toggle:hover { border-color: var(--color-primary); color: var(--color-primary-text); }
 .nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; padding: 6px; }
 .nav-toggle span { width: 22px; height: 2px; background: var(--color-ink); border-radius: 2px; }
 
@@ -297,12 +303,12 @@ input, select, textarea { font-family: inherit; }
   display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .82rem;
   color: var(--color-muted); font-weight: 600; position: relative; z-index: 1; flex: 1;
 }
-.step-dot span {
+.step-dot span:first-child {
   width: 32px; height: 32px; border-radius: 50%; background: var(--color-surface); border: 2px solid var(--color-border);
   display: flex; align-items: center; justify-content: center; font-size: .85rem; color: var(--color-muted);
   transition: all .2s;
 }
-.step-dot.active span, .step-dot.completed span { border-color: var(--color-primary); background: var(--color-primary); color: #fff; }
+.step-dot.active span:first-child, .step-dot.completed span:first-child { border-color: var(--color-primary); background: var(--color-primary); color: #fff; }
 .step-dot.active, .step-dot.completed { color: var(--color-primary-text); }
 
 @keyframes bookingArrivalPulse {
@@ -599,7 +605,7 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .booking-form { padding: 24px; }
   .progress-bar { max-width: 100%; }
-  .step-dot span { width: 28px; height: 28px; }
+  .step-dot span:first-child { width: 28px; height: 28px; }
   .step-dot { font-size: .74rem; }
 }
 
@@ -627,6 +633,7 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
   .header-actions { gap: 5px; }
   .header-actions .btn-sm { padding: 8px 10px; font-size: .78rem; }
   .call-icon-btn { width: 34px; height: 34px; font-size: .95rem; }
+  .lang-toggle { min-width: 30px; height: 30px; padding: 0 6px; font-size: .68rem; }
 }
 
 /* Scroll-reveal: elements start faded/offset and settle into place the

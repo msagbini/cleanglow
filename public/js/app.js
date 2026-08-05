@@ -48,9 +48,9 @@
   function formatWindow(hours) {
     if (hours >= 24 && hours % 24 === 0) {
       const days = hours / 24;
-      return `${days} day${days === 1 ? '' : 's'}`;
+      return CGI18N.tf('common.days', d => `${d} day${d === 1 ? '' : 's'}`, days);
     }
-    return `${hours} hours`;
+    return CGI18N.tf('common.hours', h => `${h} hours`, hours);
   }
 
   function getOrdinalSuffix(n) {
@@ -108,7 +108,7 @@
 
   function renderBranding(cfg) {
     const { business } = cfg;
-    document.title = `${business.name} | Book your service online`;
+    document.title = business.seoTitle || `${business.name} | Book your service online`;
 
     setLogoMark(document.getElementById('logoMark'), business);
     document.getElementById('logoText').textContent = business.name;
@@ -128,7 +128,8 @@
     const whatsappNumber = business.phone.replace(/\D/g, '');
     const whatsappFloat = document.getElementById('whatsappFloat');
     if (whatsappFloat) {
-      whatsappFloat.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi ${business.name}, I'd like to ask about a booking.`)}`;
+      const whatsappMsg = CGI18N.tf('hero.whatsappPrefill', n => `Hi ${n}, I'd like to ask about a booking.`, business.name);
+      whatsappFloat.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMsg)}`;
     }
 
     const mailHref = `mailto:${business.email}`;
@@ -139,7 +140,11 @@
     document.getElementById('footerHours').textContent = `🕐 ${business.hours}`;
     document.getElementById('footerDescription').textContent = business.footerDescription;
     const abnSuffix = business.abn ? ` · ABN ${business.abn}` : '';
-    document.getElementById('footerCopyright').textContent = `© ${new Date().getFullYear()} ${business.name}. All rights reserved.${abnSuffix}`;
+    document.getElementById('footerCopyright').textContent = CGI18N.tf(
+      'footer.rightsReserved',
+      (year, name, abn) => `© ${year} ${name}. All rights reserved.${abn}`,
+      new Date().getFullYear(), business.name, abnSuffix
+    );
     document.getElementById('recleanWindowHours').textContent = formatWindow(business.recleanWindowHours);
     document.getElementById('faqRecleanWindowHours').textContent = formatWindow(business.recleanWindowHours);
 
@@ -153,6 +158,14 @@
       a.textContent = area;
       areasCol.appendChild(a);
     });
+
+    const heroAreas = document.getElementById('heroAreasText');
+    if (heroAreas) {
+      const areasStr = business.serviceAreas.join(', ');
+      heroAreas.textContent = CGI18N.getLang() === 'es'
+        ? `${CGI18N.t('hero.servicingPrefix', 'Servicing')} ${areasStr} ${CGI18N.t('hero.servicingSuffix', 'and nearby suburbs.')}`
+        : `Servicing ${areasStr} and nearby suburbs.`;
+    }
 
     const socialWrap = document.getElementById('footerSocial');
     const socialIcons = {
@@ -180,17 +193,18 @@
 
     const heroFootnote = document.getElementById('heroGuaranteeFootnote');
     if (heroFootnote && business.guaranteeFootnote) {
-      heroFootnote.innerHTML = `${business.guaranteeFootnote} <a href="#" data-modal="terms">Guarantee Terms</a>`;
+      heroFootnote.innerHTML = `${business.guaranteeFootnote} <a href="#" data-modal="terms">${CGI18N.t('hero.guaranteeTermsLink', 'Guarantee Terms')}</a>`;
     }
 
     const sampleSize = booking.sizeField.options[Math.min(2, booking.sizeField.options.length - 1)];
     const sampleExtras = booking.extras.slice(0, 2);
     const sampleType = booking.serviceTypes[0];
     const total = sampleSize.price + sampleType.surcharge + sampleExtras.reduce((s, e) => s + e.price, 0);
+    const fromWord = CGI18N.t('common.from', 'from');
     document.getElementById('heroCardRows').innerHTML = `
-      <div class="hero-card-row"><span><span class="inline-icon">${ICONS[sampleType.icon] || ''}</span>${sampleType.label} ${sampleSize.label}</span><span>from ${business.currencySymbol}${sampleSize.price}</span></div>
+      <div class="hero-card-row"><span><span class="inline-icon">${ICONS[sampleType.icon] || ''}</span>${sampleType.label} ${sampleSize.label}</span><span>${fromWord} ${business.currencySymbol}${sampleSize.price}</span></div>
       ${sampleExtras.map(e => `<div class="hero-card-row"><span><span class="inline-icon">${ICONS[e.icon] || ''}</span>${e.label}</span><span>+ ${business.currencySymbol}${e.price}</span></div>`).join('')}
-      <div class="hero-card-row hero-card-total"><span>Estimated total</span><span>${business.currencySymbol}${total}</span></div>
+      <div class="hero-card-row hero-card-total"><span>${CGI18N.t('hero.estimatedTotal', 'Estimated total')}</span><span>${business.currencySymbol}${total}</span></div>
     `;
   }
 
@@ -216,7 +230,7 @@
       <ul class="checklist reveal reveal-delay-${i + 1}">${col.map(item => `<li>✔ ${item}</li>`).join('')}</ul>
     `).join('');
     const disclaimer = checklist.guarantee.disclaimer
-      ? `<p class="guarantee-disclaimer">${checklist.guarantee.disclaimer} <a href="#" data-modal="terms">Guarantee Terms</a></p>`
+      ? `<p class="guarantee-disclaimer">${checklist.guarantee.disclaimer} <a href="#" data-modal="terms">${CGI18N.t('hero.guaranteeTermsLink', 'Guarantee Terms')}</a></p>`
       : '';
     document.getElementById('guaranteeCard').innerHTML = `
       <h3>${ICONS.shield}<span>${checklist.guarantee.title}</span></h3>
@@ -227,13 +241,14 @@
   }
 
   function renderPricingTiers(cfg) {
+    const fromWord = CGI18N.t('common.from', 'from');
     document.getElementById('pricingGrid').innerHTML = cfg.pricingTiers.map((tier, i) => `
       <div class="price-card reveal reveal-delay-${i + 1} ${tier.featured ? 'featured' : ''}" ${tier.presetBedrooms ? `data-preset-bedrooms="${tier.presetBedrooms}"` : ''}>
-        ${tier.featured ? '<span class="price-tag">Most booked</span>' : ''}
+        ${tier.featured ? `<span class="price-tag">${CGI18N.t('pricing.mostBooked', 'Most booked')}</span>` : ''}
         <h3>${tier.label}</h3>
-        <p class="price">from ${cfg.business.currencySymbol}${tier.priceFrom}</p>
+        <p class="price">${fromWord} ${cfg.business.currencySymbol}${tier.priceFrom}</p>
         <ul>${tier.features.map(f => `<li>${f}</li>`).join('')}</ul>
-        ${tier.presetBedrooms ? `<button type="button" class="btn btn-primary btn-sm price-card-select">Book this size</button>` : ''}
+        ${tier.presetBedrooms ? `<button type="button" class="btn btn-primary btn-sm price-card-select">${CGI18N.t('pricing.bookThisSize', 'Book this size')}</button>` : ''}
       </div>
     `).join('');
   }
@@ -284,12 +299,12 @@
       <div class="extra-card extra-card-unit">
         <span class="extra-icon">${ICONS[e.icon] || e.icon}</span>
         <span class="extra-name">${e.label}</span>
-        <span class="extra-price">${cfg.business.currencySymbol}${e.price} per ${e.unitLabel || 'unit'}</span>
+        <span class="extra-price">${cfg.business.currencySymbol}${e.price} ${CGI18N.t('common.per', 'per')} ${e.unitLabel || CGI18N.t('common.unit', 'unit')}</span>
         <div class="extra-qty">
-          <button type="button" class="extra-qty-btn" data-qty-delta="-1" data-qty-for="${e.key}" aria-label="Fewer ${e.label}">−</button>
+          <button type="button" class="extra-qty-btn" data-qty-delta="-1" data-qty-for="${e.key}" aria-label="${CGI18N.tf('extras.fewer', l => `Fewer ${l}`, e.label)}">−</button>
           <input type="number" name="extras" min="0" max="${e.maxQuantity ?? 12}" step="1" value="0"
                  data-key="${e.key}" data-price="${e.price}" data-label="${e.label}" id="extraQty_${e.key}">
-          <button type="button" class="extra-qty-btn" data-qty-delta="1" data-qty-for="${e.key}" aria-label="More ${e.label}">+</button>
+          <button type="button" class="extra-qty-btn" data-qty-delta="1" data-qty-for="${e.key}" aria-label="${CGI18N.tf('extras.more', l => `More ${l}`, e.label)}">+</button>
         </div>
       </div>
     ` : `
@@ -378,7 +393,35 @@
     });
   }
 
+  function renderLegalContentEs(cfg) {
+    const { business } = cfg;
+    legalContent.terms.title = 'Términos y Condiciones';
+    legalContent.privacy.title = 'Política de Privacidad';
+    legalContent.cookies.title = 'Cookies';
+    legalContent.terms.body = `<p>Al reservar un servicio con ${business.name} aceptas los siguientes términos:</p>
+      <h4>1. Reservas y pago</h4><p>El precio mostrado es una estimación basada en los datos que proporcionas. El monto final se confirma tras la inspección inicial del equipo.</p>
+      <h4>2. Cancelaciones</h4><p>Puedes cancelar o reprogramar gratis hasta 24 horas antes de tu cita. Cancelaciones posteriores pueden generar una tarifa del 20%.</p>
+      <h4>3. Garantía de Devolución del Depósito y Re-limpieza</h4>
+      <p><strong>Lo que garantizamos:</strong> si tu administrador de propiedad o arrendador señala un ítem de tu <em>checklist acordado</em> que no se completó a un estándar profesional, volveremos a limpiar ese ítem sin costo — las veces que sea necesario para cumplir el estándar — siempre que:</p>
+      <ul>
+        <li>se nos reporte por escrito (email, o una nota en tu informe de condición/salida de la propiedad) dentro de ${formatWindow(business.recleanWindowHours)} desde la limpieza; y</li>
+        <li>tú o tu administrador de propiedad den a nuestro equipo acceso razonable para realizar la re-limpieza.</li>
+      </ul>
+      <p><strong>Qué significa — y qué no significa — "garantía 100% de devolución del depósito":</strong> describe nuestro compromiso de volver a limpiar los ítems del checklist hasta que cumplan un estándar profesional. <strong>No</strong> es una garantía del monto del depósito en sí. Que tu depósito se devuelva en su totalidad es una decisión de tu arrendador, administrador de propiedad o (en caso de disputa) la autoridad de arrendamiento correspondiente, según factores fuera de nuestro control — por ejemplo daños a la propiedad, renta impaga, estado del jardín/césped, o artículos faltantes.</p>
+      <p><strong>Qué no cubre:</strong> daños preexistentes, desgaste normal, moho, olores o manchas causados por condiciones previas a nuestro servicio, ítems fuera del checklist acordado al reservar, y solicitudes de re-limpieza hechas después de la ventana de ${formatWindow(business.recleanWindowHours)} o donde no se dio acceso.</p>
+      <h4>4. Acceso a la propiedad</h4><p>El cliente es responsable de proporcionar un método de acceso válido para el horario reservado, y para la visita de re-limpieza descrita arriba si se solicita una.</p>
+      <h4>5. Planes recurrentes y cancelación anticipada</h4><p>Los planes semanales, quincenales y mensuales se facturan automáticamente a una tarifa con descuento que refleja la naturaleza continua y repetida del servicio. Si un plan recurrente se cancela antes de completar el mínimo de ${state.config.booking.earlyCancellationMinCycles ?? 3} limpiezas, aplica una tarifa única de cancelación anticipada equivalente a una visita a la tarifa con descuento, cobrada a la tarjeta registrada, para recuperar el descuento otorgado bajo el supuesto de negocio continuo. Esta tarifa no aplica una vez completado el número mínimo de limpiezas — el plan puede cancelarse en cualquier momento sin costo a partir de entonces.</p>`;
+    legalContent.privacy.body = `<p>Tus datos personales se usan únicamente para gestionar tu reserva y comunicarnos contigo sobre el servicio.</p>
+      <h4>Datos que recopilamos</h4><p>Nombre, email, número de teléfono, la dirección de la propiedad a limpiar, y cualquier foto antes/después enviada para el trabajo. Si eliges notificar a un administrador de propiedad, también recopilamos su dirección de email para ese único propósito.</p>
+      <h4>Cómo los usamos</h4><p>No compartimos tus datos con terceros salvo el equipo de limpieza asignado a tu servicio y, solo si eliges proporcionarlo, el email del administrador de propiedad/agente que nos indiques — usado únicamente para enviarle la prueba de que la limpieza acordada se completó.</p>
+      <h4>Tus derechos</h4><p>Puedes solicitar acceso, corrección o eliminación de tus datos escribiendo a ${business.email}.</p>`;
+    legalContent.cookies.body = `<p>Este sitio no usa cookies de seguimiento, publicidad o analítica.</p>
+      <h4>Lo que sí usamos</h4><p>Se establece una única cookie solo si inicias sesión en tu cuenta en /account — te mantiene con la sesión iniciada hasta por 30 días para que no tengas que solicitar un nuevo enlace de acceso en cada visita. Si nunca inicias sesión, no se guarda ninguna cookie en tu navegador entre visitas.</p>
+      <h4>Stripe</h4><p>Cuando llegas a la pantalla de pago, nuestro procesador de pagos Stripe puede establecer sus propias cookies allí para prevención de fraude. Eso ocurre en el sitio de Stripe, bajo su <a href="https://stripe.com/privacy" target="_blank" rel="noopener">política de privacidad</a>, no la nuestra.</p>`;
+  }
+
   function renderLegalContent(cfg) {
+    if (CGI18N.getLang() === 'es') return renderLegalContentEs(cfg);
     const { business } = cfg;
     legalContent.terms.body = `<p>By booking a service with ${business.name} you agree to the following terms:</p>
       <h4>1. Bookings and payment</h4><p>The price shown is an estimate based on the details you provide. The final amount is confirmed after the team's initial inspection.</p>
@@ -509,7 +552,9 @@
     } else {
       sumFrequencyLine.hidden = true;
     }
-    document.getElementById('sumTotalLabel').textContent = isRecurring ? `Total per visit (${frequencyOption.label.toLowerCase()})` : 'Estimated total';
+    document.getElementById('sumTotalLabel').textContent = isRecurring
+      ? CGI18N.tf('price.totalPerVisit', f => `Total per visit (${f})`, frequencyOption.label.toLowerCase())
+      : CGI18N.t('price.estimatedTotal', 'Estimated total');
 
     const formattedTotal = `${currencySymbol}${total.toFixed(0)}`;
     if (els.sumTotal.textContent !== formattedTotal && els.sumTotal.textContent !== '—') {
@@ -524,8 +569,8 @@
     const gst = computeGstComponent(total);
     const taxNote = document.getElementById('sumTaxNote');
     taxNote.textContent = gst > 0
-      ? `Price includes ${currencySymbol}${gst.toFixed(2)} GST. Final price confirmed after reviewing your property notes.`
-      : 'Final price confirmed after reviewing your property notes.';
+      ? CGI18N.tf('price.taxNoteGst', (s, g) => `Price includes ${s}${g} GST. Final price confirmed after reviewing your property notes.`, currencySymbol, gst.toFixed(2))
+      : CGI18N.t('price.taxNote', 'Final price confirmed after reviewing your property notes.');
   }
 
   /* ============ Wizard navigation ============ */
@@ -555,7 +600,7 @@
     for (const field of requiredFields) {
       if (!field.value || (field.type === 'checkbox' && !field.checked)) {
         field.focus();
-        showToast('Please fill in the required fields (*)');
+        showToast(CGI18N.t('toast.requiredFields', 'Please fill in the required fields (*)'));
         return false;
       }
     }
@@ -563,19 +608,19 @@
       const email = document.getElementById('email').value;
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         document.getElementById('email').focus();
-        showToast('Enter a valid email address');
+        showToast(CGI18N.t('toast.invalidEmail', 'Enter a valid email address'));
         return false;
       }
       const phone = document.getElementById('phone').value;
       if (!/^0\d{9}$/.test(phone)) {
         document.getElementById('phone').focus();
-        showToast('Enter a 10-digit phone number starting with 0 (e.g. 0400000000)');
+        showToast(CGI18N.t('toast.invalidPhone', 'Enter a 10-digit phone number starting with 0 (e.g. 0400000000)'));
         return false;
       }
       const postcode = document.getElementById('postcode').value;
       if (!/^\d{4}$/.test(postcode)) {
         document.getElementById('postcode').focus();
-        showToast('Enter a 4-digit postcode (e.g. 3000)');
+        showToast(CGI18N.t('toast.invalidPostcode', 'Enter a 4-digit postcode (e.g. 3000)'));
         return false;
       }
     }
@@ -583,20 +628,20 @@
       const dateVal = document.getElementById('bookingDate').value;
       if (!dateVal) {
         document.getElementById('bookingDate').focus();
-        showToast('Select a date for your service');
+        showToast(CGI18N.t('toast.selectDate', 'Select a date for your service'));
         return false;
       }
       const chosen = new Date(dateVal + 'T00:00:00');
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (chosen < today) {
-        showToast('The date can\'t be in the past');
+        showToast(CGI18N.t('toast.pastDate', 'The date can\'t be in the past'));
         return false;
       }
       const timeSelect = document.getElementById('bookingTime');
       const selectedOption = timeSelect.options[timeSelect.selectedIndex];
       if (selectedOption && selectedOption.disabled) {
-        showToast('That time slot is fully booked — please choose another one');
+        showToast(CGI18N.t('toast.slotFull', 'That time slot is fully booked — please choose another one'));
         return false;
       }
     }
@@ -620,14 +665,14 @@
         const slot = data.slots.find(s => s.value === option.value);
         if (!slot) return;
         option.disabled = !slot.available;
-        option.textContent = slot.available ? slot.label : `${slot.label} — Fully booked`;
+        option.textContent = slot.available ? slot.label : `${slot.label} — ${CGI18N.t('form.fullyBooked', 'Fully booked')}`;
         if (option.value === previousValue && !slot.available) previousStillAvailable = false;
       });
 
       if (!previousStillAvailable) {
         const firstAvailable = Array.from(timeSelect.options).find(o => !o.disabled);
         timeSelect.value = firstAvailable ? firstAvailable.value : previousValue;
-        showToast('Your selected time slot is now fully booked — we picked the next available one');
+        showToast(CGI18N.t('toast.slotReassigned', 'Your selected time slot is now fully booked — we picked the next available one'));
       }
     } catch {
       // Non-critical: the server still enforces this at submission time either way.
@@ -638,15 +683,18 @@
   function buildReview() {
     const { sizeOption, secondaryValue, serviceType, extraLines, total, discount, frequencyOption, currencySymbol } = calcPrice();
     const secondaryOption = state.config.booking.secondaryField.options.find(o => Number(o.value) === secondaryValue);
+    const isEs = CGI18N.getLang() === 'es';
     const extrasLabel = extraLines.length
       ? extraLines.map(line => `${escapeHtml(line.label)}${line.quantity > 1 ? ` ×${line.quantity}` : ''}`).join(', ')
-      : 'None';
+      : CGI18N.t('review.extrasNone', 'None');
     const urgencyOption = state.config.booking.urgencyOptions.find(u => u.value === state.urgency);
     const isRecurring = frequencyOption.value !== 'once';
 
     const dateVal = document.getElementById('bookingDate').value;
     const timeVal = document.getElementById('bookingTime').value;
-    const dateFormatted = dateVal ? new Date(dateVal + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+    const dateFormatted = dateVal
+      ? new Date(dateVal + 'T00:00:00').toLocaleDateString(isEs ? 'es-AU' : 'en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+      : '—';
 
     // User-supplied — escaped before going into innerHTML further down.
     const name = escapeHtml(document.getElementById('fullName').value);
@@ -655,36 +703,44 @@
     const address = escapeHtml(document.getElementById('address').value);
     const postcode = escapeHtml(document.getElementById('postcode').value);
 
+    const editLabel = CGI18N.t('review.edit', 'Edit');
+    const termsLink = `<a href="#" data-modal="terms">${CGI18N.t('review.terms', 'terms')}</a>`;
     document.getElementById('reviewBox').innerHTML = `
       <div class="review-section">
-        <button type="button" class="review-edit" data-goto="1">Edit</button>
-        <h4>Property</h4>
+        <button type="button" class="review-edit" data-goto="1">${editLabel}</button>
+        <h4>${CGI18N.t('review.property', 'Property')}</h4>
         <p>${serviceType.label} · ${sizeOptionDisplayLabel(serviceType, sizeOption)} · ${secondaryOption ? secondaryOption.label : ''}</p>
       </div>
       <div class="review-section">
-        <button type="button" class="review-edit" data-goto="2">Edit</button>
-        <h4>Extras</h4>
+        <button type="button" class="review-edit" data-goto="2">${editLabel}</button>
+        <h4>${CGI18N.t('review.extras', 'Extras')}</h4>
         <p>${extrasLabel}</p>
       </div>
       <div class="review-section">
-        <button type="button" class="review-edit" data-goto="3">Edit</button>
-        <h4>Date & time</h4>
-        <p>${dateFormatted} · ${timeVal} slot · urgency: ${urgencyOption ? urgencyOption.label : state.urgency}</p>
+        <button type="button" class="review-edit" data-goto="3">${editLabel}</button>
+        <h4>${CGI18N.t('review.dateTime', 'Date & time')}</h4>
+        <p>${dateFormatted} · ${timeVal} ${CGI18N.t('review.slot', 'slot')} · ${CGI18N.t('review.urgency', 'urgency')}: ${urgencyOption ? urgencyOption.label : state.urgency}</p>
       </div>
       <div class="review-section">
-        <button type="button" class="review-edit" data-goto="4">Edit</button>
-        <h4>Contact details</h4>
+        <button type="button" class="review-edit" data-goto="4">${editLabel}</button>
+        <h4>${CGI18N.t('review.contact', 'Contact details')}</h4>
         <p>${name}<br>${email} · ${phone}<br>${address}, ${postcode}</p>
       </div>
       <div class="review-section">
-        <h4>Cleaning frequency</h4>
-        <p>${frequencyOption.label}${isRecurring ? ' — billed automatically each cycle' : ''}</p>
-        ${isRecurring ? `<p class="review-cancellation-note">Cancelling before your ${state.config.booking.earlyCancellationMinCycles ?? 3}${getOrdinalSuffix(state.config.booking.earlyCancellationMinCycles ?? 3)} clean incurs a one-off early-cancellation fee equal to one visit at your discounted rate — see <a href="#" data-modal="terms">terms</a>.</p>` : ''}
+        <h4>${CGI18N.t('review.frequency', 'Cleaning frequency')}</h4>
+        <p>${frequencyOption.label}${isRecurring ? CGI18N.t('review.billedAuto', ' — billed automatically each cycle') : ''}</p>
+        ${isRecurring ? `<p class="review-cancellation-note">${
+          CGI18N.tf(
+            'review.cancellationNote',
+            (n, terms) => `Cancelling before your ${n}${getOrdinalSuffix(n)} clean incurs a one-off early-cancellation fee equal to one visit at your discounted rate — see ${terms}.`,
+            state.config.booking.earlyCancellationMinCycles ?? 3, termsLink
+          )
+        }</p>` : ''}
       </div>
       <div class="review-section">
-        <h4>${isRecurring ? 'Total per visit' : 'Total to pay'}</h4>
-        <p class="review-total-price">${currencySymbol}${total.toFixed(0)}${isRecurring ? ` <span class="review-discount-tag">/ ${frequencyOption.label.toLowerCase()}</span>` : ''} ${discount > 0 ? `<span class="review-discount-tag">(discount applied)</span>` : ''}</p>
-        ${computeGstComponent(total) > 0 ? `<p class="review-gst-note">Includes ${currencySymbol}${computeGstComponent(total).toFixed(2)} GST</p>` : ''}
+        <h4>${isRecurring ? CGI18N.t('review.totalPerVisit', 'Total per visit') : CGI18N.t('review.totalToPay', 'Total to pay')}</h4>
+        <p class="review-total-price">${currencySymbol}${total.toFixed(0)}${isRecurring ? ` <span class="review-discount-tag">/ ${frequencyOption.label.toLowerCase()}</span>` : ''} ${discount > 0 ? `<span class="review-discount-tag">${CGI18N.t('review.discountApplied', '(discount applied)')}</span>` : ''}</p>
+        ${computeGstComponent(total) > 0 ? `<p class="review-gst-note">${CGI18N.tf('review.includesGst', a => `Includes ${a} GST`, `${currencySymbol}${computeGstComponent(total).toFixed(2)}`)}</p>` : ''}
       </div>
     `;
 
@@ -696,7 +752,9 @@
   /* ============ Form submission — create booking, then redirect to Stripe ============ */
   function setSubmitting(isSubmitting) {
     btnSubmit.disabled = isSubmitting;
-    btnSubmit.textContent = isSubmitting ? 'Redirecting to secure payment…' : 'Confirm and pay →';
+    btnSubmit.textContent = isSubmitting
+      ? CGI18N.t('form.redirectingPayment', 'Redirecting to secure payment…')
+      : CGI18N.t('form.confirmPay', 'Confirm and pay →');
     btnBack.disabled = isSubmitting || state.currentStep === 1;
   }
 
@@ -715,7 +773,7 @@
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.className = 'photo-remove';
-      removeBtn.setAttribute('aria-label', `Remove ${file.name}`);
+      removeBtn.setAttribute('aria-label', CGI18N.tf('photo.remove', n => `Remove ${n}`, file.name));
       removeBtn.textContent = '✕';
       removeBtn.addEventListener('click', () => {
         state.photos.splice(index, 1);
@@ -731,7 +789,7 @@
       const incoming = Array.from(photoInput.files || []);
       const room = MAX_PHOTOS - state.photos.length;
       if (incoming.length > room) {
-        showToast(`You can upload up to ${MAX_PHOTOS} photos. Only the first ${room} were added.`);
+        showToast(CGI18N.tf('toast.maxPhotos', (m, a) => `You can upload up to ${m} photos. Only the first ${a} were added.`, MAX_PHOTOS, room));
       }
       state.photos.push(...incoming.slice(0, Math.max(room, 0)));
       photoInput.value = '';
@@ -783,6 +841,7 @@
       promoCode: els.promoCode.value || null,
       frequency: state.frequency,
       agentEmail: els.agentEmail.value || null,
+      language: CGI18N.getLang(),
     };
 
     setSubmitting(true);
@@ -807,7 +866,7 @@
 
       window.location.href = sessionData.url;
     } catch (err) {
-      showToast(err.message || 'Something went wrong. Please try again.');
+      showToast(err.message || CGI18N.t('toast.genericError', 'Something went wrong. Please try again.'));
       setSubmitting(false);
     }
   });
@@ -929,9 +988,29 @@
     });
   });
 
+  // A handful of strings embed another element (a nested <span> that JS fills
+  // in separately, or a couple of <a data-modal> links) — data-i18n only
+  // swaps textContent/innerHTML wholesale, so these are rebuilt by hand
+  // instead, keeping the exact child element/id the rest of the code expects.
+  function applySpecialSpanishStrings() {
+    if (CGI18N.getLang() !== 'es') return;
+    document.getElementById('reCleanReminderLabel').innerHTML =
+      '<input type="checkbox" id="reCleanReminder" name="reCleanReminder" checked> Notifícame si mi arrendador/agente no queda conforme con algo (re-limpieza gratuita dentro de <span id="recleanWindowHours">72h</span>)';
+    document.getElementById('termsAgreeLabel').innerHTML =
+      '<input type="checkbox" id="terms" name="terms" required> Acepto los <a href="#" data-modal="terms">términos y condiciones</a> y la <a href="#" data-modal="privacy">política de privacidad</a> *';
+    document.getElementById('agentNotifyLabel').innerHTML =
+      '<input type="checkbox" id="agentEmailToggle"> Notificar automáticamente a mi administrador de propiedad cuando la limpieza esté lista (opcional)';
+    document.getElementById('faqA1').innerHTML =
+      'Ofrecemos una garantía de re-limpieza gratuita dentro de <span id="faqRecleanWindowHours">72 hours</span> desde el servicio si algún ítem del checklist no cumple con el estándar de tu arrendador o agente.';
+  }
+
   /* ============ Init ============ */
   async function init() {
-    const res = await fetch('/api/config');
+    CGI18N.applyStatic();
+    CGI18N.initToggleButtons();
+    applySpecialSpanishStrings();
+
+    const res = await fetch(`/api/config?lang=${CGI18N.getLang()}`);
     const cfg = await res.json();
     state.config = cfg;
 
@@ -1007,15 +1086,15 @@
         promoFeedback.hidden = true;
       } else if (state.promoDiscount > 0) {
         promoFeedback.hidden = false;
-        promoFeedback.textContent = `✓ Code applied: ${Math.round(state.promoDiscount * 100)}% off`;
+        promoFeedback.textContent = CGI18N.tf('promo.applied', p => `✓ Code applied: ${p}% off`, Math.round(state.promoDiscount * 100));
         promoFeedback.className = 'promo-feedback promo-feedback-valid';
       } else if (looksLikeReferralCode) {
         promoFeedback.hidden = false;
-        promoFeedback.textContent = 'We\'ll verify this code and apply your discount at checkout.';
+        promoFeedback.textContent = CGI18N.t('promo.referral', 'We\'ll verify this code and apply your discount at checkout.');
         promoFeedback.className = 'promo-feedback promo-feedback-valid';
       } else {
         promoFeedback.hidden = false;
-        promoFeedback.textContent = '✗ This code isn\'t valid';
+        promoFeedback.textContent = CGI18N.t('promo.invalid', '✗ This code isn\'t valid');
         promoFeedback.className = 'promo-feedback promo-feedback-invalid';
       }
       updatePriceSummary();
@@ -1094,6 +1173,10 @@
     if (booking.status !== 'pending_payment') return;
 
     const banner = document.getElementById('resumeBanner');
+    if (CGI18N.getLang() === 'es') {
+      document.getElementById('resumeBannerText').innerHTML =
+        'Ya comenzaste una reserva (<strong id="resumeBookingRef"></strong>) que aún no se ha pagado. Continúa donde la dejaste en vez de llenar el formulario de nuevo.';
+    }
     document.getElementById('resumeBookingRef').textContent = booking.id;
     banner.hidden = false;
     document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1101,7 +1184,7 @@
     document.getElementById('resumePaymentBtn').addEventListener('click', async e => {
       const btn = e.currentTarget;
       btn.disabled = true;
-      btn.textContent = 'Redirecting…';
+      btn.textContent = CGI18N.t('resume.redirecting', 'Redirecting…');
       try {
         const res = await fetch('/api/checkout-session', {
           method: 'POST',
@@ -1113,7 +1196,7 @@
         window.location.href = data.url;
       } catch (err) {
         btn.disabled = false;
-        btn.textContent = 'Resume payment';
+        btn.textContent = CGI18N.t('resume.button', 'Resume payment');
         showToast(err.message);
       }
     });
@@ -1160,11 +1243,11 @@
 
     updatePriceSummary();
     document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    showToast('Your previous property details are pre-filled — please pick a new date and time.');
+    showToast(CGI18N.t('toast.rebookApplied', 'Your previous property details are pre-filled — please pick a new date and time.'));
   }
 
   init().catch(err => {
     console.error('Could not load the site configuration:', err);
-    showToast('Could not load the site. Please refresh the page.');
+    showToast(CGI18N.t('toast.siteLoadError', 'Could not load the site. Please refresh the page.'));
   });
 })();

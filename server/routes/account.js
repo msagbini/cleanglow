@@ -34,7 +34,7 @@ router.post('/request-link', async (req, res) => {
   if (listBookingsForAccount(email).length > 0) {
     const token = createMagicLink(email);
     const verifyUrl = `${baseUrl(req)}/api/account/verify?token=${token}`;
-    await sendMagicLink(email, verifyUrl);
+    await sendMagicLink(email, verifyUrl, req.body?.language === 'es' ? 'es' : 'en');
   }
 
   res.json({ message: 'If that email has any bookings with us, we\'ve sent a login link — check your inbox.' });

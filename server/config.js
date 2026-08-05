@@ -8,9 +8,29 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const configPath = path.join(__dirname, '..', 'config', 'business.json');
+const esConfigPath = path.join(__dirname, '..', 'config', 'business.es.json');
 
 const raw = fs.readFileSync(configPath, 'utf8');
 export const config = JSON.parse(raw);
+
+// A partial Spanish translation overlay (display text only — no prices, keys
+// or structural fields) — merged onto a copy of `config` at request time by
+// getPublicConfig(), never onto the `config` singleton itself, since that
+// object is the source of truth every pricing/validation function in this
+// file reads from directly.
+const esOverlay = fs.existsSync(esConfigPath) ? JSON.parse(fs.readFileSync(esConfigPath, 'utf8')) : null;
+
+function mergeOverlay(base, overlay) {
+  if (Array.isArray(base) && Array.isArray(overlay)) {
+    return base.map((item, i) => (overlay[i] !== undefined ? mergeOverlay(item, overlay[i]) : item));
+  }
+  if (base && overlay && typeof base === 'object' && typeof overlay === 'object' && !Array.isArray(overlay)) {
+    const result = { ...base };
+    for (const key of Object.keys(overlay)) result[key] = mergeOverlay(base[key], overlay[key]);
+    return result;
+  }
+  return overlay !== undefined ? overlay : base;
+}
 
 const extraPriceByKey = Object.fromEntries(config.booking.extras.map(e => [e.key, e.price]));
 const extraMaxQuantityByKey = Object.fromEntries(config.booking.extras.map(e => [e.key, e.maxQuantity ?? 1]));
@@ -122,6 +142,7 @@ export function computeGstComponentCents(amountCents) {
 
 // Public config exposed to the frontend — everything here is safe to expose,
 // there are no secrets in config/business.json.
-export function getPublicConfig() {
+export function getPublicConfig(lang) {
+  if (lang === 'es' && esOverlay) return mergeOverlay(config, esOverlay);
   return config;
 }

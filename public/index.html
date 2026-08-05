@@ -48,18 +48,19 @@
     </a>
 
     <nav class="main-nav" id="mainNav">
-      <a href="#services">Services</a>
-      <a href="#checklist">Checklist</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
-      <a href="#contact">Contact</a>
-      <a href="/account/" class="nav-account-link">My account</a>
+      <a href="#services" data-i18n="nav.services">Services</a>
+      <a href="#checklist" data-i18n="nav.checklist">Checklist</a>
+      <a href="#pricing" data-i18n="nav.pricing">Pricing</a>
+      <a href="#faq" data-i18n="nav.faq">FAQ</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
+      <a href="/account/" class="nav-account-link" data-i18n="nav.account">My account</a>
     </nav>
 
     <div class="header-actions">
       <a href="tel:+61390000000" class="phone-link" id="headerPhoneLink">📞 (03) 9000 0000</a>
-      <a href="tel:+61390000000" class="call-icon-btn" id="headerCallIcon" aria-label="Call us">📞</a>
-      <a href="#booking" class="btn btn-primary btn-sm">Book now</a>
+      <a href="tel:+61390000000" class="call-icon-btn" id="headerCallIcon" data-i18n-aria-label="header.callUs" aria-label="Call us">📞</a>
+      <button type="button" class="lang-toggle" id="langToggle" aria-label="Switch language">ES</button>
+      <a href="#booking" class="btn btn-primary btn-sm" data-i18n="header.bookNow">Book now</a>
       <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -75,17 +76,17 @@
       <h1 id="heroTitle">{{HERO_TITLE_HTML}}</h1>
       <p id="heroDescription">{{HERO_DESCRIPTION}}</p>
       <div class="hero-cta">
-        <a href="#booking" class="btn btn-primary btn-lg">Book now</a>
-        <a href="#pricing" class="btn btn-ghost btn-lg">See pricing</a>
+        <a href="#booking" class="btn btn-primary btn-lg" data-i18n="hero.bookNow">Book now</a>
+        <a href="#pricing" class="btn btn-ghost btn-lg" data-i18n="hero.seePricing">See pricing</a>
       </div>
       <ul class="hero-trust" id="heroTrust"></ul>
-      <p class="hero-areas">Servicing {{SERVICE_AREAS_TEXT}} and nearby suburbs.</p>
+      <p class="hero-areas" id="heroAreasText">Servicing {{SERVICE_AREAS_TEXT}} and nearby suburbs.</p>
       <p class="hero-guarantee-footnote" id="heroGuaranteeFootnote"></p>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-card">
         <div id="heroCardRows"></div>
-        <span class="hero-card-tag">Instant quote</span>
+        <span class="hero-card-tag" data-i18n="hero.instantQuote">Instant quote</span>
       </div>
     </div>
   </div>
@@ -100,9 +101,9 @@
 <section id="services" class="section">
   <div class="container">
     <div class="section-head reveal">
-      <span class="eyebrow">Services</span>
-      <h2>Everything you need to hand back the keys with confidence</h2>
-      <p>Choose the standard clean or combine it with extras. Every service meets the standard checklist used by leading property managers and agencies.</p>
+      <span class="eyebrow" data-i18n="section.services.eyebrow">Services</span>
+      <h2 data-i18n="section.services.title">Everything you need to hand back the keys with confidence</h2>
+      <p data-i18n="section.services.desc">Choose the standard clean or combine it with extras. Every service meets the standard checklist used by leading property managers and agencies.</p>
     </div>
     <div class="cards-grid" id="servicesGrid"></div>
   </div>
@@ -112,8 +113,8 @@
 <section id="checklist" class="section section-alt">
   <div class="container checklist-grid">
     <div class="reveal">
-      <span class="eyebrow">End of lease checklist</span>
-      <h2>Whatever your landlord checks, we check first</h2>
+      <span class="eyebrow" data-i18n="section.checklist.eyebrow">End of lease checklist</span>
+      <h2 data-i18n="section.checklist.title">Whatever your landlord checks, we check first</h2>
       <p id="checklistIntro">Loading…</p>
       <div class="checklist-columns" id="checklistColumns"></div>
     </div>
@@ -125,9 +126,9 @@
 <section id="pricing" class="section">
   <div class="container">
     <div class="section-head reveal">
-      <span class="eyebrow">Pricing</span>
-      <h2>Clear pricing, no surprises</h2>
-      <p>The final price depends on the size of the property and the extras you choose. Get your exact quote in the booking form below.</p>
+      <span class="eyebrow" data-i18n="section.pricing.eyebrow">Pricing</span>
+      <h2 data-i18n="section.pricing.title">Clear pricing, no surprises</h2>
+      <p data-i18n="section.pricing.desc">The final price depends on the size of the property and the extras you choose. Get your exact quote in the booking form below.</p>
     </div>
     <div class="pricing-grid" id="pricingGrid"></div>
   </div>
@@ -137,24 +138,24 @@
 <section id="booking" class="section section-booking">
   <div class="container">
     <div class="section-head reveal">
-      <span class="eyebrow">Book online</span>
-      <h2>Book your clean in 5 steps</h2>
-      <p>The price updates automatically as you make your selections.</p>
+      <span class="eyebrow" data-i18n="section.booking.eyebrow">Book online</span>
+      <h2 data-i18n="section.booking.title">Book your clean in 5 steps</h2>
+      <p data-i18n="section.booking.desc">The price updates automatically as you make your selections.</p>
     </div>
 
     <div class="resume-banner" id="resumeBanner" hidden>
-      <p>You already started a booking (<strong id="resumeBookingRef"></strong>) that hasn't been paid yet. Resume where you left off instead of filling out the form again.</p>
-      <button type="button" class="btn btn-primary btn-sm" id="resumePaymentBtn">Resume payment</button>
+      <p id="resumeBannerText">You already started a booking (<strong id="resumeBookingRef"></strong>) that hasn't been paid yet. Resume where you left off instead of filling out the form again.</p>
+      <button type="button" class="btn btn-primary btn-sm" id="resumePaymentBtn" data-i18n="resume.button">Resume payment</button>
     </div>
 
     <div class="booking-wrap">
       <!-- progress -->
       <ol class="progress-bar" id="progressBar">
-        <li class="step-dot active" data-step="1"><span>1</span>Property</li>
-        <li class="step-dot" data-step="2"><span>2</span>Extras</li>
-        <li class="step-dot" data-step="3"><span>3</span>Date</li>
-        <li class="step-dot" data-step="4"><span>4</span>Details</li>
-        <li class="step-dot" data-step="5"><span>5</span>Confirm</li>
+        <li class="step-dot active" data-step="1"><span>1</span><span data-i18n="step.1">Property</span></li>
+        <li class="step-dot" data-step="2"><span>2</span><span data-i18n="step.2">Extras</span></li>
+        <li class="step-dot" data-step="3"><span>3</span><span data-i18n="step.3">Date</span></li>
+        <li class="step-dot" data-step="4"><span>4</span><span data-i18n="step.4">Details</span></li>
+        <li class="step-dot" data-step="5"><span>5</span><span data-i18n="step.5">Confirm</span></li>
       </ol>
 
       <div class="booking-panel">
@@ -162,12 +163,12 @@
 
           <!-- STEP 1: PROPERTY -->
           <fieldset class="form-step active" data-step="1">
-            <legend>Tell us about the property</legend>
+            <legend data-i18n="form.step1.legend">Tell us about the property</legend>
 
-            <label class="field-label">How often?</label>
+            <label class="field-label" data-i18n="form.howOften">How often?</label>
             <div class="pill-group" data-name="frequency" id="frequencyPills"></div>
 
-            <label class="field-label">Property type</label>
+            <label class="field-label" data-i18n="form.propertyType">Property type</label>
             <div class="pill-group" data-name="propertyType" id="propertyTypePills"></div>
 
             <div class="field-row">
@@ -183,59 +184,59 @@
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="sqm">Approximate size (m²)</label>
-                <input type="number" id="sqm" name="sqm" min="15" max="500" placeholder="e.g. 75">
+                <label class="field-label" for="sqm" data-i18n="form.sqm">Approximate size (m²)</label>
+                <input type="number" id="sqm" name="sqm" min="15" max="500" placeholder="e.g. 75" data-i18n-placeholder="form.sqmPlaceholder">
               </div>
               <div class="field">
-                <label class="field-label" for="furnished">Property condition</label>
+                <label class="field-label" for="furnished" data-i18n="form.condition">Property condition</label>
                 <select id="furnished" name="furnished">
-                  <option value="furnished">Furnished</option>
-                  <option value="empty" selected>Empty</option>
-                  <option value="renovation">Post-renovation / construction</option>
+                  <option value="furnished" data-i18n="form.condition.furnished">Furnished</option>
+                  <option value="empty" selected data-i18n="form.condition.empty">Empty</option>
+                  <option value="renovation" data-i18n="form.condition.renovation">Post-renovation / construction</option>
                 </select>
               </div>
             </div>
 
-            <label class="field-label" for="notesProperty">Notes about the property (optional)</label>
-            <textarea id="notesProperty" name="notesProperty" rows="3" placeholder="e.g. pets on site, mould in the bathroom, limited access due to works..."></textarea>
+            <label class="field-label" for="notesProperty" data-i18n="form.notes">Notes about the property (optional)</label>
+            <textarea id="notesProperty" name="notesProperty" rows="3" placeholder="e.g. pets on site, mould in the bathroom, limited access due to works..." data-i18n-placeholder="form.notesPlaceholder"></textarea>
 
-            <label class="field-label" for="propertyPhotos">Photos of the property's current condition (optional)</label>
-            <p class="field-hint">Up to 8 photos (JPEG, PNG or WEBP, 8MB each). This helps our team quote accurately and gives us a record of the starting condition.</p>
+            <label class="field-label" for="propertyPhotos" data-i18n="form.photos">Photos of the property's current condition (optional)</label>
+            <p class="field-hint" data-i18n="form.photosHint">Up to 8 photos (JPEG, PNG or WEBP, 8MB each). This helps our team quote accurately and gives us a record of the starting condition.</p>
             <input type="file" id="propertyPhotos" name="propertyPhotos" accept="image/jpeg,image/png,image/webp" multiple>
             <div class="photo-preview-grid" id="photoPreviewGrid"></div>
           </fieldset>
 
           <!-- STEP 2: EXTRAS -->
           <fieldset class="form-step" data-step="2">
-            <legend>Add extras to your clean</legend>
-            <p class="field-hint">Select as many as you need. We recommend the extras below if you want to maximise your bond return.</p>
+            <legend data-i18n="form.step2.legend">Add extras to your clean</legend>
+            <p class="field-hint" data-i18n="form.extrasHint">Select as many as you need. We recommend the extras below if you want to maximise your bond return.</p>
 
             <div class="extras-grid" id="extrasGrid"></div>
 
-            <label class="field-label" for="keyAccess">How will we access the property?</label>
+            <label class="field-label" for="keyAccess" data-i18n="form.keyAccess">How will we access the property?</label>
             <select id="keyAccess" name="keyAccess"></select>
           </fieldset>
 
           <!-- STEP 3: DATE -->
           <fieldset class="form-step" data-step="3">
-            <legend>Choose a date and time</legend>
+            <legend data-i18n="form.step3.legend">Choose a date and time</legend>
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="bookingDate">Cleaning date</label>
+                <label class="field-label" for="bookingDate" data-i18n="form.date">Cleaning date</label>
                 <input type="date" id="bookingDate" name="bookingDate" required>
               </div>
               <div class="field">
-                <label class="field-label" for="bookingTime">Time slot</label>
+                <label class="field-label" for="bookingTime" data-i18n="form.timeSlot">Time slot</label>
                 <select id="bookingTime" name="bookingTime"></select>
               </div>
             </div>
 
-            <label class="field-label">Cleaning speed</label>
-            <p class="urgency-badge" id="urgencyBadge">Pick a date to see if a speed surcharge applies</p>
+            <label class="field-label" data-i18n="form.speed">Cleaning speed</label>
+            <p class="urgency-badge" id="urgencyBadge" data-i18n="form.urgencyDefault">Pick a date to see if a speed surcharge applies</p>
 
             <div class="checkbox-row">
-              <label class="checkbox-line">
+              <label class="checkbox-line" id="reCleanReminderLabel">
                 <input type="checkbox" id="reCleanReminder" name="reCleanReminder" checked>
                 Email me if my landlord/agent isn't satisfied with anything (free re-clean within <span id="recleanWindowHours">72h</span>)
               </label>
@@ -244,51 +245,51 @@
 
           <!-- STEP 4: CONTACT -->
           <fieldset class="form-step" data-step="4">
-            <legend>Your contact details</legend>
+            <legend data-i18n="form.step4.legend">Your contact details</legend>
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="fullName">Full name *</label>
-                <input type="text" id="fullName" name="fullName" required placeholder="First and last name">
+                <label class="field-label" for="fullName" data-i18n="form.fullName">Full name *</label>
+                <input type="text" id="fullName" name="fullName" required placeholder="First and last name" data-i18n-placeholder="form.fullNamePlaceholder">
               </div>
               <div class="field">
-                <label class="field-label" for="email">Email *</label>
+                <label class="field-label" for="email" data-i18n="form.email">Email *</label>
                 <input type="email" id="email" name="email" required placeholder="you@email.com">
               </div>
             </div>
 
             <div class="field-row">
               <div class="field">
-                <label class="field-label" for="phone">Phone *</label>
+                <label class="field-label" for="phone" data-i18n="form.phone">Phone *</label>
                 <input type="tel" id="phone" name="phone" required placeholder="0400000000" inputmode="numeric" autocomplete="tel">
               </div>
               <div class="field">
-                <label class="field-label" for="postcode">Postcode *</label>
+                <label class="field-label" for="postcode" data-i18n="form.postcode">Postcode *</label>
                 <input type="text" id="postcode" name="postcode" required placeholder="3000" inputmode="numeric" autocomplete="postal-code">
               </div>
             </div>
 
-            <label class="field-label" for="address">Full address *</label>
-            <input type="text" id="address" name="address" required placeholder="Street, number, unit, suburb">
+            <label class="field-label" for="address" data-i18n="form.address">Full address *</label>
+            <input type="text" id="address" name="address" required placeholder="Street, number, unit, suburb" data-i18n-placeholder="form.addressPlaceholder">
 
-            <label class="field-label" for="promoCode">Promo code (optional)</label>
+            <label class="field-label" for="promoCode" data-i18n="form.promoCode">Promo code (optional)</label>
             <input type="text" id="promoCode" name="promoCode" placeholder="e.g. WELCOME10">
             <p class="promo-feedback" id="promoFeedback" hidden></p>
 
             <div class="checkbox-row">
-              <label class="checkbox-line">
+              <label class="checkbox-line" id="agentNotifyLabel">
                 <input type="checkbox" id="agentEmailToggle">
                 Notify my property manager automatically once the clean is done (optional)
               </label>
             </div>
             <div id="agentEmailWrap" hidden>
-              <label class="field-label" for="agentEmail">Property manager / agency email</label>
+              <label class="field-label" for="agentEmail" data-i18n="form.agentEmail">Property manager / agency email</label>
               <input type="email" id="agentEmail" name="agentEmail" placeholder="agent@agency.com.au">
-              <p class="field-hint">We'll send them proof of the clean (checklist + before/after photos) once it's done.</p>
+              <p class="field-hint" data-i18n="form.agentEmailHint">We'll send them proof of the clean (checklist + before/after photos) once it's done.</p>
             </div>
 
             <div class="checkbox-row">
-              <label class="checkbox-line">
+              <label class="checkbox-line" id="termsAgreeLabel">
                 <input type="checkbox" id="terms" name="terms" required>
                 I agree to the <a href="#" data-modal="terms">terms & conditions</a> and <a href="#" data-modal="privacy">privacy policy</a> *
               </label>
@@ -297,28 +298,28 @@
 
           <!-- STEP 5: REVIEW -->
           <fieldset class="form-step" data-step="5">
-            <legend>Review and confirm your booking</legend>
+            <legend data-i18n="form.step5.legend">Review and confirm your booking</legend>
             <div class="review-box" id="reviewBox">
               <!-- filled dynamically -->
             </div>
           </fieldset>
 
           <div class="form-nav">
-            <button type="button" class="btn btn-ghost" id="btnBack" disabled>← Back</button>
-            <button type="button" class="btn btn-primary" id="btnNext">Next →</button>
-            <button type="submit" class="btn btn-success" id="btnSubmit" hidden>Confirm and pay →</button>
+            <button type="button" class="btn btn-ghost" id="btnBack" disabled data-i18n="form.back">← Back</button>
+            <button type="button" class="btn btn-primary" id="btnNext" data-i18n="form.next">Next →</button>
+            <button type="submit" class="btn btn-success" id="btnSubmit" hidden data-i18n="form.confirmPay">Confirm and pay →</button>
           </div>
         </form>
 
         <!-- LIVE PRICE SUMMARY -->
         <aside class="price-summary" id="priceSummary">
-          <h3>Your quote</h3>
+          <h3 data-i18n="price.yourQuote">Your quote</h3>
           <div class="summary-line"><span id="sumPropertyLabel">…</span><span id="sumBase">—</span></div>
           <ul class="summary-extras" id="sumExtrasList"></ul>
-          <div class="summary-line" id="sumOversizeLine" hidden><span>Large property surcharge</span><span id="sumOversize">+0</span></div>
-          <div class="summary-line" id="sumKeyAccessLine" hidden><span>Key access</span><span id="sumKeyAccess">+0</span></div>
-          <div class="summary-line" id="sumUrgencyLine" hidden><span>Urgency</span><span id="sumUrgency">+0</span></div>
-          <div class="summary-line" id="sumFrequencyLine" hidden><span>Frequency discount</span><span id="sumFrequencyDiscount">−0</span></div>
+          <div class="summary-line" id="sumOversizeLine" hidden><span data-i18n="price.oversizeSurcharge">Large property surcharge</span><span id="sumOversize">+0</span></div>
+          <div class="summary-line" id="sumKeyAccessLine" hidden><span data-i18n="price.keyAccess">Key access</span><span id="sumKeyAccess">+0</span></div>
+          <div class="summary-line" id="sumUrgencyLine" hidden><span data-i18n="price.urgency">Urgency</span><span id="sumUrgency">+0</span></div>
+          <div class="summary-line" id="sumFrequencyLine" hidden><span data-i18n="price.frequencyDiscount">Frequency discount</span><span id="sumFrequencyDiscount">−0</span></div>
           <div class="summary-line summary-total"><span id="sumTotalLabel">Estimated total</span><span id="sumTotal">—</span></div>
           <p class="summary-note" id="sumTaxNote">Final price confirmed after reviewing your property notes.</p>
         </aside>
@@ -343,33 +344,33 @@
 <section id="faq" class="section">
   <div class="container">
     <div class="section-head reveal">
-      <span class="eyebrow">Frequently asked questions</span>
-      <h2>Everything you need to know</h2>
+      <span class="eyebrow" data-i18n="section.faq.eyebrow">Frequently asked questions</span>
+      <h2 data-i18n="section.faq.title">Everything you need to know</h2>
     </div>
     <div class="accordion" id="faqAccordion">
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">What happens if my landlord isn't satisfied?</button>
-        <div class="accordion-panel"><p>We offer a free re-clean guarantee within <span id="faqRecleanWindowHours">72 hours</span> of the service if any checklist item doesn't meet your landlord's or agent's standards.</p></div>
+        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q1">What happens if my landlord isn't satisfied?</button>
+        <div class="accordion-panel"><p id="faqA1">We offer a free re-clean guarantee within <span id="faqRecleanWindowHours">72 hours</span> of the service if any checklist item doesn't meet your landlord's or agent's standards.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">Do I need to be there during the clean?</button>
-        <div class="accordion-panel"><p>It's not required. You can arrange a lockbox, coordinate with a neighbour/building manager, or with your property manager during booking.</p></div>
+        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q2">Do I need to be there during the clean?</button>
+        <div class="accordion-panel"><p data-i18n="faq.a2">It's not required. You can arrange a lockbox, coordinate with a neighbour/building manager, or with your property manager during booking.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">Do you bring your own products and equipment?</button>
-        <div class="accordion-panel"><p>Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity.</p></div>
+        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q3">Do you bring your own products and equipment?</button>
+        <div class="accordion-panel"><p data-i18n="faq.a3">Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">How long does the clean take?</button>
-        <div class="accordion-panel"><p>It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours.</p></div>
+        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q4">How long does the clean take?</button>
+        <div class="accordion-panel"><p data-i18n="faq.a4">It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">Can I cancel or change the date?</button>
-        <div class="accordion-panel"><p>Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment.</p></div>
+        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q5">Can I cancel or change the date?</button>
+        <div class="accordion-panel"><p data-i18n="faq.a5">Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment.</p></div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false">Does the price include GST?</button>
-        <div class="accordion-panel"><p>Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees.</p></div>
+        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q6">Does the price include GST?</button>
+        <div class="accordion-panel"><p data-i18n="faq.a6">Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees.</p></div>
       </div>
     </div>
   </div>
@@ -378,9 +379,9 @@
 <!-- ===================== CTA FINAL ===================== -->
 <section class="cta-final">
   <div class="container cta-final-inner reveal">
-    <h2>Ready to hand back the keys with confidence?</h2>
-    <p>Book now to lock in your preferred time slot.</p>
-    <a href="#booking" class="btn btn-primary btn-lg">Book my end of lease clean</a>
+    <h2 data-i18n="section.cta.title">Ready to hand back the keys with confidence?</h2>
+    <p data-i18n="section.cta.desc">Book now to lock in your preferred time slot.</p>
+    <a href="#booking" class="btn btn-primary btn-lg" data-i18n="section.cta.button">Book my end of lease clean</a>
   </div>
 </section>
 
@@ -393,17 +394,17 @@
       <div class="footer-social" id="footerSocial"></div>
     </div>
     <div class="footer-col">
-      <h4>Company</h4>
-      <a href="#services">Services</a>
-      <a href="#checklist">Checklist</a>
-      <a href="#faq">FAQ</a>
-      <a href="/account/">My account</a>
+      <h4 data-i18n="footer.company">Company</h4>
+      <a href="#services" data-i18n="nav.services">Services</a>
+      <a href="#checklist" data-i18n="nav.checklist">Checklist</a>
+      <a href="#faq" data-i18n="nav.faq">FAQ</a>
+      <a href="/account/" data-i18n="nav.account">My account</a>
     </div>
     <div class="footer-col" id="footerServiceAreas">
-      <h4>Service areas</h4>
+      <h4 data-i18n="footer.serviceAreas">Service areas</h4>
     </div>
     <div class="footer-col" id="contact">
-      <h4>Contact</h4>
+      <h4 data-i18n="footer.contact">Contact</h4>
       <a href="tel:+61390000000" id="footerPhoneLink">📞 (03) 9000 0000</a>
       <a href="mailto:hello@spotlessexit.com.au" id="footerEmailLink">✉️ hello@spotlessexit.com.au</a>
       <span id="footerHours">🕐</span>
@@ -412,9 +413,9 @@
   <div class="container footer-bottom">
     <span id="footerCopyright">© 2026. All rights reserved.</span>
     <div class="footer-legal">
-      <a href="#" data-modal="privacy">Privacy</a>
-      <a href="#" data-modal="terms">Terms</a>
-      <a href="#" data-modal="cookies">Cookies</a>
+      <a href="#" data-modal="privacy" data-i18n="footer.privacy">Privacy</a>
+      <a href="#" data-modal="terms" data-i18n="footer.terms">Terms</a>
+      <a href="#" data-modal="cookies" data-i18n="footer.cookies">Cookies</a>
     </div>
   </div>
 </footer>
@@ -422,7 +423,7 @@
 <!-- ===================== LEGAL MODAL ===================== -->
 <div class="modal-overlay" id="legalModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
-    <button class="modal-close" id="legalModalClose" aria-label="Close">✕</button>
+    <button class="modal-close" id="legalModalClose" data-i18n-aria-label="footer.close" aria-label="Close">✕</button>
     <h3 id="legalTitle">Title</h3>
     <div class="modal-body" id="legalBody"></div>
   </div>
@@ -436,6 +437,7 @@
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top" hidden>↑</button>
 
+<script src="js/i18n.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
