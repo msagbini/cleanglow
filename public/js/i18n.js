@@ -7,11 +7,18 @@
 // the `data-i18n*` attributes both fall back to the English already present
 // whenever a key is missing, so a translation gap degrades to English
 // instead of showing "undefined" or a blank string.
+//
+// Spanish is temporarily disabled site-wide (quality issues found in the
+// translated copy) — getLang() is hardcoded to 'en' below, ignoring any
+// previously-stored preference, so the whole translation layer goes inert
+// without deleting it. The toggle buttons are removed from the HTML to
+// match. Re-enable by restoring the localStorage-based getLang() once the
+// `es` dictionary and config/business.es.json have been proofread.
 window.CGI18N = (() => {
   const STORAGE_KEY = 'cg_lang';
 
   function getLang() {
-    return localStorage.getItem(STORAGE_KEY) === 'es' ? 'es' : 'en';
+    return 'en';
   }
 
   function setLang(lang) {
