@@ -219,6 +219,28 @@ export async function sendExtraChargeLink(booking, checkoutUrl, reason, amountCe
   });
 }
 
+// Sent by the Stripe webhook once it confirms an extra-charge session was
+// actually paid (see routes/payments.js's markExtraChargePaidAndNotify) —
+// closes the loop so the customer has written confirmation, not just a
+// browser redirect after paying.
+export async function sendExtraChargePaidConfirmation(booking, charge) {
+  const symbol = config.business.currencySymbol;
+  const amount = `${symbol}${(charge.amount_cents / 100).toFixed(2)}`;
+  await send({
+    to: booking.email,
+    subject: `Payment received — ${charge.reason} (${booking.id})`,
+    text: [
+      `Hi ${booking.full_name},`,
+      '',
+      `We've received your payment of ${amount} for: ${charge.reason} (booking ${booking.id}).`,
+      '',
+      `If you have any questions, just reply to this email or call ${config.business.phoneDisplay}.`,
+      '',
+      `— ${config.business.name}`,
+    ].join('\n'),
+  });
+}
+
 // Fulfils the "before/after photos included" guarantee point — sent once a
 // booking is marked completed, only if the cleaning team actually uploaded
 // after-photos for it (see routes/admin.js).

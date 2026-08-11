@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   listBookings, countBookingsByStatus, markBookingStatus, getBooking, isValidStatus, listBookingPhotos, addBookingPhoto, listLeads,
   createCleaner, listCleaners, getCleaner, setCleanerActive, assignBookingToCleaner,
+  createExtraCharge, listExtraChargesForBooking,
 } from '../db.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
 import { handleBookingCompleted } from '../bookingCompletion.js';
@@ -71,9 +72,9 @@ router.post('/bookings/:id/cancel-subscription', async (req, res) => {
 // Property Access & Lateness terms). Most bookings are one-time payments
 // with no saved card to charge off-session, so this creates a plain Stripe
 // Checkout link the customer pays voluntarily, rather than assuming a
-// payment method exists. Deliberately not persisted anywhere — the Stripe
-// dashboard is the record of whether it was actually paid; this only covers
-// generating and (optionally) emailing the link.
+// payment method exists. Recorded locally in extra_charges (status starts
+// 'pending') and kept in sync by the webhook handler in routes/payments.js
+// — that's the actual source of truth for whether Stripe confirms it paid.
 const MAX_EXTRA_CHARGE_CENTS = 50000; // $500 — a sanity ceiling against a fat-fingered amount, not a real limit
 router.post('/bookings/:id/extra-charge', async (req, res) => {
   const stripe = getStripe();
@@ -116,6 +117,14 @@ router.post('/bookings/:id/extra-charge', async (req, res) => {
     return res.status(502).json({ error: 'Could not create the payment link with Stripe. Please try again.' });
   }
 
+  const charge = createExtraCharge({
+    bookingId: booking.id,
+    stripeSessionId: session.id,
+    amountCents,
+    currency: booking.currency,
+    reason,
+  });
+
   let emailSent = false;
   if (req.body?.sendEmail) {
     try {
@@ -125,7 +134,13 @@ router.post('/bookings/:id/extra-charge', async (req, res) => {
       console.error('[email] Failed to send extra-charge link:', err.message);
     }
   }
-  res.json({ url: session.url, emailSent });
+  res.json({ url: session.url, emailSent, charge });
+});
+
+router.get('/bookings/:id/extra-charges', (req, res) => {
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  res.json({ charges: listExtraChargesForBooking(req.params.id) });
 });
 
 router.get('/bookings/:id/photos', (req, res) => {

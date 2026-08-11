@@ -182,7 +182,42 @@
   const extraChargeReason = document.getElementById('extraChargeReason');
   const extraChargePresets = document.getElementById('extraChargePresets');
   const extraChargeResult = document.getElementById('extraChargeResult');
+  const extraChargeHistory = document.getElementById('extraChargeHistory');
   let currentExtraChargeBookingId = null;
+
+  const CHARGE_STATUS_LABEL = { pending: 'Awaiting payment', paid: 'Paid', expired: 'Link expired' };
+
+  async function renderChargeHistory(bookingId) {
+    extraChargeHistory.innerHTML = '<p class="muted-text">Loading previous charges…</p>';
+    const { symbol } = await getAccessPolicyConfig();
+    try {
+      const res = await fetch(`/api/admin/bookings/${encodeURIComponent(bookingId)}/extra-charges`);
+      const data = await res.json();
+      // If the admin opened a different booking's modal while this fetch was
+      // in flight, currentExtraChargeBookingId has already moved on — apply
+      // this response to the modal that's actually showing, not whichever
+      // booking asked for it first.
+      if (bookingId !== currentExtraChargeBookingId) return;
+      if (!res.ok) throw new Error(data.error || 'Could not load charge history');
+      if (!data.charges.length) {
+        extraChargeHistory.innerHTML = '<p class="muted-text">No previous charges for this booking.</p>';
+        return;
+      }
+      extraChargeHistory.innerHTML = `
+        <h4>Previous charges</h4>
+        <ul class="extra-charge-history-list">
+          ${data.charges.map(c => `
+            <li>
+              <span>${escapeHtml(c.reason)} — ${symbol}${(c.amount_cents / 100).toFixed(2)}</span>
+              <span class="charge-status charge-status-${c.status}">${CHARGE_STATUS_LABEL[c.status] || c.status}</span>
+            </li>
+          `).join('')}
+        </ul>`;
+    } catch (err) {
+      if (bookingId !== currentExtraChargeBookingId) return;
+      extraChargeHistory.innerHTML = `<p class="error-text">${escapeHtml(err.message)}</p>`;
+    }
+  }
 
   async function openExtraChargeModal(bookingId) {
     currentExtraChargeBookingId = bookingId;
@@ -201,6 +236,8 @@
     extraChargePresets.innerHTML = presets.map((p, i) =>
       `<button type="button" class="btn btn-ghost btn-sm preset-btn" data-amount="${p.amount}" data-reason="${escapeHtml(p.reason)}">${escapeHtml(p.label)}</button>`
     ).join('');
+
+    await renderChargeHistory(bookingId);
 
     extraChargeModal.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -252,6 +289,9 @@
         document.getElementById('extraChargeLinkInput').select();
         navigator.clipboard.writeText(data.url).catch(() => {});
       });
+      extraChargeForm.reset();
+      document.getElementById('extraChargeSendEmail').checked = true;
+      await renderChargeHistory(currentExtraChargeBookingId);
     } catch (err) {
       extraChargeResult.hidden = false;
       extraChargeResult.innerHTML = `<p class="error-text">${escapeHtml(err.message)}</p>`;

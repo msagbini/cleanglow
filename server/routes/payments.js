@@ -3,9 +3,10 @@ import Stripe from 'stripe';
 import {
   getBooking, getBookingBySessionId, getBookingBySubscriptionId, attachStripeSession, attachStripeSubscription,
   markBookingStatus, markNotified, incrementCyclesCompleted, hasProcessedEvent, markEventProcessed,
+  getExtraChargeBySessionId, markExtraChargePaid, markExtraChargeExpired,
 } from '../db.js';
 import { getFrequencyOption } from '../config.js';
-import { notifyPaidBooking, sendCustomerConfirmation } from '../email.js';
+import { notifyPaidBooking, sendCustomerConfirmation, sendExtraChargePaidConfirmation } from '../email.js';
 import { getOrCreateReferralCodeForCustomer } from '../referrals.js';
 import { sendOwnerPush } from '../push.js';
 import { publicView } from './bookings.js';
@@ -40,6 +41,24 @@ async function markPaidOnce(booking, subscriptionId) {
     markNotified(paid.id);
   }
   return paid;
+}
+
+// Closes the loop on the admin panel's "Charge fee" action (late-arrival /
+// lockout fees — see routes/admin.js): once Stripe actually confirms the
+// payment, mark the local record paid, tell the owner (same push channel as
+// a normal paid booking, so nothing new to configure), and confirm to the
+// customer that their payment was received.
+async function markExtraChargePaidAndNotify(session) {
+  const existing = getExtraChargeBySessionId(session.id);
+  if (!existing || existing.status === 'paid') return; // already processed, or not one of ours
+  const charge = markExtraChargePaid(session.id);
+  const booking = getBooking(charge.booking_id);
+  if (!booking) return;
+  const amount = `${(charge.amount_cents / 100).toFixed(2)} ${charge.currency.toUpperCase()}`;
+  await Promise.all([
+    sendOwnerPush('Extra charge paid', `${booking.full_name} — ${charge.reason} (${amount})\nBooking ${booking.id}`),
+    sendExtraChargePaidConfirmation(booking, charge),
+  ]);
 }
 
 router.post('/checkout-session', async (req, res) => {
@@ -151,12 +170,20 @@ export async function webhookHandler(req, res) {
       case 'checkout.session.completed':
       case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object;
+        if (session.metadata?.type === 'extra_charge') {
+          if (session.payment_status === 'paid') await markExtraChargePaidAndNotify(session);
+          break;
+        }
         const booking = getBookingBySessionId(session.id);
         if (booking && session.payment_status === 'paid') await markPaidOnce(booking, session.subscription || null);
         break;
       }
       case 'checkout.session.expired': {
         const session = event.data.object;
+        if (session.metadata?.type === 'extra_charge') {
+          markExtraChargeExpired(session.id);
+          break;
+        }
         const booking = getBookingBySessionId(session.id);
         if (booking && booking.status === 'pending_payment') markBookingStatus(booking.id, 'expired');
         break;

@@ -52,3 +52,9 @@ select.status-select { padding: 6px 8px; border-radius: 6px; border: 1px solid v
 .extra-charge-link-row { display: flex; gap: 8px; margin-top: 8px; }
 .extra-charge-link-row input { flex: 1; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: .82rem; }
 .error-text { color: var(--color-danger); }
+.extra-charge-history-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.extra-charge-history-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--color-bg-alt); font-size: .85rem; }
+.charge-status { font-size: .72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.charge-status-pending { background: #fff4e0; color: #a35b00; }
+.charge-status-paid { background: #e6f5f2; color: var(--color-primary-dark); }
+.charge-status-expired { background: #f0f0f0; color: var(--color-muted); }

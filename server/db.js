@@ -135,6 +135,23 @@ db.exec(`
     sent_at TEXT NOT NULL DEFAULT (datetime('now')),
     UNIQUE(booking_id, ping_type)
   );
+  -- One-off charges outside the normal booking price (late-arrival waiting
+  -- fee, lockout fee — see the admin panel's "Charge fee" action). The
+  -- Stripe Checkout session is the actual payment; this table is only the
+  -- local record of whether it's been paid yet, kept in sync by the
+  -- webhook handler in routes/payments.js.
+  CREATE TABLE IF NOT EXISTS extra_charges (
+    id TEXT PRIMARY KEY,
+    booking_id TEXT NOT NULL REFERENCES bookings(id),
+    stripe_session_id TEXT UNIQUE,
+    amount_cents INTEGER NOT NULL,
+    currency TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    paid_at TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_extra_charges_booking ON extra_charges (booking_id);
 `);
 
 // CREATE TABLE IF NOT EXISTS only applies the schema to a brand-new file — an
@@ -597,6 +614,41 @@ export function insertJobPing(bookingId, pingType) {
   } catch {
     return false; // UNIQUE constraint — already sent, don't send it twice
   }
+}
+
+export function createExtraCharge({ bookingId, stripeSessionId, amountCents, currency, reason }) {
+  const id = crypto.randomUUID();
+  db.prepare(`
+    INSERT INTO extra_charges (id, booking_id, stripe_session_id, amount_cents, currency, reason)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(id, bookingId, stripeSessionId, amountCents, currency, reason);
+  return db.prepare('SELECT * FROM extra_charges WHERE id = ?').get(id);
+}
+
+export function getExtraChargeBySessionId(sessionId) {
+  return db.prepare('SELECT * FROM extra_charges WHERE stripe_session_id = ?').get(sessionId) ?? null;
+}
+
+export function markExtraChargePaid(sessionId) {
+  const row = db.prepare(`
+    UPDATE extra_charges SET status = 'paid', paid_at = datetime('now')
+    WHERE stripe_session_id = ? AND status != 'paid'
+    RETURNING *
+  `).get(sessionId);
+  return row ?? getExtraChargeBySessionId(sessionId);
+}
+
+export function markExtraChargeExpired(sessionId) {
+  const row = db.prepare(`
+    UPDATE extra_charges SET status = 'expired'
+    WHERE stripe_session_id = ? AND status = 'pending'
+    RETURNING *
+  `).get(sessionId);
+  return row ?? getExtraChargeBySessionId(sessionId);
+}
+
+export function listExtraChargesForBooking(bookingId) {
+  return db.prepare('SELECT * FROM extra_charges WHERE booking_id = ? ORDER BY created_at DESC').all(bookingId);
 }
 
 export default db;
