@@ -107,6 +107,33 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="extraChargeModal" hidden>
+  <div class="modal">
+    <button type="button" class="modal-close" id="extraChargeModalClose" aria-label="Close">✕</button>
+    <h2>Charge a fee — <span id="extraChargeBookingId"></span></h2>
+    <p class="muted-text">For a late-arrival waiting fee, a lockout fee, or anything else outside the normal booking price — see the Property Access &amp; Lateness terms.</p>
+
+    <div class="extra-charge-presets" id="extraChargePresets"></div>
+
+    <form id="extraChargeForm" class="extra-charge-form">
+      <label class="field-label" for="extraChargeAmount">Amount ($)</label>
+      <input type="number" id="extraChargeAmount" min="1" max="500" step="0.01" required>
+
+      <label class="field-label" for="extraChargeReason">Reason (shown to the customer)</label>
+      <input type="text" id="extraChargeReason" maxlength="200" required placeholder="e.g. Late arrival fee">
+
+      <label class="checkbox-line">
+        <input type="checkbox" id="extraChargeSendEmail" checked>
+        Email the payment link to the customer
+      </label>
+
+      <button type="submit" class="btn btn-primary btn-sm" id="extraChargeSubmit">Create charge link</button>
+    </form>
+
+    <div id="extraChargeResult" class="extra-charge-result" hidden></div>
+  </div>
+</div>
+
 <script src="admin.js"></script>
 </body>
 </html>

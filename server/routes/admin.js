@@ -11,6 +11,8 @@ import { handleBookingCompleted } from '../bookingCompletion.js';
 import { getCancellationInfo, cancelSubscription } from '../subscriptions.js';
 import { runBackupOnce } from '../dbBackup.js';
 import { toCsv } from '../csv.js';
+import { getStripe } from './payments.js';
+import { sendExtraChargeLink } from '../email.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
@@ -62,6 +64,68 @@ router.post('/bookings/:id/cancel-subscription', async (req, res) => {
   const result = await cancelSubscription(booking, chargeFeeCents);
   if (!result.ok) return res.status(result.status).json({ error: result.error });
   res.json(result.booking);
+});
+
+// A one-off charge outside the normal booking flow — a late-arrival waiting
+// fee, a lockout fee, or anything else that comes up on the day (see the
+// Property Access & Lateness terms). Most bookings are one-time payments
+// with no saved card to charge off-session, so this creates a plain Stripe
+// Checkout link the customer pays voluntarily, rather than assuming a
+// payment method exists. Deliberately not persisted anywhere — the Stripe
+// dashboard is the record of whether it was actually paid; this only covers
+// generating and (optionally) emailing the link.
+const MAX_EXTRA_CHARGE_CENTS = 50000; // $500 — a sanity ceiling against a fat-fingered amount, not a real limit
+router.post('/bookings/:id/extra-charge', async (req, res) => {
+  const stripe = getStripe();
+  if (!stripe) return res.status(500).json({ error: 'Stripe is not configured on the server (STRIPE_SECRET_KEY is missing).' });
+
+  const booking = getBooking(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+  const amountCents = Math.round(Number(req.body?.amountCents));
+  if (!Number.isFinite(amountCents) || amountCents < 100 || amountCents > MAX_EXTRA_CHARGE_CENTS) {
+    return res.status(400).json({ error: `Amount must be between $1 and $${MAX_EXTRA_CHARGE_CENTS / 100}` });
+  }
+  const reason = String(req.body?.reason ?? '').trim().slice(0, 200);
+  if (!reason) return res.status(400).json({ error: 'A reason is required' });
+
+  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  let session;
+  try {
+    session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      customer_email: booking.email,
+      line_items: [{
+        price_data: {
+          currency: booking.currency,
+          unit_amount: amountCents,
+          product_data: {
+            name: reason,
+            description: `Booking ${booking.id} — ${booking.address}`,
+          },
+        },
+        quantity: 1,
+      }],
+      metadata: { bookingId: booking.id, type: 'extra_charge', reason },
+      success_url: `${baseUrl}/?fee-paid=1`,
+      cancel_url: `${baseUrl}/`,
+    });
+  } catch (err) {
+    console.error('[stripe] Error creating extra-charge session:', err.message);
+    return res.status(502).json({ error: 'Could not create the payment link with Stripe. Please try again.' });
+  }
+
+  let emailSent = false;
+  if (req.body?.sendEmail) {
+    try {
+      await sendExtraChargeLink(booking, session.url, reason, amountCents);
+      emailSent = true;
+    } catch (err) {
+      console.error('[email] Failed to send extra-charge link:', err.message);
+    }
+  }
+  res.json({ url: session.url, emailSent });
 });
 
 router.get('/bookings/:id/photos', (req, res) => {

@@ -41,3 +41,14 @@ select.status-select { padding: 6px 8px; border-radius: 6px; border: 1px solid v
 .add-cleaner-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
 .add-cleaner-form input { padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: .88rem; }
 .cleaner-link-copy { font-size: .8rem; }
+.extra-charge-presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+.extra-charge-form { display: flex; flex-direction: column; }
+.extra-charge-form input[type="number"], .extra-charge-form input[type="text"] {
+  padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: .9rem;
+}
+.extra-charge-form .checkbox-line { margin: 16px 0; }
+.extra-charge-form #extraChargeSubmit { align-self: flex-start; }
+.extra-charge-result { margin-top: 16px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--color-bg-alt); }
+.extra-charge-link-row { display: flex; gap: 8px; margin-top: 8px; }
+.extra-charge-link-row input { flex: 1; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: .82rem; }
+.error-text { color: var(--color-danger); }

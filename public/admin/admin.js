@@ -79,6 +79,7 @@
           </select>
           ${b.stripe_subscription_id && b.status !== 'cancelled' ? `<button type="button" class="btn btn-ghost btn-sm cancel-sub-btn" data-id="${b.id}">Cancel subscription</button>` : ''}
           <br><button type="button" class="btn btn-ghost btn-sm photos-btn" data-id="${b.id}">📷 Photos</button>
+          <button type="button" class="btn btn-ghost btn-sm extra-charge-btn" data-id="${b.id}">💰 Charge fee</button>
         </td>
       </tr>
     `).join('');
@@ -159,10 +160,115 @@
     }
   });
 
+  // Presets pull their dollar amounts from config/business.json's
+  // accessPolicy so the modal never drifts out of sync with what the terms
+  // & conditions actually promise the customer — fetched once and cached.
+  let accessPolicyConfig = null;
+  async function getAccessPolicyConfig() {
+    if (accessPolicyConfig) return accessPolicyConfig;
+    try {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      accessPolicyConfig = { policy: cfg.booking.accessPolicy || {}, symbol: cfg.business.currencySymbol || '$' };
+    } catch {
+      accessPolicyConfig = { policy: {}, symbol: '$' };
+    }
+    return accessPolicyConfig;
+  }
+
+  const extraChargeModal = document.getElementById('extraChargeModal');
+  const extraChargeForm = document.getElementById('extraChargeForm');
+  const extraChargeAmount = document.getElementById('extraChargeAmount');
+  const extraChargeReason = document.getElementById('extraChargeReason');
+  const extraChargePresets = document.getElementById('extraChargePresets');
+  const extraChargeResult = document.getElementById('extraChargeResult');
+  let currentExtraChargeBookingId = null;
+
+  async function openExtraChargeModal(bookingId) {
+    currentExtraChargeBookingId = bookingId;
+    document.getElementById('extraChargeBookingId').textContent = bookingId;
+    extraChargeForm.reset();
+    document.getElementById('extraChargeSendEmail').checked = true;
+    extraChargeResult.hidden = true;
+    extraChargeResult.innerHTML = '';
+    document.getElementById('extraChargeSubmit').disabled = false;
+
+    const { policy, symbol } = await getAccessPolicyConfig();
+    const presets = [
+      policy.lateFeePerBlockCents ? { label: `Late arrival fee (${symbol}${(policy.lateFeePerBlockCents / 100).toFixed(0)})`, amount: policy.lateFeePerBlockCents, reason: 'Late arrival waiting fee' } : null,
+      policy.lockoutFeeCents ? { label: `Lockout fee (${symbol}${(policy.lockoutFeeCents / 100).toFixed(0)})`, amount: policy.lockoutFeeCents, reason: 'Lockout fee' } : null,
+    ].filter(Boolean);
+    extraChargePresets.innerHTML = presets.map((p, i) =>
+      `<button type="button" class="btn btn-ghost btn-sm preset-btn" data-amount="${p.amount}" data-reason="${escapeHtml(p.reason)}">${escapeHtml(p.label)}</button>`
+    ).join('');
+
+    extraChargeModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeExtraChargeModal() {
+    extraChargeModal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('extraChargeModalClose').addEventListener('click', closeExtraChargeModal);
+  extraChargeModal.addEventListener('click', e => {
+    if (e.target === extraChargeModal) closeExtraChargeModal();
+  });
+
+  extraChargePresets.addEventListener('click', e => {
+    const btn = e.target.closest('.preset-btn');
+    if (!btn) return;
+    extraChargeAmount.value = (Number(btn.dataset.amount) / 100).toFixed(2);
+    extraChargeReason.value = btn.dataset.reason;
+  });
+
+  extraChargeForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!currentExtraChargeBookingId) return;
+    const amountCents = Math.round(Number(extraChargeAmount.value) * 100);
+    const reason = extraChargeReason.value.trim();
+    const sendEmail = document.getElementById('extraChargeSendEmail').checked;
+
+    const submitBtn = document.getElementById('extraChargeSubmit');
+    submitBtn.disabled = true;
+    extraChargeResult.hidden = true;
+    try {
+      const res = await fetch(`/api/admin/bookings/${encodeURIComponent(currentExtraChargeBookingId)}/extra-charge`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amountCents, reason, sendEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not create the charge link');
+      extraChargeResult.hidden = false;
+      extraChargeResult.innerHTML = `
+        <p>${data.emailSent ? '✓ Payment link emailed to the customer.' : 'Payment link created — copy it below to send yourself (SMS, WhatsApp, etc).'}</p>
+        <div class="extra-charge-link-row">
+          <input type="text" readonly value="${escapeHtml(data.url)}" id="extraChargeLinkInput">
+          <button type="button" class="btn btn-ghost btn-sm" id="extraChargeCopyBtn">Copy</button>
+        </div>`;
+      document.getElementById('extraChargeCopyBtn').addEventListener('click', () => {
+        document.getElementById('extraChargeLinkInput').select();
+        navigator.clipboard.writeText(data.url).catch(() => {});
+      });
+    } catch (err) {
+      extraChargeResult.hidden = false;
+      extraChargeResult.innerHTML = `<p class="error-text">${escapeHtml(err.message)}</p>`;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
   tbody.addEventListener('click', async e => {
     const photosBtn = e.target.closest('.photos-btn');
     if (photosBtn) {
       openPhotosModal(photosBtn.dataset.id);
+      return;
+    }
+    const extraChargeBtn = e.target.closest('.extra-charge-btn');
+    if (extraChargeBtn) {
+      openExtraChargeModal(extraChargeBtn.dataset.id);
       return;
     }
     const btn = e.target.closest('.cancel-sub-btn');

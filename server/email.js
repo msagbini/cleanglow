@@ -194,6 +194,31 @@ export async function sendAgentProofLink(booking) {
   });
 }
 
+// A one-off charge outside the normal booking flow (late-arrival waiting
+// fee, lockout fee — see the admin panel's "Charge fee" action and the
+// Property Access & Lateness terms). Sent only when the admin explicitly
+// asks to email the link, and always in English since the Spanish toggle
+// is currently disabled site-wide.
+export async function sendExtraChargeLink(booking, checkoutUrl, reason, amountCents) {
+  const symbol = config.business.currencySymbol;
+  const amount = `${symbol}${(amountCents / 100).toFixed(2)}`;
+  await send({
+    to: booking.email,
+    subject: `${reason} — ${booking.id}`,
+    text: [
+      `Hi ${booking.full_name},`,
+      '',
+      `This is regarding your ${config.business.name} booking ${booking.id} at ${booking.address}: ${reason} (${amount}), as outlined in our terms & conditions.`,
+      '',
+      `You can pay securely here: ${checkoutUrl}`,
+      '',
+      `If you have any questions about this charge, just reply to this email or call ${config.business.phoneDisplay}.`,
+      '',
+      `— ${config.business.name}`,
+    ].join('\n'),
+  });
+}
+
 // Fulfils the "before/after photos included" guarantee point — sent once a
 // booking is marked completed, only if the cleaning team actually uploaded
 // after-photos for it (see routes/admin.js).
