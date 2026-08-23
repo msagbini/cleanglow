@@ -1,18 +1,18 @@
 import express from 'express';
-import { createPhotoUpload } from '../photoUpload.js';
-import {
-  createCleaner,
-  getCleaner,
-  listCleaners,
+import { 
+  createCleaner, 
+  getCleaner, 
+  listCleaners, 
   setCleanerActive,
   assignBookingToCleaner,
-  listBookingsForCleaner,
-  getBooking
+  listBookingsForCleaner
 } from '../db.js';
+import { createPhotoUpload } from '../photoUpload.js';
+// import { isValidImageFile, cleanupFiles } from '../photoUpload.js'; // <-- Comentado porque no existen
 
 const router = express.Router();
 
-// Middleware de autenticación para el panel de admin (si lo usas)
+// Middleware de autenticación básica (reutilizado)
 function adminAuth(req, res, next) {
   const user = process.env.ADMIN_USER;
   const pass = process.env.ADMIN_PASS;
@@ -32,91 +32,77 @@ function adminAuth(req, res, next) {
   res.status(401).set('WWW-Authenticate', 'Basic realm="Admin"').send('Invalid credentials');
 }
 
-// Crear un nuevo cleaner (limpiador)
+// GET /api/admin/cleaners - Listar cleaners
+router.get('/', adminAuth, (req, res) => {
+  const cleaners = listCleaners();
+  res.json(cleaners);
+});
+
+// POST /api/admin/cleaners - Crear cleaner
 router.post('/', adminAuth, (req, res) => {
   const { name, phone, email } = req.body;
-  if (!name || !phone) {
-    return res.status(400).json({ error: 'Name and phone are required' });
+  if (!name || !phone || !email) {
+    return res.status(400).json({ error: 'Name, phone, and email are required' });
   }
   try {
     const cleaner = createCleaner({ name, phone, email });
     res.status(201).json(cleaner);
   } catch (err) {
     console.error('[cleaners] Error creating cleaner:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Listar cleaners
-router.get('/', adminAuth, (req, res) => {
-  try {
-    const cleaners = listCleaners();
-    res.json(cleaners);
-  } catch (err) {
-    console.error('[cleaners] Error listing cleaners:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Obtener un cleaner por ID
+// GET /api/admin/cleaners/:id - Obtener un cleaner
 router.get('/:id', adminAuth, (req, res) => {
-  try {
-    const cleaner = getCleaner(req.params.id);
-    if (!cleaner) return res.status(404).json({ error: 'Not found' });
-    res.json(cleaner);
-  } catch (err) {
-    console.error('[cleaners] Error getting cleaner:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const cleaner = getCleaner(req.params.id);
+  if (!cleaner) return res.status(404).json({ error: 'Cleaner not found' });
+  res.json(cleaner);
 });
 
-// Activar/desactivar cleaner
+// PATCH /api/admin/cleaners/:id/active - Activar/desactivar cleaner
 router.patch('/:id/active', adminAuth, (req, res) => {
   const { active } = req.body;
   if (typeof active !== 'boolean') {
     return res.status(400).json({ error: 'Active must be boolean' });
   }
-  try {
-    const cleaner = setCleanerActive(req.params.id, active);
-    res.json(cleaner);
-  } catch (err) {
-    console.error('[cleaners] Error updating cleaner:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const cleaner = getCleaner(req.params.id);
+  if (!cleaner) return res.status(404).json({ error: 'Cleaner not found' });
+  setCleanerActive(req.params.id, active);
+  res.json({ success: true, active });
 });
 
-// Asignar un booking a un cleaner
-router.post('/:id/assign', adminAuth, (req, res) => {
-  const { bookingId } = req.body;
-  if (!bookingId) {
-    return res.status(400).json({ error: 'Booking ID is required' });
-  }
-  try {
-    const booking = getBooking(bookingId);
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
-    const result = assignBookingToCleaner(bookingId, req.params.id);
-    res.json(result);
-  } catch (err) {
-    console.error('[cleaners] Error assigning booking:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Listar bookings asignados a un cleaner
+// GET /api/admin/cleaners/:id/bookings - Reservas de un cleaner
 router.get('/:id/bookings', adminAuth, (req, res) => {
+  const bookings = listBookingsForCleaner(req.params.id);
+  res.json(bookings);
+});
+
+// POST /api/admin/bookings/:id/assign-cleaner - Asignar cleaner a una reserva
+router.post('/bookings/:id/assign-cleaner', adminAuth, (req, res) => {
+  const { cleanerId } = req.body;
+  if (!cleanerId) {
+    return res.status(400).json({ error: 'cleanerId is required' });
+  }
   try {
-    const bookings = listBookingsForCleaner(req.params.id);
-    res.json(bookings);
+    assignBookingToCleaner(req.params.id, cleanerId);
+    res.json({ success: true });
   } catch (err) {
-    console.error('[cleaners] Error listing bookings:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[cleaners] Error assigning cleaner:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Manejo de fotos para cleaner (si quieres, pero sin cleanupFiles)
-// Si necesitas subir fotos, usa createPhotoUpload directamente aquí
-// Ejemplo:
-// const photoUpload = createPhotoUpload('server/data/uploads');
-// router.post('/:id/photo', adminAuth, photoUpload, (req, res) => { ... });
+// Subida de foto para cleaner (placeholder, sin cleanupFiles)
+const photoUpload = createPhotoUpload('server/data/uploads/cleaners');
+router.post('/:id/photo', adminAuth, photoUpload, (req, res) => {
+  if (!req.files || !req.files.photo || req.files.photo.length === 0) {
+    return res.status(400).json({ error: 'No photo uploaded' });
+  }
+  // Aquí podrías guardar la foto en la BD si tuvieras la función,
+  // pero por ahora solo devolvemos el nombre del archivo.
+  const file = req.files.photo[0];
+  res.json({ uploaded: file.filename });
+});
 
 export default router;
