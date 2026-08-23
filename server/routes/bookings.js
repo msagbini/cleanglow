@@ -1,12 +1,10 @@
 // server/routes/bookings.js
 import express from 'express';
-import { body, validationResult } from 'express-validator';
 import { getPublicConfig } from '../config.js';
 import { 
   insertBooking, 
   getBooking, 
   getAvailability, 
-  getBookingBySessionId,
   addPhotosToBooking,
   createLead
 } from '../db.js';
@@ -47,31 +45,42 @@ router.get('/availability', (req, res) => {
   res.json({ date, slots });
 });
 
-// POST /api/bookings - Crear reserva
+// POST /api/bookings - Crear reserva (validación manual)
 router.post('/', 
   createLimiter,
-  body('fullName').notEmpty().trim().escape(),
-  body('email').isEmail().normalizeEmail(),
-  body('phone').notEmpty(),
-  body('address').notEmpty().trim(),
-  body('postcode').isPostalCode('AU'),
-  body('bookingDate').isISO8601().toDate(),
-  body('bookingTime').notEmpty(),
-  body('propertyType').notEmpty(),
-  body('bedrooms').isInt({ min: 0 }),
-  body('bathrooms').isInt({ min: 0 }),
-  body('urgency').optional().isIn(['standard', 'urgent']),
-  body('extras').optional().isArray(),
-  body('frequency').optional().isIn(['once', 'weekly', 'fortnightly', 'monthly']),
-  body('promoCode').optional().trim(),
   (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const config = getPublicConfig();
     const body = req.body;
+    
+    // Validaciones manuales básicas
+    if (!body.fullName || typeof body.fullName !== 'string' || body.fullName.trim().length < 2) {
+      return res.status(400).json({ error: 'Full name is required and must be at least 2 characters' });
+    }
+    if (!body.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+      return res.status(400).json({ error: 'Valid email is required' });
+    }
+    if (!body.address || typeof body.address !== 'string' || body.address.trim().length < 5) {
+      return res.status(400).json({ error: 'Address is required' });
+    }
+    if (!body.postcode || !/^\d{4}$/.test(body.postcode)) {
+      return res.status(400).json({ error: 'Valid Australian postcode (4 digits) is required' });
+    }
+    if (!body.bookingDate || !/^\d{4}-\d{2}-\d{2}$/.test(body.bookingDate)) {
+      return res.status(400).json({ error: 'Valid booking date (YYYY-MM-DD) is required' });
+    }
+    if (!body.bookingTime || typeof body.bookingTime !== 'string') {
+      return res.status(400).json({ error: 'Booking time is required' });
+    }
+    if (!body.propertyType || typeof body.propertyType !== 'string') {
+      return res.status(400).json({ error: 'Property type is required' });
+    }
+    const bedrooms = parseInt(body.bedrooms);
+    if (isNaN(bedrooms) || bedrooms < 0) {
+      return res.status(400).json({ error: 'Valid bedrooms count is required' });
+    }
+    const bathrooms = parseInt(body.bathrooms);
+    if (isNaN(bathrooms) || bathrooms < 0) {
+      return res.status(400).json({ error: 'Valid bathrooms count is required' });
+    }
 
     // Normalizar teléfono
     const phone = normalizeAustralianPhone(body.phone);
@@ -81,34 +90,37 @@ router.post('/',
       });
     }
 
-    // Calcular precio (siempre en servidor)
-    // ... (aquí va tu lógica de cálculo de precio existente)
-    // Como no tengo el código completo, asumo que ya tienes la función calculatePrice
-    // Si no, mantén tu lógica actual.
-    // Por ahora, uso un placeholder:
-    const amountCents = 10000; // EJEMPLO - REEMPLAZA CON TU CÁLCULO REAL
+    const config = getPublicConfig();
+    
+    // ============================================================
+    // 🔴 AQUÍ DEBES PONER TU LÓGICA DE CÁLCULO DE PRECIO REAL
+    // ============================================================
+    // Como no tengo tu función de cálculo, uso un placeholder.
+    // Reemplaza '10000' con tu cálculo real (ej: calculatePrice(body))
+    const amountCents = 10000; // <--- ¡CAMBIA ESTO!
+    // ============================================================
 
     try {
       const booking = insertBooking({
-        fullName: body.fullName,
-        email: body.email,
+        fullName: body.fullName.trim(),
+        email: body.email.trim().toLowerCase(),
         phone,
-        address: body.address,
-        postcode: body.postcode,
+        address: body.address.trim(),
+        postcode: body.postcode.trim(),
         bookingDate: body.bookingDate,
         bookingTime: body.bookingTime,
         propertyType: body.propertyType,
-        bedrooms: parseInt(body.bedrooms),
-        bathrooms: parseInt(body.bathrooms),
+        bedrooms,
+        bathrooms,
         urgency: body.urgency || 'standard',
-        extras: body.extras || [],
+        extras: Array.isArray(body.extras) ? body.extras : [],
         frequency: body.frequency || 'once',
         promoCode: body.promoCode || null,
         amountCents,
         currency: config.business.currency || 'aud',
         notesProperty: body.notesProperty || '',
         furnished: body.furnished || null,
-        sqm: body.sqm || null,
+        sqm: body.sqm ? parseInt(body.sqm) : null,
         keyAccess: body.keyAccess || null,
       });
 
@@ -117,7 +129,7 @@ router.post('/',
 
       res.status(201).json({ bookingId: booking.id });
     } catch (err) {
-      if (err.message.includes('fully booked')) {
+      if (err.message && err.message.includes('fully booked')) {
         return res.status(409).json({ error: err.message });
       }
       console.error('[bookings] Error creating booking:', err);
