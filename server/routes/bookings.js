@@ -6,7 +6,7 @@ import {
   getBooking, 
   getAvailability, 
   getBookingBySessionId,
-  addPhotosToBooking,
+  //addPhotosToBooking,
   createLead
 } from '../db.js';
 import { createPhotoUpload } from '../photoUpload.js';
@@ -134,7 +134,7 @@ router.post('/:id/photos', photoUpload, (req, res) => {
     return res.status(400).json({ error: 'No photos uploaded' });
   }
   const fileNames = req.files.photos.map(f => f.filename);
-  addPhotosToBooking(bookingId, fileNames);
+  //addPhotosToBooking(bookingId, fileNames);
   res.json({ uploaded: fileNames });
 });
 
