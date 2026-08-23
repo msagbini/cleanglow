@@ -34,11 +34,11 @@ import {
   countPhotosForBooking
 } from '../db.js';
 import { getPublicConfig } from '../config.js';
+import { sendOwnerPush, sendConfirmationEmail, sendExtraChargePaidConfirmation } from '../notifications.js';
 
 const router = express.Router();
 const stripe = stripePackage(process.env.STRIPE_SECRET_KEY);
 
-// Middleware de autenticación básica
 function adminAuth(req, res, next) {
   const user = process.env.ADMIN_USER;
   const pass = process.env.ADMIN_PASS;
@@ -58,7 +58,6 @@ function adminAuth(req, res, next) {
   res.status(401).set('WWW-Authenticate', 'Basic realm="Admin"').send('Invalid credentials');
 }
 
-// GET /api/admin/bookings
 router.get('/bookings', adminAuth, (req, res) => {
   const { status, limit = 200 } = req.query;
   const bookings = listBookings({ status: status || undefined, limit: parseInt(limit) || 200 });
@@ -66,14 +65,12 @@ router.get('/bookings', adminAuth, (req, res) => {
   res.json({ bookings, counts });
 });
 
-// GET /api/admin/bookings/:id
 router.get('/bookings/:id', adminAuth, (req, res) => {
   const booking = getBooking(req.params.id);
   if (!booking) return res.status(404).json({ error: 'Not found' });
   res.json(booking);
 });
 
-// PATCH /api/admin/bookings/:id/status
 router.patch('/bookings/:id/status', adminAuth, (req, res) => {
   const { status } = req.body;
   if (!status || !isValidStatus(status)) {
@@ -85,19 +82,16 @@ router.patch('/bookings/:id/status', adminAuth, (req, res) => {
   res.json({ success: true, status });
 });
 
-// GET /api/admin/bookings/:id/photos
 router.get('/bookings/:id/photos', adminAuth, (req, res) => {
   const photos = listBookingPhotos(req.params.id);
   res.json(photos);
 });
 
-// GET /api/admin/leads
 router.get('/leads', adminAuth, (req, res) => {
   const leads = listLeads({ limit: parseInt(req.query.limit) || 100 });
   res.json(leads);
 });
 
-// GET /api/admin/bookings/:id/cancellation-info
 router.get('/bookings/:id/cancellation-info', adminAuth, (req, res) => {
   const booking = getBooking(req.params.id);
   if (!booking) return res.status(404).json({ error: 'Not found' });
@@ -115,7 +109,6 @@ router.get('/bookings/:id/cancellation-info', adminAuth, (req, res) => {
   });
 });
 
-// POST /api/admin/bookings/:id/cancel-subscription
 router.post('/bookings/:id/cancel-subscription', adminAuth, async (req, res) => {
   const booking = getBooking(req.params.id);
   if (!booking) return res.status(404).json({ error: 'Not found' });
