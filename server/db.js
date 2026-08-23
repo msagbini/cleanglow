@@ -212,36 +212,8 @@ function generateReference() {
 
 // Bookings in these statuses occupy a time slot; cancelled/expired ones free it up.
 const ACTIVE_SLOT_STATUSES = ['pending_payment', 'paid', 'completed'];
-
-// ========== NUEVA FUNCIÓN PARA WEBHOOK ATÓMICO ==========
-export function processWebhookEvent(eventId, callback) {
-  db.exec('BEGIN IMMEDIATE');
-  try {
-    // Verificar si ya fue procesado (dentro de la misma transacción)
-    const existing = db.prepare(
-      'SELECT 1 FROM processed_webhook_events WHERE event_id = ?'
-    ).get(eventId);
-    
-    if (existing) {
-      db.exec('COMMIT');
-      return { alreadyProcessed: true };
-    }
-    
-    // Ejecutar la lógica del webhook
-    const result = callback();
-    
-    // Marcar como procesado
-    db.prepare(
-      'INSERT INTO processed_webhook_events (event_id, processed_at) VALUES (?, datetime("now"))'
-    ).run(eventId);
-    
-    db.exec('COMMIT');
-    return { alreadyProcessed: false, result };
-  } catch (err) {
-    db.exec('ROLLBACK');
-    throw err;
-  }
-}
+  
+  
 
 export function countActiveBookingsForSlot(date, time) {
   const placeholders = ACTIVE_SLOT_STATUSES.map(() => '?').join(',');
