@@ -3,7 +3,7 @@ import { getBookingBySubscriptionId, markBookingStatus, incrementCyclesCompleted
 
 const stripe = stripePackage(process.env.STRIPE_SECRET_KEY);
 
-// Cancelar una suscripción en Stripe
+// Cancelar suscripción en Stripe
 export async function cancelSubscription(subscriptionId, chargeFeeCents = 0) {
   try {
     const subscription = await stripe.subscriptions.update(subscriptionId, {
@@ -28,13 +28,12 @@ export async function getSubscription(subscriptionId) {
   }
 }
 
-// Cancelar inmediatamente (o al final del período) según configuración
+// Cancelar inmediatamente
 export async function cancelSubscriptionImmediate(subscriptionId) {
   try {
     const subscription = await stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: false,
     });
-    // Stripe cancela inmediatamente (o al final del período actual si ya se pagó)
     await stripe.subscriptions.cancel(subscriptionId);
     console.log(`[subscriptions] Subscription ${subscriptionId} canceled immediately`);
     return subscription;
@@ -44,13 +43,11 @@ export async function cancelSubscriptionImmediate(subscriptionId) {
   }
 }
 
-// Función para cobrar un recargo por cancelación anticipada
+// Cobrar recargo por cancelación anticipada
 export async function chargeEarlyCancellationFee(subscriptionId, amountCents, currency = 'aud') {
   try {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const customerId = subscription.customer;
-    
-    // Crear un PaymentIntent para cobrar el recargo
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountCents,
       currency: currency,
@@ -65,4 +62,3 @@ export async function chargeEarlyCancellationFee(subscriptionId, amountCents, cu
     throw err;
   }
 }
-// Forzar rebuild
