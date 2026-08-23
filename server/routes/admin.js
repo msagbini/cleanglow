@@ -13,7 +13,6 @@ import {
   createExtraCharge,
   markExtraChargePaid,
   markExtraChargeExpired,
-  createLead,
   markLeadsConvertedFor,
   findStaleLeads,
   markLeadReminded,
@@ -35,7 +34,6 @@ import {
   countPhotosForBooking
 } from '../db.js';
 import { getPublicConfig } from '../config.js';
-import { sendOwnerPush, sendConfirmationEmail, sendExtraChargePaidConfirmation } from '../notifications.js';
 
 const router = express.Router();
 const stripe = stripePackage(process.env.STRIPE_SECRET_KEY);
