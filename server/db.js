@@ -651,4 +651,35 @@ export function listExtraChargesForBooking(bookingId) {
   return db.prepare('SELECT * FROM extra_charges WHERE booking_id = ? ORDER BY created_at DESC').all(bookingId);
 }
 
+// Función para procesar webhooks de Stripe de forma atómica (sin race conditions)
+export function processWebhookEvent(eventId, callback) {
+  // Inicia una transacción con bloqueo inmediato (evita que dos procesos escriban al mismo tiempo)
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    // Verifica si este evento ya fue procesado (dentro de la misma transacción)
+    const existing = db.prepare(
+      'SELECT 1 FROM processed_webhook_events WHERE event_id = ?'
+    ).get(eventId);
+    
+    if (existing) {
+      db.exec('COMMIT');
+      return { alreadyProcessed: true };
+    }
+    
+    // Ejecuta la lógica del webhook (actualizar reserva, etc.)
+    const result = callback();
+    
+    // Marca el evento como procesado en la BD
+    db.prepare(
+      'INSERT INTO processed_webhook_events (event_id, processed_at) VALUES (?, datetime("now"))'
+    ).run(eventId);
+    
+    db.exec('COMMIT');
+    return { alreadyProcessed: false, result };
+  } catch (err) {
+    // Si algo sale mal, deshace todo el cambio
+    db.exec('ROLLBACK');
+    throw err;
+  }
+}
 export default db;
