@@ -8,6 +8,30 @@ import { buildBookingIcs } from '../ics.js';
 import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
 import { resolveDiscountCode, recordReferralRedemption } from '../referrals.js';
 
+// Función para limpiar y validar números móviles australianos
+function normalizeAustralianPhone(input) {
+  // Elimina espacios, paréntesis, guiones, etc.
+  let cleaned = String(input).replace(/[\s()\-]/g, '');
+  
+  // Si empieza con +61, lo convierte a 0 (ej: +61412345678 -> 0412345678)
+  if (cleaned.startsWith('+61')) {
+    cleaned = '0' + cleaned.slice(3);
+  }
+  // Si empieza con 61 (sin +), lo convierte a 0
+  else if (cleaned.startsWith('61')) {
+    cleaned = '0' + cleaned.slice(2);
+  }
+  // Si no empieza con 0 ni +, asumimos que falta el 0 inicial (ej: 412345678 -> 0412345678)
+  else if (!cleaned.startsWith('0') && !cleaned.startsWith('+')) {
+    cleaned = '0' + cleaned;
+  }
+  
+  // Después de limpiar, debe tener exactamente 10 dígitos (empezando con 0)
+  if (!/^0\d{9}$/.test(cleaned)) {
+    return null; // No es válido
+  }
+  return cleaned;
+}
 const router = Router();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,7 +46,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 // Australian mobile/landline numbers as entered by customers: 10 digits, no
 // spaces, starting with 0 (e.g. 0420576710). Postcodes are exactly 4 digits.
-const PHONE_RE = /^0\d{9}$/;
+
 const POSTCODE_RE = /^\d{4}$/;
 
 // Registered before /:id so "availability" isn't swallowed as an :id value.
@@ -53,10 +77,12 @@ router.post('/', (req, res) => {
   if (!isValidSizeValue(body.bedrooms)) {
     return res.status(400).json({ error: 'Invalid property size selected' });
   }
-  const phone = String(body.phone).replace(/\s+/g, '');
-  if (!PHONE_RE.test(phone)) {
-    return res.status(400).json({ error: 'Phone must be 10 digits, starting with 0 (e.g. 0400000000)' });
-  }
+  const phone = normalizeAustralianPhone(body.phone);
+if (!phone) {
+  return res.status(400).json({ 
+    error: 'Please enter a valid Australian mobile number (e.g. 0412345678 or +61412345678)' 
+  });
+}
   const postcode = String(body.postcode).trim();
   if (!POSTCODE_RE.test(postcode)) {
     return res.status(400).json({ error: 'Postcode must be exactly 4 digits' });
