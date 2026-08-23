@@ -5,7 +5,6 @@ import {
   countBookingsByStatus,
   markBookingStatus,
   getBooking,
-  getBookingBySubscriptionId,
   listBookingPhotos,
   listLeads,
   getExtraChargeBySessionId,
@@ -33,8 +32,7 @@ import {
   isSlotAvailable,
   insertBooking,
   addBookingPhoto,
-  countPhotosForBooking,
-  listBookingPhotos
+  countPhotosForBooking
 } from '../db.js';
 import { getPublicConfig } from '../config.js';
 import { sendOwnerPush, sendConfirmationEmail, sendExtraChargePaidConfirmation } from '../notifications.js';
