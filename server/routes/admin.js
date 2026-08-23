@@ -5,6 +5,7 @@ import {
   countBookingsByStatus,
   markBookingStatus,
   getBooking,
+  getBookingBySubscriptionId,
   listBookingPhotos,
   listLeads,
   getExtraChargeBySessionId,
@@ -26,7 +27,6 @@ import {
   attachStripeSession,
   attachStripeSubscription,
   getBookingBySessionId,
-  getBookingBySubscriptionId,
   isValidStatus,
   countActiveBookingsForSlot,
   isSlotAvailable,
@@ -126,7 +126,6 @@ router.post('/bookings/:id/cancel-subscription', adminAuth, async (req, res) => 
   }
   const { chargeFeeCents = 0 } = req.body;
   try {
-    // Si hay recargo, crear sesión de pago
     if (chargeFeeCents > 0) {
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -143,7 +142,6 @@ router.post('/bookings/:id/cancel-subscription', adminAuth, async (req, res) => 
         cancel_url: `${process.env.PUBLIC_BASE_URL}/admin?cancelled=false`,
         metadata: { type: 'extra_charge', booking_id: booking.id },
       });
-      // Guardar el extra charge en la BD
       createExtraCharge({
         bookingId: booking.id,
         stripeSessionId: session.id,
@@ -153,7 +151,6 @@ router.post('/bookings/:id/cancel-subscription', adminAuth, async (req, res) => 
       });
       return res.json({ requiresPayment: true, sessionId: session.id, url: session.url });
     }
-    // Cancelar directamente
     await stripe.subscriptions.update(booking.subscription_id, {
       cancel_at_period_end: true,
     });
