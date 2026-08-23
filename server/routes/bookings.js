@@ -1,10 +1,11 @@
-// server/routes/bookings.js
+// server/routes/bookings.js - VERSIÓN SIN express-validator
 import express from 'express';
 import { getPublicConfig } from '../config.js';
 import { 
   insertBooking, 
   getBooking, 
   getAvailability, 
+  getBookingBySessionId,
   addPhotosToBooking,
   createLead
 } from '../db.js';
@@ -14,14 +15,13 @@ import { rateLimit } from 'express-rate-limit';
 
 const router = express.Router();
 
-// Rate limit para crear reservas
 const createLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 10, // 10 solicitudes por IP
+  windowMs: 15 * 60 * 1000,
+  max: 10,
   skipSuccessfulRequests: true,
 });
 
-// Función para normalizar números móviles australianos
+// Función para normalizar teléfonos australianos
 function normalizeAustralianPhone(input) {
   let cleaned = String(input).replace(/[\s()\-]/g, '');
   if (cleaned.startsWith('+61')) {
@@ -35,7 +35,7 @@ function normalizeAustralianPhone(input) {
   return cleaned;
 }
 
-// GET /api/bookings/availability
+// GET disponibilidad
 router.get('/availability', (req, res) => {
   const { date } = req.query;
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -45,98 +45,77 @@ router.get('/availability', (req, res) => {
   res.json({ date, slots });
 });
 
-// POST /api/bookings - Crear reserva (validación manual)
-router.post('/', 
-  createLimiter,
-  (req, res) => {
-    const body = req.body;
-    
-    // Validaciones manuales básicas
-    if (!body.fullName || typeof body.fullName !== 'string' || body.fullName.trim().length < 2) {
-      return res.status(400).json({ error: 'Full name is required and must be at least 2 characters' });
-    }
-    if (!body.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
-      return res.status(400).json({ error: 'Valid email is required' });
-    }
-    if (!body.address || typeof body.address !== 'string' || body.address.trim().length < 5) {
-      return res.status(400).json({ error: 'Address is required' });
-    }
-    if (!body.postcode || !/^\d{4}$/.test(body.postcode)) {
-      return res.status(400).json({ error: 'Valid Australian postcode (4 digits) is required' });
-    }
-    if (!body.bookingDate || !/^\d{4}-\d{2}-\d{2}$/.test(body.bookingDate)) {
-      return res.status(400).json({ error: 'Valid booking date (YYYY-MM-DD) is required' });
-    }
-    if (!body.bookingTime || typeof body.bookingTime !== 'string') {
-      return res.status(400).json({ error: 'Booking time is required' });
-    }
-    if (!body.propertyType || typeof body.propertyType !== 'string') {
-      return res.status(400).json({ error: 'Property type is required' });
-    }
-    const bedrooms = parseInt(body.bedrooms);
-    if (isNaN(bedrooms) || bedrooms < 0) {
-      return res.status(400).json({ error: 'Valid bedrooms count is required' });
-    }
-    const bathrooms = parseInt(body.bathrooms);
-    if (isNaN(bathrooms) || bathrooms < 0) {
-      return res.status(400).json({ error: 'Valid bathrooms count is required' });
-    }
+// POST /api/bookings
+router.post('/', createLimiter, (req, res) => {
+  const body = req.body;
+  const config = getPublicConfig();
 
-    // Normalizar teléfono
-    const phone = normalizeAustralianPhone(body.phone);
-    if (!phone) {
-      return res.status(400).json({ 
-        error: 'Please enter a valid Australian mobile number (e.g. 0412345678 or +61412345678)' 
-      });
-    }
-
-    const config = getPublicConfig();
-    
-    // ============================================================
-    // 🔴 AQUÍ DEBES PONER TU LÓGICA DE CÁLCULO DE PRECIO REAL
-    // ============================================================
-    // Como no tengo tu función de cálculo, uso un placeholder.
-    // Reemplaza '10000' con tu cálculo real (ej: calculatePrice(body))
-    const amountCents = 10000; // <--- ¡CAMBIA ESTO!
-    // ============================================================
-
-    try {
-      const booking = insertBooking({
-        fullName: body.fullName.trim(),
-        email: body.email.trim().toLowerCase(),
-        phone,
-        address: body.address.trim(),
-        postcode: body.postcode.trim(),
-        bookingDate: body.bookingDate,
-        bookingTime: body.bookingTime,
-        propertyType: body.propertyType,
-        bedrooms,
-        bathrooms,
-        urgency: body.urgency || 'standard',
-        extras: Array.isArray(body.extras) ? body.extras : [],
-        frequency: body.frequency || 'once',
-        promoCode: body.promoCode || null,
-        amountCents,
-        currency: config.business.currency || 'aud',
-        notesProperty: body.notesProperty || '',
-        furnished: body.furnished || null,
-        sqm: body.sqm ? parseInt(body.sqm) : null,
-        keyAccess: body.keyAccess || null,
-      });
-
-      // Guardar lead si no existe
-      createLead(body.email, phone, booking.id);
-
-      res.status(201).json({ bookingId: booking.id });
-    } catch (err) {
-      if (err.message && err.message.includes('fully booked')) {
-        return res.status(409).json({ error: err.message });
-      }
-      console.error('[bookings] Error creating booking:', err);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+  // Validaciones manuales básicas
+  if (!body.fullName || body.fullName.trim().length < 2) {
+    return res.status(400).json({ error: 'Full name is required' });
   }
-);
+  if (!body.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+    return res.status(400).json({ error: 'Valid email is required' });
+  }
+  const phone = normalizeAustralianPhone(body.phone);
+  if (!phone) {
+    return res.status(400).json({ 
+      error: 'Please enter a valid Australian mobile number (e.g. 0412345678 or +61412345678)' 
+    });
+  }
+  if (!body.address || body.address.trim().length < 5) {
+    return res.status(400).json({ error: 'Address is required' });
+  }
+  if (!body.postcode || !/^\d{4}$/.test(body.postcode)) {
+    return res.status(400).json({ error: 'Valid Australian postcode (4 digits) is required' });
+  }
+  if (!body.bookingDate || !/^\d{4}-\d{2}-\d{2}$/.test(body.bookingDate)) {
+    return res.status(400).json({ error: 'Valid booking date (YYYY-MM-DD) is required' });
+  }
+  if (!body.bookingTime) {
+    return res.status(400).json({ error: 'Booking time is required' });
+  }
+
+  // Calcular precio (usa tu lógica existente)
+  // Aquí asumo que ya tienes una función calculatePrice en tu código original
+  // Si no, mantén tu lógica actual.
+  // Por ahora, un placeholder (reemplázalo con tu cálculo real):
+  const amountCents = 10000; // <--- CAMBIA ESTO POR TU CÁLCULO REAL
+
+  try {
+    const booking = insertBooking({
+      fullName: body.fullName.trim(),
+      email: body.email.trim().toLowerCase(),
+      phone,
+      address: body.address.trim(),
+      postcode: body.postcode.trim(),
+      bookingDate: body.bookingDate,
+      bookingTime: body.bookingTime,
+      propertyType: body.propertyType,
+      bedrooms: parseInt(body.bedrooms) || 0,
+      bathrooms: parseInt(body.bathrooms) || 0,
+      urgency: body.urgency || 'standard',
+      extras: Array.isArray(body.extras) ? body.extras : [],
+      frequency: body.frequency || 'once',
+      promoCode: body.promoCode || null,
+      amountCents,
+      currency: config.business.currency || 'aud',
+      notesProperty: body.notesProperty || '',
+      furnished: body.furnished || null,
+      sqm: body.sqm || null,
+      keyAccess: body.keyAccess || null,
+    });
+
+    createLead(body.email, phone, booking.id);
+    res.status(201).json({ bookingId: booking.id });
+  } catch (err) {
+    if (err.message && err.message.includes('fully booked')) {
+      return res.status(409).json({ error: err.message });
+    }
+    console.error('[bookings] Error creating booking:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // GET /api/bookings/:id
 router.get('/:id', (req, res) => {
@@ -151,11 +130,9 @@ router.post('/:id/photos', photoUpload, (req, res) => {
   const bookingId = req.params.id;
   const booking = getBooking(bookingId);
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
-
   if (!req.files || !req.files.photos || req.files.photos.length === 0) {
     return res.status(400).json({ error: 'No photos uploaded' });
   }
-
   const fileNames = req.files.photos.map(f => f.filename);
   addPhotosToBooking(bookingId, fileNames);
   res.json({ uploaded: fileNames });
