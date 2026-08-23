@@ -6,8 +6,6 @@ import {
   getBooking, 
   getAvailability, 
   getBookingBySessionId,
-  addPhotosToBooking,   // <--- esta
-  createLead            // <--- y esta
 } from '../db.js';
 import { createPhotoUpload } from '../photoUpload.js';
 //import { generateId } from '../utils.js';
