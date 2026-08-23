@@ -1,14 +1,15 @@
-// server/routes/bookings.js - VERSIÓN SIN express-validator
 import express from 'express';
 import { getPublicConfig } from '../config.js';
 import { 
   insertBooking, 
   getBooking, 
-  getAvailability, 
   getBookingBySessionId,
+  isSlotAvailable,
+  addBookingPhoto,
+  saveLead,
+  markLeadsConvertedFor
 } from '../db.js';
 import { createPhotoUpload } from '../photoUpload.js';
-//import { generateId } from '../utils.js';
 import { rateLimit } from 'express-rate-limit';
 
 const router = express.Router();
@@ -33,14 +34,19 @@ function normalizeAustralianPhone(input) {
   return cleaned;
 }
 
-// GET disponibilidad
+// GET /api/bookings/availability
 router.get('/availability', (req, res) => {
   const { date } = req.query;
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return res.status(400).json({ error: 'Invalid date format (YYYY-MM-DD)' });
   }
-  const slots = getAvailability(date);
-  res.json({ date, slots });
+  // Usamos isSlotAvailable para cada slot (simplificado)
+  const slots = ['morning', 'afternoon', 'evening']; // Define tus slots reales
+  const availability = slots.map(slot => ({
+    slot,
+    available: isSlotAvailable(date, slot)
+  }));
+  res.json({ date, slots: availability });
 });
 
 // POST /api/bookings
@@ -74,11 +80,14 @@ router.post('/', createLimiter, (req, res) => {
     return res.status(400).json({ error: 'Booking time is required' });
   }
 
-  // Calcular precio (usa tu lógica existente)
-  // Aquí asumo que ya tienes una función calculatePrice en tu código original
-  // Si no, mantén tu lógica actual.
-  // Por ahora, un placeholder (reemplázalo con tu cálculo real):
-  const amountCents = 10000; // <--- CAMBIA ESTO POR TU CÁLCULO REAL
+  // Verificar disponibilidad
+  if (!isSlotAvailable(body.bookingDate, body.bookingTime)) {
+    return res.status(409).json({ error: 'Slot already booked' });
+  }
+
+  // Calcular precio (usa tu lógica real aquí)
+  // Por ahora placeholder
+  const amountCents = 10000; // <--- REEMPLAZA CON TU CÁLCULO REAL
 
   try {
     const booking = insertBooking({
@@ -102,9 +111,12 @@ router.post('/', createLimiter, (req, res) => {
       furnished: body.furnished || null,
       sqm: body.sqm || null,
       keyAccess: body.keyAccess || null,
-    });
+    }, amountCents);
 
-  //  createLead(body.email, phone, booking.id);
+    // Guardar lead usando saveLead
+    saveLead({ email: body.email, phone });
+    markLeadsConvertedFor({ email: body.email, phone });
+
     res.status(201).json({ bookingId: booking.id });
   } catch (err) {
     if (err.message && err.message.includes('fully booked')) {
@@ -128,12 +140,28 @@ router.post('/:id/photos', photoUpload, (req, res) => {
   const bookingId = req.params.id;
   const booking = getBooking(bookingId);
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  
   if (!req.files || !req.files.photos || req.files.photos.length === 0) {
     return res.status(400).json({ error: 'No photos uploaded' });
   }
-  const fileNames = req.files.photos.map(f => f.filename);
-  //addPhotosToBooking(bookingId, fileNames);
-  res.json({ uploaded: fileNames });
+
+  const uploaded = [];
+  for (const file of req.files.photos) {
+    try {
+      addBookingPhoto(bookingId, {
+        filename: file.filename,
+        originalName: file.originalname,
+        sizeBytes: file.size,
+        phase: 'before'
+      });
+      uploaded.push(file.filename);
+    } catch (err) {
+      console.error('[bookings] Error adding photo:', err);
+      // Continuar con las demás fotos
+    }
+  }
+
+  res.json({ uploaded });
 });
 
 export default router;
