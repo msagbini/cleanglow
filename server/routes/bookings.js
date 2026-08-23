@@ -106,7 +106,7 @@ router.post('/', createLimiter, (req, res) => {
       keyAccess: body.keyAccess || null,
     });
 
-    createLead(body.email, phone, booking.id);
+  //  createLead(body.email, phone, booking.id);
     res.status(201).json({ bookingId: booking.id });
   } catch (err) {
     if (err.message && err.message.includes('fully booked')) {
