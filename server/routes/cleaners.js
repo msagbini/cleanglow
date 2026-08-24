@@ -1,108 +1,162 @@
-import express from 'express';
-import { 
-  createCleaner, 
-  getCleaner, 
-  listCleaners, 
-  setCleanerActive,
-  assignBookingToCleaner,
-  listBookingsForCleaner
-} from '../db.js';
-import { createPhotoUpload } from '../photoUpload.js';
-// import { isValidImageFile, cleanupFiles } from '../photoUpload.js'; // <-- Comentado porque no existen
+// The cleaner-facing panel — mounted at /api/cleaner/:token/*. There's no
+// login: the token in the URL (a crypto.randomUUID() generated when admin
+// adds the cleaner, see db.js createCleaner) IS the credential, the same
+// "unguessable id doubles as a bearer token" pattern already used for
+// booking references. Every route below re-derives the cleaner from the
+// token and only ever touches bookings assigned to that specific cleaner —
+// there is no way to reach another cleaner's jobs through this router.
+import { Router } from 'express';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { getCleaner, listBookingsForCleaner, getBooking, markBookingStatus, listBookingPhotos, addBookingPhoto, insertJobPing, hasJobPing } from '../db.js';
+import { createPhotoUpload, isValidImageFile, cleanupFiles } from '../photoUpload.js';
+import { handleBookingCompleted } from '../bookingCompletion.js';
+import { sendSms, onWayMessage } from '../sms.js';
 
-const router = express.Router();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
+const upload = createPhotoUpload(uploadsDir);
 
-// Middleware de autenticación básica (reutilizado)
-function adminAuth(req, res, next) {
-  const user = process.env.ADMIN_USER;
-  const pass = process.env.ADMIN_PASS;
-  if (!user || !pass) {
-    return res.status(503).send('Admin panel is disabled (ADMIN_USER/ADMIN_PASS not set)');
+const router = Router();
+
+function requireActiveCleaner(req, res, next) {
+  const cleaner = getCleaner(req.params.token);
+  if (!cleaner || !cleaner.active) {
+    return res.status(404).json({ error: 'This link is not valid. Ask your admin for a new one.' });
   }
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith('Basic ')) {
-    return res.status(401).set('WWW-Authenticate', 'Basic realm="Admin"').send('Authentication required');
-  }
-  const base64 = auth.slice(6);
-  const credentials = Buffer.from(base64, 'base64').toString('utf-8');
-  const [username, password] = credentials.split(':');
-  if (username === user && password === pass) {
-    return next();
-  }
-  res.status(401).set('WWW-Authenticate', 'Basic realm="Admin"').send('Invalid credentials');
+  req.cleaner = cleaner;
+  next();
 }
 
-// GET /api/admin/cleaners - Listar cleaners
-router.get('/', adminAuth, (req, res) => {
-  const cleaners = listCleaners();
-  res.json(cleaners);
+// Only ever exposes what a cleaner needs to actually do the job — no Stripe
+// internals, no other customers' data.
+function cleanerBookingView(booking) {
+  return {
+    id: booking.id,
+    status: booking.status,
+    propertyType: booking.property_type,
+    bedrooms: booking.bedrooms,
+    bathrooms: booking.bathrooms,
+    extras: booking.extras,
+    sqm: booking.sqm,
+    keyAccess: booking.key_access,
+    accessInstructions: booking.access_instructions,
+    notesProperty: booking.notes_property,
+    bookingDate: booking.booking_date,
+    bookingTime: booking.booking_time,
+    fullName: booking.full_name,
+    phone: booking.phone,
+    address: booking.address,
+    postcode: booking.postcode,
+    onWaySent: hasJobPing(booking.id, 'on_way'),
+  };
+}
+
+router.get('/:token/me', requireActiveCleaner, (req, res) => {
+  res.json({ id: req.cleaner.id, name: req.cleaner.name });
 });
 
-// POST /api/admin/cleaners - Crear cleaner
-router.post('/', adminAuth, (req, res) => {
-  const { name, phone, email } = req.body;
-  if (!name || !phone || !email) {
-    return res.status(400).json({ error: 'Name, phone, and email are required' });
-  }
-  try {
-    const cleaner = createCleaner({ name, phone, email });
-    res.status(201).json(cleaner);
-  } catch (err) {
-    console.error('[cleaners] Error creating cleaner:', err.message);
-    res.status(500).json({ error: err.message });
-  }
+router.get('/:token/jobs', requireActiveCleaner, (req, res) => {
+  const jobs = listBookingsForCleaner(req.cleaner.id)
+    .filter(b => ['paid', 'completed'].includes(b.status))
+    .map(cleanerBookingView);
+  res.json({ jobs });
 });
 
-// GET /api/admin/cleaners/:id - Obtener un cleaner
-router.get('/:id', adminAuth, (req, res) => {
-  const cleaner = getCleaner(req.params.id);
-  if (!cleaner) return res.status(404).json({ error: 'Cleaner not found' });
-  res.json(cleaner);
+function getOwnJobOr404(req, res) {
+  const booking = getBooking(req.params.id);
+  if (!booking || booking.assigned_cleaner_id !== req.cleaner.id) {
+    res.status(404).json({ error: 'Job not found' });
+    return null;
+  }
+  return booking;
+}
+
+// Best-effort courtesy SMS, not a status change — insertJobPing's UNIQUE
+// constraint means a double-tap (or a retried request) can't send it twice.
+router.post('/:token/bookings/:id/on-way', requireActiveCleaner, async (req, res) => {
+  const booking = getOwnJobOr404(req, res);
+  if (!booking) return;
+  const sent = insertJobPing(booking.id, 'on_way');
+  if (!sent) return res.status(409).json({ error: 'Already sent for this job' });
+  await sendSms(booking.phone, onWayMessage(booking));
+  res.json({ ok: true });
 });
 
-// PATCH /api/admin/cleaners/:id/active - Activar/desactivar cleaner
-router.patch('/:id/active', adminAuth, (req, res) => {
-  const { active } = req.body;
-  if (typeof active !== 'boolean') {
-    return res.status(400).json({ error: 'Active must be boolean' });
+// Deliberately narrower than the admin equivalent — a cleaner can mark a job
+// done, nothing else (can't cancel, can't fake a paid status, etc.).
+router.patch('/:token/bookings/:id/status', requireActiveCleaner, async (req, res) => {
+  const booking = getOwnJobOr404(req, res);
+  if (!booking) return;
+  if (req.body?.status !== 'completed') {
+    return res.status(400).json({ error: 'Cleaners can only mark a job as completed' });
   }
-  const cleaner = getCleaner(req.params.id);
-  if (!cleaner) return res.status(404).json({ error: 'Cleaner not found' });
-  setCleanerActive(req.params.id, active);
-  res.json({ success: true, active });
+  const updated = markBookingStatus(booking.id, 'completed');
+  await handleBookingCompleted(updated, uploadsDir);
+  res.json(cleanerBookingView(updated));
 });
 
-// GET /api/admin/cleaners/:id/bookings - Reservas de un cleaner
-router.get('/:id/bookings', adminAuth, (req, res) => {
-  const bookings = listBookingsForCleaner(req.params.id);
-  res.json(bookings);
+router.get('/:token/bookings/:id/photos', requireActiveCleaner, (req, res) => {
+  const booking = getOwnJobOr404(req, res);
+  if (!booking) return;
+  const photos = listBookingPhotos(booking.id).map(p => ({
+    id: p.id,
+    phase: p.phase,
+    createdAt: p.created_at,
+    url: `/api/cleaner/${req.params.token}/bookings/${booking.id}/photos/${encodeURIComponent(p.filename)}`,
+  }));
+  res.json({ photos });
 });
 
-// POST /api/admin/bookings/:id/assign-cleaner - Asignar cleaner a una reserva
-router.post('/bookings/:id/assign-cleaner', adminAuth, (req, res) => {
-  const { cleanerId } = req.body;
-  if (!cleanerId) {
-    return res.status(400).json({ error: 'cleanerId is required' });
-  }
-  try {
-    assignBookingToCleaner(req.params.id, cleanerId);
-    res.json({ success: true });
-  } catch (err) {
-    console.error('[cleaners] Error assigning cleaner:', err.message);
-    res.status(500).json({ error: err.message });
-  }
+router.post('/:token/bookings/:id/photos', requireActiveCleaner, (req, res) => {
+  const booking = getOwnJobOr404(req, res);
+  if (!booking) return;
+  const phase = req.query.phase === 'before' ? 'before' : 'after';
+
+  upload.array('photos', 8)(req, res, err => {
+    if (err) {
+      return res.status(400).json({ error: err.message || 'Could not upload photos' });
+    }
+    const files = req.files || [];
+
+    for (const file of files) {
+      const ext = path.extname(file.filename).toLowerCase();
+      if (!isValidImageFile(file.path, ext)) {
+        cleanupFiles(files.map(f => f.path));
+        return res.status(400).json({ error: 'One of the uploaded files is not a valid image' });
+      }
+    }
+
+    try {
+      for (const file of files) {
+        addBookingPhoto(booking.id, { filename: file.filename, originalName: file.originalname, sizeBytes: file.size, phase });
+      }
+    } catch (dbErr) {
+      return res.status(400).json({ error: dbErr.message });
+    }
+    res.status(201).json({ uploaded: files.length });
+  });
 });
 
-// Subida de foto para cleaner (placeholder, sin cleanupFiles)
-const photoUpload = createPhotoUpload('server/data/uploads/cleaners');
-router.post('/:id/photo', adminAuth, photoUpload, (req, res) => {
-  if (!req.files || !req.files.photo || req.files.photo.length === 0) {
-    return res.status(400).json({ error: 'No photo uploaded' });
+const SAFE_FILENAME_RE = /^[a-f0-9-]+\.(jpg|png|webp)$/;
+
+router.get('/:token/bookings/:id/photos/:filename', requireActiveCleaner, (req, res) => {
+  const booking = getOwnJobOr404(req, res);
+  if (!booking) return;
+  const { filename } = req.params;
+  if (!SAFE_FILENAME_RE.test(filename)) {
+    return res.status(400).json({ error: 'Invalid filename' });
   }
-  // Aquí podrías guardar la foto en la BD si tuvieras la función,
-  // pero por ahora solo devolvemos el nombre del archivo.
-  const file = req.files.photo[0];
-  res.json({ uploaded: file.filename });
+  const photos = listBookingPhotos(booking.id);
+  if (!photos.some(p => p.filename === filename)) {
+    return res.status(404).json({ error: 'Photo not found for this booking' });
+  }
+  const filePath = path.join(uploadsDir, filename);
+  if (!filePath.startsWith(uploadsDir) || !fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+  res.sendFile(filePath);
 });
 
 export default router;
