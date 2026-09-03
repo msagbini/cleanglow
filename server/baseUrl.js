@@ -65,19 +65,19 @@ export function describeBaseUrlConfig() {
 export function resolveBaseUrl(req) {
   const configured = normalize(process.env.PUBLIC_BASE_URL);
   const platform = normalize(process.env.RAILWAY_PUBLIC_DOMAIN);
+  // `req.protocol` already honours X-Forwarded-Proto because index.js sets
+  // `trust proxy`, so this stays http on localhost and https behind Railway.
+  const fromRequest = req?.get('host') ? normalize(`${req.protocol}://${req.get('host')}`) : null;
 
   if (configured) {
+    // A configured value is only overridden when it names a Railway-generated
+    // domain that demonstrably isn't this service's. Either signal proves
+    // that on its own — RAILWAY_PUBLIC_DOMAIN isn't guaranteed to be present,
+    // so the host actually serving the request counts as evidence too.
+    const knownGood = platform || fromRequest;
     const staleRailwayDomain =
-      platform && configured !== platform && isRailwayGeneratedHost(new URL(configured).host);
+      knownGood && configured !== knownGood && isRailwayGeneratedHost(new URL(configured).host);
     if (!staleRailwayDomain) return configured;
   }
-  if (platform) return platform;
-
-  if (req) {
-    const host = req.get('host');
-    // `req.protocol` already honours X-Forwarded-Proto because index.js sets
-    // `trust proxy`, so this stays http on localhost and https behind Railway.
-    if (host) return normalize(`${req.protocol}://${host}`);
-  }
-  return 'http://localhost:4242';
+  return platform || fromRequest || 'http://localhost:4242';
 }
