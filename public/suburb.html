@@ -1,27 +1,36 @@
 <!doctype html>
 <html lang="en">
 <head>
-<script src="js/reload-scroll-fix.js"></script>
+<script src="js/reload-scroll-fix.js?v={{ASSET_VERSION}}"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{SITE_TITLE}}</title>
 <meta name="description" content="{{SITE_DESCRIPTION}}">
 <link rel="canonical" href="{{CANONICAL_URL}}">
+<link rel="alternate" hreflang="en-AU" href="{{CANONICAL_URL}}">
+<link rel="alternate" hreflang="x-default" href="{{CANONICAL_URL}}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{SITE_NAME}}">
 <meta property="og:title" content="{{SITE_TITLE}}">
 <meta property="og:description" content="{{SITE_DESCRIPTION}}">
 <meta property="og:url" content="{{CANONICAL_URL}}">
 <meta property="og:image" content="{{SITE_OG_IMAGE}}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="{{SITE_ICON_HREF}}">
-<link rel="stylesheet" href="css/styles.css">
-<link rel="stylesheet" href="css/suburb.css">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-500.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-600.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-700.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-800.woff2" crossorigin>
+<link rel="stylesheet" href="css/styles.css?v={{ASSET_VERSION}}">
+<link rel="stylesheet" href="css/suburb.css?v={{ASSET_VERSION}}">
 <script type="application/ld+json">{{JSONLD}}</script>
 </head>
 <body>
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="logo">
-      <span class="logo-mark"><img src="{{SITE_ICON_HREF}}" alt=""></span>
+      <span class="logo-mark"><img src="{{SITE_ICON_HREF}}" alt="" width="32" height="32" decoding="async"></span>
       <span class="logo-text">{{SITE_NAME}}</span>
     </a>
     <div class="header-actions">
@@ -32,6 +41,19 @@
 </header>
 
 <main>
+  <!-- Visible counterpart to the BreadcrumbList in the page's JSON-LD —
+       Google expects the markup to reflect a trail the visitor can actually
+       see and use, and it gives these pages a real link back to the hub. -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li><a href="/#services">End of lease cleaning</a></li>
+        <li aria-current="page">{{SUBURB_NAME}}</li>
+      </ol>
+    </div>
+  </nav>
+
   <section class="hero">
     <div class="container hero-inner">
       <div class="hero-copy">

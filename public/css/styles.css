@@ -42,6 +42,22 @@
   src: url('/fonts/plus-jakarta-sans-800.woff2') format('woff2');
 }
 
+/* Metric-matched fallback. With plain `font-display: swap`, the hero paints
+   in Arial and then reflows when Plus Jakarta Sans arrives — measured as a
+   0.149 layout shift, over Google's 0.1 "good" threshold. The overrides
+   below make the fallback occupy the same space as the real face (measured
+   in-browser: Plus Jakarta Sans is 104.5% of Arial's advance width, with a
+   1.04em ascent), so the swap is invisible in layout terms.
+   Liberation Sans is Arial's metric-compatible twin on Linux. */
+@font-face {
+  font-family: 'Plus Jakarta Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+  size-adjust: 104.5%;
+  ascent-override: 99.5%;
+  descent-override: 21%;
+  line-gap-override: 0%;
+}
+
 :root {
   --color-primary: #0f7a6b;
   --color-primary-dark: #0a5b4f;
@@ -66,6 +82,11 @@
   --color-surface-inverse: #16241f;
   --color-success: #1e9e5a;
   --color-danger: #e0483f;
+  /* Same hue darkened for text use: #e0483f measures 4.06:1 on white,
+     under the 4.5:1 WCAG AA minimum for body text. This is 5.51:1 on
+     --color-bg and 5.23:1 on --color-bg-alt. Borders keep the lighter
+     --color-danger, which only needs 3:1 as a non-text UI element. */
+  --color-danger-text: #c0362e;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 22px;
@@ -73,7 +94,7 @@
   --shadow-md: 0 6px 18px rgba(16, 40, 34, 0.08);
   --shadow-lg: 0 12px 32px rgba(16, 40, 34, 0.12);
   --max-width: 1180px;
-  --font: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font: 'Plus Jakarta Sans', 'Plus Jakarta Fallback', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* Always light — a booking site should look the same for every visitor
@@ -195,6 +216,9 @@ input, select, textarea { font-family: inherit; }
 .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin: 26px 0; }
 .hero-trust { display: flex; gap: 22px; flex-wrap: wrap; font-size: .88rem; color: var(--color-muted); font-weight: 500; }
 .hero-trust li { display: inline-flex; align-items: center; gap: 7px; }
+/* Sized on the wrapper, not the SVG, so the slot occupies its final width
+   from the server-rendered HTML onwards — before app.js supplies the icon. */
+.hero-trust-icon { display: inline-flex; width: 17px; height: 17px; flex-shrink: 0; }
 .hero-trust li svg { width: 17px; height: 17px; color: var(--color-primary); flex-shrink: 0; }
 .hero-areas { font-size: .85rem; color: var(--color-muted); margin: 14px 0 0; max-width: 520px; }
 .hero-guarantee-footnote { font-size: .82rem; color: var(--color-muted); margin-top: 14px; max-width: 520px; }
@@ -358,7 +382,25 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 4px var(--color-primary-light);
 }
 textarea { resize: vertical; }
-input:invalid:not(:placeholder-shown):required { border-color: var(--color-danger); }
+/* Inline validation state, driven by app.js's validateField() — applied on
+   blur (and cleared live once corrected) rather than while first typing. */
+.field-invalid,
+input.field-invalid, select.field-invalid, textarea.field-invalid {
+  border-color: var(--color-danger);
+}
+.field-invalid:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-danger) 18%, var(--color-bg));
+}
+.field-error {
+  display: flex; align-items: flex-start; gap: 6px;
+  margin: 6px 0 0; font-size: .85rem; font-weight: 500;
+  color: var(--color-danger-text);
+}
+/* Not colour alone: the icon keeps the error legible for anyone who can't
+   distinguish the red, which colour-contrast checks don't cover. */
+.field-error::before { content: '⚠'; flex: none; line-height: 1.35; }
+.field-error[hidden] { display: none; }
 
 .pill-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 .pill {
@@ -382,7 +424,9 @@ input:invalid:not(:placeholder-shown):required { border-color: var(--color-dange
 /* Shared wrapper for an ICONS SVG sitting inline next to text (pills,
    hero quote-preview rows) — vertical-align nudges it onto the text baseline
    since these buttons/rows are plain inline flow, not flex containers. */
-.inline-icon { display: inline-flex; vertical-align: -3px; margin-right: 5px; color: var(--color-primary-dark); }
+/* Fixed box (not shrink-to-fit) so a server-rendered empty slot occupies
+   the same space the icon will, and the client pass shifts nothing. */
+.inline-icon { display: inline-flex; width: 15px; height: 15px; vertical-align: -3px; margin-right: 5px; color: var(--color-primary-dark); }
 .inline-icon svg { width: 15px; height: 15px; }
 .pill.active .inline-icon { color: #fff; }
 .extra-name { font-size: .86rem; font-weight: 600; color: var(--color-ink); }
@@ -403,7 +447,7 @@ input:invalid:not(:placeholder-shown):required { border-color: var(--color-dange
 .promo-feedback { font-size: .82rem; font-weight: 600; margin: 6px 0 0; }
 .promo-feedback[hidden] { display: none; }
 .promo-feedback-valid { color: var(--color-success); }
-.promo-feedback-invalid { color: var(--color-danger); }
+.promo-feedback-invalid { color: var(--color-danger-text); }
 
 .urgency-badge {
   margin: 6px 0 0; padding: 10px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--color-border);
@@ -510,7 +554,7 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
   transition: background .15s, color .15s;
 }
 .footer-social a:hover { background: var(--color-primary); color: #fff; }
-.footer-col h4 { color: #fff; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
+.footer-col h3 { color: #fff; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
 .footer-col { display: flex; flex-direction: column; gap: 10px; font-size: .9rem; }
 .footer-col a:hover { color: #fff; }
 .footer-bottom {

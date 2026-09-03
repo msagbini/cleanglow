@@ -13,6 +13,43 @@
   };
   const MAX_PHOTOS = 8;
 
+  /* ============ CSRF ============
+   * Every write to the booking funnel echoes the server-issued token from
+   * the page's <meta name="csrf-token">. If the token has expired (the page
+   * sat open longer than the cookie's lifetime, or was restored from the
+   * back/forward cache), the server answers 403 with code "csrf" — we then
+   * fetch a fresh token and replay the request once, so a customer never
+   * loses a booking they have already filled in to an expired token. */
+  let csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+  async function refreshCsrfToken() {
+    try {
+      const res = await fetch('/api/csrf', { cache: 'no-store' });
+      if (!res.ok) return false;
+      const data = await res.json();
+      if (!data.token) return false;
+      csrfToken = data.token;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Drop-in replacement for fetch() on state-changing requests.
+  async function csrfFetch(url, options = {}) {
+    const send = () => fetch(url, {
+      ...options,
+      headers: { ...(options.headers || {}), 'X-CSRF-Token': csrfToken },
+    });
+    let res = await send();
+    if (res.status === 403) {
+      // Read the body from a clone so the caller can still consume res.json().
+      const reason = await res.clone().json().catch(() => ({}));
+      if (reason.code === 'csrf' && (await refreshCsrfToken())) res = await send();
+    }
+    return res;
+  }
+
   // Small, consistent line-icon set (brand-colored, in a soft circular chip
   // via CSS) used in place of raw emoji in a few high-visibility spots —
   // emoji render inconsistently across OS/browser and read as less
@@ -100,6 +137,12 @@
       const img = document.createElement('img');
       img.src = business.logoUrl;
       img.alt = `${business.name} logo`;
+      // Explicit intrinsic size so the browser reserves the box before the
+      // SVG loads — without it the header logo pushed the wordmark sideways
+      // on first paint. CSS still controls the rendered size.
+      img.width = 32;
+      img.height = 32;
+      img.decoding = 'async';
       el.appendChild(img);
     } else {
       el.textContent = business.logoEmoji;
@@ -188,8 +231,11 @@
     document.getElementById('heroTitle').innerHTML = business.heroTitleHtml;
     document.getElementById('heroDescription').textContent = business.heroDescription;
 
+    // Must mirror the server-rendered structure in renderIndex.js exactly —
+    // same <li>, same icon wrapper at the same size — so replacing it here
+    // changes no geometry and causes no layout shift.
     document.getElementById('heroTrust').innerHTML = business.heroTrust
-      .map(item => `<li>${ICONS[item.icon] || ''}<span>${item.text}</span></li>`).join('');
+      .map(item => `<li><span class="hero-trust-icon">${ICONS[item.icon] || ''}</span><span>${item.text}</span></li>`).join('');
 
     const heroFootnote = document.getElementById('heroGuaranteeFootnote');
     if (heroFootnote && business.guaranteeFootnote) {
@@ -645,55 +691,140 @@
     if (scroll) document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function validateStep(n) {
-    const stepEl = steps.find(s => Number(s.dataset.step) === n);
-    const requiredFields = Array.from(stepEl.querySelectorAll('[required]'));
-    for (const field of requiredFields) {
-      if (!field.value || (field.type === 'checkbox' && !field.checked)) {
-        field.focus();
-        showToast(CGI18N.t('toast.requiredFields', 'Please fill in the required fields (*)'));
-        return false;
-      }
-    }
-    if (n === 4) {
-      const email = document.getElementById('email').value;
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        document.getElementById('email').focus();
-        showToast(CGI18N.t('toast.invalidEmail', 'Enter a valid email address'));
-        return false;
-      }
-      const phone = document.getElementById('phone').value;
-      if (!/^0\d{9}$/.test(phone)) {
-        document.getElementById('phone').focus();
-        showToast(CGI18N.t('toast.invalidPhone', 'Enter a 10-digit phone number starting with 0 (e.g. 0400000000)'));
-        return false;
-      }
-      const postcode = document.getElementById('postcode').value;
-      if (!/^\d{4}$/.test(postcode)) {
-        document.getElementById('postcode').focus();
-        showToast(CGI18N.t('toast.invalidPostcode', 'Enter a 4-digit postcode (e.g. 3000)'));
-        return false;
-      }
-    }
-    if (n === 3) {
-      const dateVal = document.getElementById('bookingDate').value;
-      if (!dateVal) {
-        document.getElementById('bookingDate').focus();
-        showToast(CGI18N.t('toast.selectDate', 'Select a date for your service'));
-        return false;
-      }
-      const chosen = new Date(dateVal + 'T00:00:00');
+  /* ============ Inline field validation ============
+   * Feedback used to be a single transient toast: it named only the first
+   * problem, vanished after ~3s, wasn't attached to the field it was about,
+   * and was invisible to a screen reader. On a five-step form that is a real
+   * source of abandonment. Each rule below now renders a persistent message
+   * beside its own field, marks the field aria-invalid and points at the
+   * message with aria-describedby, and re-checks as the visitor types once
+   * they've seen an error — while never interrupting a field they are still
+   * filling in for the first time. */
+
+  const FIELD_RULES = {
+    fullName: value => (value.trim().length >= 2
+      ? null
+      : CGI18N.t('field.fullName', 'Enter your first and last name')),
+    email: value => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+      ? null
+      : CGI18N.t('toast.invalidEmail', 'Enter a valid email address')),
+    phone: value => (/^0\d{9}$/.test(value.replace(/\s/g, ''))
+      ? null
+      : CGI18N.t('toast.invalidPhone', 'Enter a 10-digit phone number starting with 0 (e.g. 0400000000)')),
+    postcode: value => (/^\d{4}$/.test(value.trim())
+      ? null
+      : CGI18N.t('toast.invalidPostcode', 'Enter a 4-digit postcode (e.g. 3000)')),
+    address: value => (value.trim().length >= 6
+      ? null
+      : CGI18N.t('field.address', 'Enter the full street address, including the suburb')),
+    // Optional — only validated once something has actually been typed.
+    agentEmail: value => (!value.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+      ? null
+      : CGI18N.t('toast.invalidEmail', 'Enter a valid email address')),
+    bookingDate: value => {
+      if (!value) return CGI18N.t('toast.selectDate', 'Select a date for your service');
+      const chosen = new Date(`${value}T00:00:00`);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      if (chosen < today) {
-        showToast(CGI18N.t('toast.pastDate', 'The date can\'t be in the past'));
-        return false;
-      }
+      if (chosen < today) return CGI18N.t('toast.pastDate', 'The date can\'t be in the past');
       const maxDateVal = document.getElementById('bookingDate').max;
-      if (maxDateVal && dateVal > maxDateVal) {
-        showToast(CGI18N.t('toast.dateTooFar', 'Please pick a date within the next few months'));
-        return false;
+      if (maxDateVal && value > maxDateVal) {
+        return CGI18N.t('toast.dateTooFar', 'Please pick a date within the next few months');
       }
+      return null;
+    },
+  };
+
+  function errorElementFor(field) {
+    const id = `${field.id}-error`;
+    let el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement('p');
+      el.className = 'field-error';
+      el.id = id;
+      // role="alert" so the message is announced the moment it appears,
+      // without moving focus away from the field being corrected.
+      el.setAttribute('role', 'alert');
+      // A checkbox lives inside its <label>, so the message goes after the
+      // whole row rather than between the box and its text.
+      const anchor = field.type === 'checkbox' ? field.closest('.checkbox-row') || field : field;
+      anchor.insertAdjacentElement('afterend', el);
+    }
+    return el;
+  }
+
+  function showFieldError(field, message) {
+    const el = errorElementFor(field);
+    el.textContent = message;
+    el.hidden = false;
+    field.setAttribute('aria-invalid', 'true');
+    field.setAttribute('aria-describedby', el.id);
+    field.classList.add('field-invalid');
+  }
+
+  function clearFieldError(field) {
+    const el = document.getElementById(`${field.id}-error`);
+    if (el) { el.textContent = ''; el.hidden = true; }
+    field.removeAttribute('aria-invalid');
+    field.removeAttribute('aria-describedby');
+    field.classList.remove('field-invalid');
+  }
+
+  // Returns an error message for the field, or null when it's acceptable.
+  function checkField(field) {
+    const isCheckbox = field.type === 'checkbox';
+    const value = isCheckbox ? '' : field.value;
+    if (field.required && (isCheckbox ? !field.checked : !value.trim())) {
+      return isCheckbox
+        ? CGI18N.t('field.requiredCheckbox', 'Please tick this box to continue')
+        : CGI18N.t('field.required', 'This field is required');
+    }
+    // A blank optional field is fine; only run the format rule on real input.
+    if (!field.required && !isCheckbox && !value.trim()) return null;
+    const rule = FIELD_RULES[field.id];
+    return rule ? rule(value) : null;
+  }
+
+  function validateField(field) {
+    const error = checkField(field);
+    if (error) showFieldError(field, error);
+    else clearFieldError(field);
+    return !error;
+  }
+
+  // Wire live feedback: check on blur, then keep re-checking on every
+  // keystroke *only* for a field already showing an error, so the message
+  // clears the instant it's fixed but never appears mid-typing.
+  function initLiveValidation() {
+    const watched = new Set([...Object.keys(FIELD_RULES), ...Array.from(form.querySelectorAll('[required]')).map(f => f.id)]);
+    watched.forEach(id => {
+      const field = document.getElementById(id);
+      if (!field) return;
+      field.addEventListener('blur', () => validateField(field));
+      const liveEvent = field.type === 'checkbox' || field.tagName === 'SELECT' ? 'change' : 'input';
+      field.addEventListener(liveEvent, () => {
+        if (field.classList.contains('field-invalid')) validateField(field);
+      });
+    });
+  }
+
+  function validateStep(n) {
+    const stepEl = steps.find(s => Number(s.dataset.step) === n);
+    // Every field in the step is checked, not just the first failure, so the
+    // visitor sees everything they need to fix in one pass.
+    const fields = Array.from(stepEl.querySelectorAll('input, select, textarea'))
+      .filter(f => f.id && !f.disabled && (f.required || f.id in FIELD_RULES));
+    const invalid = fields.filter(field => !validateField(field));
+
+    if (invalid.length) {
+      invalid[0].focus();
+      showToast(invalid.length === 1
+        ? checkField(invalid[0])
+        : CGI18N.tf('toast.fixFields', n => `Please fix ${n} fields to continue`, invalid.length));
+      return false;
+    }
+
+    if (n === 3) {
       const timeSelect = document.getElementById('bookingTime');
       const selectedOption = timeSelect.options[timeSelect.selectedIndex];
       if (selectedOption && selectedOption.disabled) {
@@ -858,7 +989,7 @@
     const formData = new FormData();
     state.photos.forEach(file => formData.append('photos', file));
     try {
-      const res = await fetch(`/api/bookings/${encodeURIComponent(bookingId)}/photos`, {
+      const res = await csrfFetch(`/api/bookings/${encodeURIComponent(bookingId)}/photos`, {
         method: 'POST',
         body: formData,
       });
@@ -903,7 +1034,7 @@
 
     setSubmitting(true);
     try {
-      const bookingRes = await fetch('/api/bookings', {
+      const bookingRes = await csrfFetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -913,7 +1044,7 @@
 
       await uploadPropertyPhotos(bookingData.bookingId);
 
-      const sessionRes = await fetch('/api/checkout-session', {
+      const sessionRes = await csrfFetch('/api/checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId: bookingData.bookingId }),
@@ -1006,14 +1137,37 @@
   /* ============ Mobile nav ============ */
   const navToggle = document.getElementById('navToggle');
   const mainNav = document.getElementById('mainNav');
-  navToggle.addEventListener('click', () => {
-    const isOpen = mainNav.classList.toggle('open');
-    navToggle.setAttribute('aria-expanded', String(isOpen));
+
+  // One function owns the menu's state so the class, aria-expanded and the
+  // button's label can never drift apart — every path that opens or closes
+  // the menu (button, link, Escape, outside click) goes through here.
+  function setNavOpen(open) {
+    mainNav.classList.toggle('open', open);
+    navToggle.setAttribute('aria-expanded', String(open));
+    navToggle.setAttribute('aria-label', open
+      ? CGI18N.t('header.closeMenu', 'Close menu')
+      : CGI18N.t('header.openMenu', 'Open menu'));
+  }
+
+  navToggle.addEventListener('click', () => setNavOpen(!mainNav.classList.contains('open')));
+  mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setNavOpen(false)));
+
+  // Escape closes the menu and returns focus to the control that opened it,
+  // so a keyboard user isn't stranded inside a menu they can't dismiss.
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && mainNav.classList.contains('open')) {
+      setNavOpen(false);
+      navToggle.focus();
+    }
   });
-  mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-    mainNav.classList.remove('open');
-    navToggle.setAttribute('aria-expanded', 'false');
-  }));
+
+  // Tapping anywhere outside dismisses it — the expected behaviour for an
+  // overlay menu on mobile, where there's no other obvious way out.
+  document.addEventListener('click', e => {
+    if (!mainNav.classList.contains('open')) return;
+    if (mainNav.contains(e.target) || navToggle.contains(e.target)) return;
+    setNavOpen(false);
+  });
 
   /* ============ Back to top / WhatsApp float ============ */
   // Both float over page content, so they only appear once the visitor has
@@ -1082,6 +1236,10 @@
     renderLegalContent(cfg);
     bindPillGroups();
 
+    // Must run after renderBookingWizard, which is what populates the
+    // selects and sets the date field's min/max.
+    initLiveValidation();
+
     els.bedrooms.addEventListener('change', updatePriceSummary);
     els.bathrooms.addEventListener('change', updatePriceSummary);
     document.getElementById('sqm').addEventListener('input', updatePriceSummary);
@@ -1103,7 +1261,7 @@
       const email = document.getElementById('email').value;
       const phone = document.getElementById('phone').value;
       if (!email && !phone) return;
-      fetch('/api/leads', {
+      csrfFetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, phone }),
@@ -1253,7 +1411,7 @@
       btn.disabled = true;
       btn.textContent = CGI18N.t('resume.redirecting', 'Redirecting…');
       try {
-        const res = await fetch('/api/checkout-session', {
+        const res = await csrfFetch('/api/checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ bookingId: booking.id }),

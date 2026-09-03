@@ -10,6 +10,7 @@ import { notifyPaidBooking, sendCustomerConfirmation, sendExtraChargePaidConfirm
 import { getOrCreateReferralCodeForCustomer } from '../referrals.js';
 import { sendOwnerPush } from '../push.js';
 import { publicView } from './bookings.js';
+import { resolveBaseUrl } from '../baseUrl.js';
 
 const router = Router();
 
@@ -71,7 +72,7 @@ router.post('/checkout-session', async (req, res) => {
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
   if (booking.status === 'paid') return res.status(409).json({ error: 'This booking has already been paid' });
 
-  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const baseUrl = resolveBaseUrl(req);
   const frequency = getFrequencyOption(booking.frequency);
   const isRecurring = booking.frequency !== 'once' && !!frequency.stripeInterval;
 

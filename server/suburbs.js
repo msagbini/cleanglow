@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
+import { ASSET_VERSION } from './assetVersion.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const template = fs.readFileSync(path.join(__dirname, '..', 'public', 'suburb.html'), 'utf8');
@@ -44,15 +45,58 @@ export function renderSuburbHtml(suburb, baseUrl) {
     .map(s => `<a href="/end-of-lease-cleaning-${s.slug}">${escapeHtml(s.name)}</a>`)
     .join('\n            ');
 
+  const currency = (business.currencyCode || 'AUD').toUpperCase();
+  const sizeOptions = config.booking?.sizeField?.options || [];
+  const prices = sizeOptions.map(o => Number(o.price)).filter(Number.isFinite);
+
+  // @graph so the page publishes two linked things: the priced service, and
+  // the breadcrumb trail back to the homepage — the latter is what lets a
+  // result render "cleanglow.up.railway.app › End of lease cleaning › Fitzroy"
+  // instead of a bare URL.
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'HousekeepingService',
-    name: business.name,
-    description,
-    url: canonicalUrl,
-    telephone: business.phone,
-    priceRange: '$$',
-    areaServed: { '@type': 'City', name: suburb.name },
+    '@graph': [
+      {
+        '@type': 'HousekeepingService',
+        '@id': `${canonicalUrl}#service`,
+        name: `${business.name} — End of lease cleaning in ${suburb.name}`,
+        description,
+        url: canonicalUrl,
+        telephone: business.phone,
+        email: business.email,
+        priceRange: '$$',
+        currenciesAccepted: currency,
+        openingHours: business.hours,
+        areaServed: { '@type': 'City', name: suburb.name },
+        // Same catalog prices the booking form charges, scoped to this suburb.
+        makesOffer: sizeOptions.map(option => ({
+          '@type': 'Offer',
+          name: `End of lease clean in ${suburb.name} — ${option.label}`,
+          price: String(option.price),
+          priceCurrency: currency,
+          availability: 'https://schema.org/InStock',
+          url: `${baseUrl}/#booking`,
+          areaServed: { '@type': 'City', name: suburb.name },
+        })),
+        ...(prices.length ? {
+          offers: {
+            '@type': 'AggregateOffer',
+            priceCurrency: currency,
+            lowPrice: String(Math.min(...prices)),
+            highPrice: String(Math.max(...prices)),
+            offerCount: String(prices.length),
+          },
+        } : {}),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: `${baseUrl}/` },
+          { '@type': 'ListItem', position: 2, name: 'End of lease cleaning', item: `${baseUrl}/#services` },
+          { '@type': 'ListItem', position: 3, name: suburb.name, item: canonicalUrl },
+        ],
+      },
+    ],
   });
 
   const replacements = {
@@ -60,6 +104,7 @@ export function renderSuburbHtml(suburb, baseUrl) {
     '{{SITE_TITLE}}': escapeHtml(title),
     '{{SITE_DESCRIPTION}}': escapeHtml(description),
     '{{CANONICAL_URL}}': escapeHtml(canonicalUrl),
+    '{{ASSET_VERSION}}': ASSET_VERSION,
     '{{SITE_NAME}}': escapeHtml(business.name),
     '{{SITE_ICON_HREF}}': escapeHtml(business.logoUrl || '/img/logo-mark.svg'),
     '{{SITE_OG_IMAGE}}': escapeHtml(ogImage),
@@ -69,5 +114,6 @@ export function renderSuburbHtml(suburb, baseUrl) {
     '{{OTHER_SUBURBS_LINKS}}': otherSuburbsHtml,
     '{{JSONLD}}': jsonLd,
   };
-  return Object.entries(replacements).reduce((html, [token, value]) => html.replaceAll(token, value), template);
+  // Function replacement so "$&"/"$`"/"$'" in a value stay literal — see renderIndex.js.
+  return Object.entries(replacements).reduce((html, [token, value]) => html.replaceAll(token, () => value), template);
 }

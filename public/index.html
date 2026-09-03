@@ -1,12 +1,18 @@
 <!doctype html>
 <html lang="en">
 <head>
-<script src="js/reload-scroll-fix.js"></script>
+<script src="js/reload-scroll-fix.js?v={{ASSET_VERSION}}"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{SITE_TITLE}}</title>
 <meta name="description" content="{{SITE_DESCRIPTION}}">
 <link rel="canonical" href="{{SITE_URL}}">
+<!-- Single-locale site (English/Australia). Self-referencing hreflang plus
+     x-default tells search engines this URL is the right one for every
+     region, so no other host or locale gets treated as an alternate. -->
+<link rel="alternate" hreflang="en-AU" href="{{SITE_URL}}">
+<link rel="alternate" hreflang="x-default" href="{{SITE_URL}}">
+<meta name="csrf-token" content="{{CSRF_TOKEN}}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{SITE_TITLE}}">
 <meta property="og:description" content="{{SITE_DESCRIPTION}}">
@@ -20,7 +26,16 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:image" content="{{SITE_OG_IMAGE}}">
-<link rel="stylesheet" href="css/styles.css">
+<!-- Every weight below renders above the fold (header, badge, h1, body copy,
+     buttons). Fetching them with the stylesheet rather than after it stops
+     the hero reflowing when the swap lands — that reflow measured a 0.375
+     layout shift, on its own a Core Web Vitals failure. 68 KB in total. -->
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-500.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-600.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-700.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-800.woff2" crossorigin>
+<link rel="stylesheet" href="css/styles.css?v={{ASSET_VERSION}}">
 <script type="application/ld+json">{{LOCAL_BUSINESS_JSONLD}}</script>
 <script type="application/ld+json">
 {
@@ -61,31 +76,33 @@
       <a href="tel:+61390000000" class="phone-link" id="headerPhoneLink">📞 (03) 9000 0000</a>
       <a href="tel:+61390000000" class="call-icon-btn" id="headerCallIcon" data-i18n-aria-label="header.callUs" aria-label="Call us">📞</a>
       <a href="#booking" class="btn btn-primary btn-sm" data-i18n="header.bookNow">Book now</a>
-      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
 </header>
 
+<main id="main">
+
 <!-- ===================== HERO ===================== -->
 <section class="hero">
   <div class="container hero-inner">
     <div class="hero-copy">
-      <span class="badge" id="heroBadge">✔ 100% Guarantee</span>
+      <span class="badge" id="heroBadge">{{HERO_BADGE}}</span>
       <h1 id="heroTitle">{{HERO_TITLE_HTML}}</h1>
       <p id="heroDescription">{{HERO_DESCRIPTION}}</p>
       <div class="hero-cta">
         <a href="#booking" class="btn btn-primary btn-lg" data-i18n="hero.bookNow">Book now</a>
         <a href="#pricing" class="btn btn-ghost btn-lg" data-i18n="hero.seePricing">See pricing</a>
       </div>
-      <ul class="hero-trust" id="heroTrust"></ul>
+      <ul class="hero-trust" id="heroTrust">{{HERO_TRUST_HTML}}</ul>
       <p class="hero-areas" id="heroAreasText">Servicing {{SERVICE_AREAS_TEXT}} and nearby suburbs.</p>
-      <p class="hero-guarantee-footnote" id="heroGuaranteeFootnote"></p>
+      <p class="hero-guarantee-footnote" id="heroGuaranteeFootnote">{{HERO_FOOTNOTE_HTML}}</p>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-card">
-        <div id="heroCardRows"></div>
+        <div id="heroCardRows">{{HERO_CARD_ROWS_HTML}}</div>
         <span class="hero-card-tag" data-i18n="hero.instantQuote">Instant quote</span>
       </div>
     </div>
@@ -397,6 +414,8 @@
   </div>
 </section>
 
+</main>
+
 <!-- ===================== FOOTER ===================== -->
 <footer class="site-footer">
   <div class="container footer-grid">
@@ -406,17 +425,17 @@
       <div class="footer-social" id="footerSocial"></div>
     </div>
     <div class="footer-col">
-      <h4 data-i18n="footer.company">Company</h4>
+      <h3 data-i18n="footer.company">Company</h3>
       <a href="#services" data-i18n="nav.services">Services</a>
       <a href="#checklist" data-i18n="nav.checklist">Checklist</a>
       <a href="#faq" data-i18n="nav.faq">FAQ</a>
       <a href="/account/" data-i18n="nav.account">My account</a>
     </div>
     <div class="footer-col" id="footerServiceAreas">
-      <h4 data-i18n="footer.serviceAreas">Service areas</h4>
+      <h3 data-i18n="footer.serviceAreas">Service areas</h3>
     </div>
     <div class="footer-col" id="contact">
-      <h4 data-i18n="footer.contact">Contact</h4>
+      <h3 data-i18n="footer.contact">Contact</h3>
       <a href="tel:+61390000000" id="footerPhoneLink">📞 (03) 9000 0000</a>
       <a href="mailto:hello@spotlessexit.com.au" id="footerEmailLink">✉️ hello@spotlessexit.com.au</a>
       <span id="footerHours">🕐</span>
@@ -449,7 +468,7 @@
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top" hidden>↑</button>
 
-<script src="js/i18n.js"></script>
-<script src="js/app.js"></script>
+<script src="js/i18n.js?v={{ASSET_VERSION}}" defer></script>
+<script src="js/app.js?v={{ASSET_VERSION}}" defer></script>
 </body>
 </html>

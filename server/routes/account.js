@@ -13,13 +13,14 @@ import { friendDiscountLabel } from '../referrals.js';
 import { sendMagicLink } from '../email.js';
 import { getCancellationInfo, cancelSubscription } from '../subscriptions.js';
 import { requireCustomerSession, SESSION_COOKIE_NAME } from '../middleware/requireCustomerSession.js';
+import { resolveBaseUrl } from '../baseUrl.js';
 
 const router = Router();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isProd = process.env.NODE_ENV === 'production';
 
 function baseUrl(req) {
-  return process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  return resolveBaseUrl(req);
 }
 
 // Deliberately the exact same response whether or not this email has any

@@ -3,6 +3,7 @@
 // been sent, instead of throwing — SMS is a nice-to-have follow-up, never a
 // dependency of the booking/payment flow itself.
 import { config } from './config.js';
+import { resolveBaseUrl } from './baseUrl.js';
 
 function getCredentials() {
   const username = process.env.CLICKSEND_USERNAME;
@@ -58,7 +59,7 @@ export function reviewRequestMessage(booking) {
   const { business } = config;
   const isEs = booking.language === 'es';
   const reviewUrl = business.googleReviewUrl;
-  const proofUrl = `${process.env.PUBLIC_BASE_URL || ''}/proof/${booking.id}${isEs ? '?lang=es' : ''}`;
+  const proofUrl = `${resolveBaseUrl()}/proof/${booking.id}${isEs ? '?lang=es' : ''}`;
   const firstName = booking.full_name.split(' ')[0];
   return isEs
     ? `Hola ${firstName}, ¡tu limpieza está lista! Mira tus fotos antes/después: ${proofUrl}. Si quedaste conforme, una reseña rápida en Google nos ayuda mucho: ${reviewUrl}`
