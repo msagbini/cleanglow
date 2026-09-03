@@ -101,7 +101,7 @@ function buildHeroCardRows({ business, booking }) {
   ].join('');
 }
 
-export function renderIndexHtml(baseUrl, csrfToken = '') {
+export function renderIndexHtml(baseUrl, csrfToken = '', gaMeasurementId = '') {
   const { business } = config;
   const iconHref = business.logoUrl || FALLBACK_ICON_HREF(business);
   const ogImage = business.ogImageUrl ? `${baseUrl}${business.ogImageUrl}` : '';
@@ -145,6 +145,11 @@ export function renderIndexHtml(baseUrl, csrfToken = '') {
     // Double-submit CSRF token — the client reads this back out of the
     // meta tag and echoes it in X-CSRF-Token on every write request.
     '{{CSRF_TOKEN}}': escapeHtml(csrfToken),
+    // Emitted only when analytics is configured — its absence is what makes
+    // public/js/analytics.js inert (no gtag.js, no consent banner).
+    '{{ANALYTICS_META}}': gaMeasurementId
+      ? `<meta name="ga-measurement-id" content="${escapeHtml(gaMeasurementId)}">`
+      : '',
   };
   return Object.entries(replacements).reduce(
     // The replacement is passed as a function, not a string: a string
@@ -158,4 +163,24 @@ export function renderIndexHtml(baseUrl, csrfToken = '') {
 
 function escapeHtml(str) {
   return String(str).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+}
+
+// success.html carries no business copy — only the two tokens every page
+// needs (the analytics meta tag and the asset-version cache buster). It used
+// to be served straight off disk by express.static, which would have shipped
+// the literal "{{ANALYTICS_META}}" text to the browser once tokens were
+// added to it.
+const successTemplate = fs.readFileSync(path.join(__dirname, '..', 'public', 'success.html'), 'utf8');
+
+export function renderSuccessHtml(gaMeasurementId = '') {
+  const replacements = {
+    '{{ANALYTICS_META}}': gaMeasurementId
+      ? `<meta name="ga-measurement-id" content="${escapeHtml(gaMeasurementId)}">`
+      : '',
+    '{{ASSET_VERSION}}': ASSET_VERSION,
+  };
+  return Object.entries(replacements).reduce(
+    (html, [token, value]) => html.replaceAll(token, () => value),
+    successTemplate
+  );
 }

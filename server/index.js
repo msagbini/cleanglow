@@ -16,7 +16,7 @@ import leadsRouter from './routes/leads.js';
 import { adminAuth } from './middleware/adminAuth.js';
 import { requireSameOrigin } from './middleware/requireSameOrigin.js';
 import { requireCsrf, issueCsrfToken } from './middleware/csrf.js';
-import { renderIndexHtml } from './renderIndex.js';
+import { renderIndexHtml, renderSuccessHtml } from './renderIndex.js';
 import { resolveBaseUrl, describeBaseUrlConfig } from './baseUrl.js';
 import { getSuburbBySlug, renderSuburbHtml } from './suburbs.js';
 import { startAbandonedLeadSweep } from './leadSweep.js';
@@ -35,16 +35,42 @@ const app = express();
 // exactly one hop (the platform's own edge), not an arbitrary client-supplied chain.
 app.set('trust proxy', 1);
 
+// Express 4 parses query strings with `qs`, which carries two open moderate
+// advisories (an array-limit bypass and an attacker-controlled denial of
+// service) with no fix available inside express 4.x. Every query parameter
+// this app reads is a flat scalar — date, lang, phase, token, status, v —
+// so none of qs's nested/bracket syntax is needed, and `express.urlencoded`
+// (the other qs entry point) isn't used at all. Switching to Node's own
+// querystring parser takes qs off the request path entirely, which fixes
+// the exposure rather than waiting on a dependency bump.
+app.set('query parser', 'simple');
+
 app.use(compression());
+
+// Analytics is opt-in at the deployment level: with no GA_MEASUREMENT_ID the
+// page never gets the meta tag, never loads gtag.js, never shows a consent
+// banner — and the CSP below stays at 'self' only. Google's hosts are added
+// to the policy exclusively when analytics is actually configured, so an
+// unconfigured deploy keeps the tightest possible policy.
+const GA_MEASUREMENT_ID = /^G-[A-Z0-9]+$/i.test(process.env.GA_MEASUREMENT_ID || '')
+  ? process.env.GA_MEASUREMENT_ID.trim()
+  : '';
+const analyticsScriptSrc = GA_MEASUREMENT_ID ? ['https://www.googletagmanager.com'] : [];
+const analyticsConnectSrc = GA_MEASUREMENT_ID
+  ? ['https://www.google-analytics.com', 'https://*.google-analytics.com', 'https://*.analytics.google.com', 'https://www.googletagmanager.com']
+  : [];
+const analyticsImgSrc = GA_MEASUREMENT_ID
+  ? ['https://www.google-analytics.com', 'https://*.google-analytics.com', 'https://www.googletagmanager.com']
+  : [];
 
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", ...analyticsScriptSrc],
       styleSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'blob:'],
-      connectSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'blob:', ...analyticsImgSrc],
+      connectSrc: ["'self'", ...analyticsConnectSrc],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
@@ -150,7 +176,7 @@ app.get(['/', '/index.html'], (req, res) => {
   // `no-store`) still allows the back/forward cache, so returning to the
   // booking form keeps the form state the visitor already filled in.
   res.set('Cache-Control', 'private, no-cache, must-revalidate');
-  res.type('html').send(renderIndexHtml(baseUrl, csrfToken));
+  res.type('html').send(renderIndexHtml(baseUrl, csrfToken, GA_MEASUREMENT_ID));
 });
 
 // Lets the client recover from an expired token without losing the booking
@@ -161,6 +187,14 @@ app.get('/api/csrf', (req, res) => {
   res.json({ token: issueCsrfToken(req, res) });
 });
 
+// Rendered rather than served from disk so its {{ANALYTICS_META}} and
+// {{ASSET_VERSION}} tokens get substituted — express.static below would
+// otherwise ship the raw template.
+app.get('/success.html', (req, res) => {
+  res.set('Cache-Control', 'private, no-cache, must-revalidate');
+  res.type('html').send(renderSuccessHtml(GA_MEASUREMENT_ID));
+});
+
 // Suburb landing pages — one per configured service area, e.g.
 // /end-of-lease-cleaning-st-kilda. The path prefix doesn't match any real
 // static file, so this is safe to register ahead of express.static.
@@ -168,7 +202,7 @@ app.get('/end-of-lease-cleaning-:slug', (req, res, next) => {
   const suburb = getSuburbBySlug(req.params.slug);
   if (!suburb) return next();
   const baseUrl = resolveBaseUrl(req);
-  res.type('html').send(renderSuburbHtml(suburb, baseUrl));
+  res.type('html').send(renderSuburbHtml(suburb, baseUrl, GA_MEASUREMENT_ID));
 });
 
 app.use(seoRouter);
@@ -267,6 +301,11 @@ const server = app.listen(port, () => {
   }
   if (!process.env.ADMIN_USER || !process.env.ADMIN_PASS) {
     console.warn('⚠️  ADMIN_USER/ADMIN_PASS not set — the /admin panel is disabled until you configure them in .env');
+  }
+  if (!GA_MEASUREMENT_ID) {
+    console.warn('⚠️  GA_MEASUREMENT_ID not set — analytics and the cookie-consent banner are disabled (the site then sets no non-essential storage at all).');
+  } else {
+    console.log(`Analytics enabled (${GA_MEASUREMENT_ID}) — loaded only after explicit visitor consent.`);
   }
   if (!process.env.CLICKSEND_USERNAME || !process.env.CLICKSEND_API_KEY) {
     console.warn('⚠️  CLICKSEND_USERNAME/CLICKSEND_API_KEY not set — abandoned-booking SMS reminders are disabled (logged instead) until you configure them.');

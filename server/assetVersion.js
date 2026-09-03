@@ -18,7 +18,10 @@ const publicDir = path.join(__dirname, '..', 'public');
 const VERSIONED_FILES = [
   'css/styles.css',
   'css/suburb.css',
+  'css/success.css',
+  'js/success.js',
   'js/i18n.js',
+  'js/analytics.js',
   'js/app.js',
   'js/reload-scroll-fix.js',
 ];

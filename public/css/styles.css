@@ -718,3 +718,61 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
     scroll-behavior: auto !important;
   }
 }
+
+/* ============ Cookie consent banner ============
+   position: fixed means it occupies no layout space, so appearing on load
+   costs zero cumulative layout shift. Accept and Reject are deliberately the
+   same size and weight apart from colour: under GDPR, refusing has to be as
+   easy as accepting, so a greyed-out or hidden "reject" would not comply. */
+.consent-banner {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -6px 24px rgba(16, 40, 34, 0.12);
+  padding: 16px 0;
+}
+.consent-inner {
+  width: min(var(--max-width), 100% - 32px); margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+}
+.consent-copy h2 { font-size: .95rem; margin: 0 0 4px; }
+.consent-copy p { font-size: .85rem; color: var(--color-body); margin: 0; max-width: 68ch; }
+.consent-copy a { color: var(--color-primary-text); font-weight: 600; }
+.consent-actions { display: flex; gap: 10px; flex-shrink: 0; }
+.consent-actions .btn { min-width: 104px; justify-content: center; }
+@media (max-width: 700px) {
+  .consent-inner { flex-direction: column; align-items: stretch; gap: 14px; }
+  .consent-actions .btn { flex: 1; }
+}
+
+/* Footer entry point for changing a consent decision later. Hidden by
+   analytics.js when no measurement ID is configured, since there would be
+   nothing to manage. */
+#manageCookiesLink[hidden] { display: none; }
+
+/* ============ Trust badges (final CTA) ============ */
+.trust-badges {
+  list-style: none; margin: 26px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 26px;
+}
+.trust-badges li {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .85rem; font-weight: 600; color: #fff;
+}
+/* Fixed box so the slot is reserved before app.js supplies the icon —
+   same reasoning as .hero-trust-icon. */
+.trust-badge-icon { display: inline-flex; width: 17px; height: 17px; flex-shrink: 0; }
+.trust-badge-icon svg { width: 17px; height: 17px; }
+
+/* ============ Reviews (hidden until real ones exist) ============ */
+.reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.review-card {
+  margin: 0; padding: 24px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
+}
+.review-stars { color: var(--color-accent); font-size: 1rem; letter-spacing: 2px; margin-bottom: 10px; }
+.review-card blockquote { margin: 0 0 14px; font-size: .95rem; color: var(--color-body); line-height: 1.6; }
+.review-card figcaption { font-size: .85rem; font-weight: 600; color: var(--color-ink); }
+.reviews-source { margin: 20px 0 0; text-align: center; font-size: .85rem; color: var(--color-muted); }
+@media (max-width: 900px) { .reviews-grid { grid-template-columns: 1fr; } }

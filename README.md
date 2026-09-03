@@ -45,6 +45,7 @@ STRIPE_WEBHOOK_SECRET=whsec_... # ver sección de webhooks más abajo
 PUBLIC_BASE_URL=http://localhost:4242
 ADMIN_USER=admin                # panel en /admin — déjalo vacío para desactivarlo
 ADMIN_PASS=elige-una-contraseña-fuerte
+GA_MEASUREMENT_ID=              # opcional — ver "Analítica y cookies" más abajo
 ```
 
 Arranca el servidor:
@@ -55,6 +56,48 @@ npm start        # o: npm run dev  (reinicia solo al guardar cambios)
 
 Abre `http://localhost:4242`. Sin `STRIPE_SECRET_KEY` la web funciona igual, pero al
 confirmar una reserva el servidor devuelve un error claro en vez de iniciar el pago.
+
+## Analítica y cookies
+
+La analítica está **desactivada por defecto**. Sin `GA_MEASUREMENT_ID` el sitio no
+carga ningún script de terceros, no guarda nada en el navegador salvo las dos
+cookies estrictamente necesarias (el token CSRF del formulario y, si inicias
+sesión, la de `/account`), no muestra banner de cookies y mantiene la
+Content-Security-Policy más estricta posible.
+
+Al definir `GA_MEASUREMENT_ID` (formato `G-XXXXXXXXXX`) se activan tres cosas a la
+vez, por diseño:
+
+1. Aparece un banner de consentimiento con **Aceptar** y **Rechazar** igual de
+   prominentes. `gtag.js` **no se descarga hasta que alguien pulsa Aceptar** — ni
+   siquiera con Consent Mode en `denied`, porque eso seguiría enviando pings a
+   Google sin permiso. La decisión se guarda en `localStorage`, no en una cookie,
+   para que rechazar no deje rastro alguno.
+2. La política de cookies y la de privacidad pasan a describir la analítica
+   automáticamente. Ese texto se deriva de la misma señal, así que no puede
+   quedarse desfasado respecto a lo que el sitio hace de verdad.
+3. La CSP añade los dominios de Google, y sólo entonces.
+
+Quien acepte puede cambiar de opinión desde **Cookie settings** en el pie.
+
+Eventos que se envían (sólo con consentimiento): `booking_step` en cada paso del
+formulario, `booking_created`, `begin_checkout` y `purchase` en la página de
+confirmación.
+
+## Reseñas
+
+`config/business.json` incluye `business.reviews`, vacío de fábrica. Mientras esté
+vacío la sección de reseñas permanece oculta y **no** se emite structured data de
+valoraciones. Al añadir reseñas reales la sección aparece sola, con su marcado
+`Review`/`AggregateRating`.
+
+No pongas reseñas inventadas: publicarlas como si fueran reales es conducta
+engañosa bajo la Australian Consumer Law y viola las políticas de datos
+estructurados de Google. Para conseguir reseñas de verdad, rellena
+`business.googleReviewUrl` con el enlace de tu ficha de Google Business: el SMS
+que ya se envía tras cada limpieza terminada (`server/sms.js`,
+`reviewRequestMessage`) está esperando exactamente ese valor para empezar a
+pedirlas.
 
 ## Adaptar el sitio a otro negocio
 

@@ -254,6 +254,84 @@
     `;
   }
 
+  // Trust signals at the point of decision. Nothing here is a new claim:
+  // each item restates a fact held in config/business.json and already
+  // stated elsewhere on the page — surfaced next to the CTA because that is
+  // where a visitor decides whether to hand over their address and card.
+  function renderTrustBadges(cfg) {
+    const el = document.getElementById('trustBadges');
+    if (!el) return;
+    const { business } = cfg;
+    const recleanDays = Math.round((business.recleanWindowHours ?? 168) / 24);
+    const badges = [
+      { icon: 'shield', text: CGI18N.t('badge.stripe', 'Secure payment via Stripe') },
+      business.insuranceAmount
+        ? { icon: 'badge', text: CGI18N.tf('badge.insured', a => `${a} public liability cover`, business.insuranceAmount) }
+        : null,
+      { icon: 'refresh', text: CGI18N.tf('badge.reclean', d => `Free re-clean within ${d} days`, recleanDays) },
+      business.abn ? { icon: 'badge', text: CGI18N.tf('badge.abn', a => `ABN ${a}`, business.abn) } : null,
+    ].filter(Boolean);
+    el.innerHTML = badges
+      .map(b => `<li><span class="trust-badge-icon">${ICONS[b.icon] || ''}</span><span>${b.text}</span></li>`)
+      .join('');
+  }
+
+  // Renders only genuine reviews supplied in config/business.json. The list
+  // ships empty, so the whole section stays hidden until there are real ones
+  // — see the comment above #reviews in index.html for why fabricated
+  // testimonials are not an acceptable placeholder here.
+  function renderReviews(cfg) {
+    const section = document.getElementById('reviews');
+    const grid = document.getElementById('reviewsGrid');
+    if (!section || !grid) return;
+    const reviews = Array.isArray(cfg.business.reviews) ? cfg.business.reviews.filter(r => r && r.text && r.author) : [];
+    if (!reviews.length) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+    const stars = n => '★'.repeat(Math.round(n)) + '☆'.repeat(Math.max(0, 5 - Math.round(n)));
+    grid.innerHTML = reviews.map(r => `
+      <figure class="review-card reveal">
+        <div class="review-stars" aria-label="${Number(r.rating) || 5} out of 5">${stars(Number(r.rating) || 5)}</div>
+        <blockquote>${escapeHtml(r.text)}</blockquote>
+        <figcaption>${escapeHtml(r.author)}${r.suburb ? ` · ${escapeHtml(r.suburb)}` : ''}</figcaption>
+      </figure>`).join('');
+
+    const avg = reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviews.length;
+    const source = document.getElementById('reviewsSource');
+    if (source) {
+      source.textContent = CGI18N.tf('reviews.summary',
+        (a, n) => `${a} average from ${n} verified customer ${n === 1 ? 'review' : 'reviews'}.`,
+        avg.toFixed(1), reviews.length);
+    }
+
+    // Structured data is emitted only alongside reviews that are actually on
+    // the page — marking up ratings with no visible reviews behind them is a
+    // Google structured-data policy violation.
+    const ld = document.createElement('script');
+    ld.type = 'application/ld+json';
+    ld.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'HousekeepingService',
+      name: cfg.business.name,
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: avg.toFixed(1),
+        reviewCount: String(reviews.length),
+        bestRating: '5',
+      },
+      review: reviews.map(r => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: r.author },
+        reviewRating: { '@type': 'Rating', ratingValue: String(Number(r.rating) || 5), bestRating: '5' },
+        reviewBody: r.text,
+        ...(r.date ? { datePublished: r.date } : {}),
+      })),
+    });
+    document.head.appendChild(ld);
+  }
+
   function renderTrustStrip(cfg) {
     document.getElementById('trustStrip').innerHTML = cfg.business.stats
       .map(s => `<div><strong>${s.value}</strong><span>${s.label}</span></div>`).join('');
@@ -536,9 +614,17 @@
     legalContent.privacy.body = `<p>Your personal data is used only to manage your booking and communicate with you about the service.</p>
       <h4>Data we collect</h4><p>Name, email, phone number, the address of the property to be cleaned, and any before/after photos submitted for the job. If you choose to notify a property manager, we also collect their email address for that one purpose.</p>
       <h4>How we use it</h4><p>We don't share your data with third parties other than the cleaning team assigned to your service and, only if you choose to provide one, the property manager/agent email you give us — used solely to send them proof that the agreed clean was completed.</p>
+      ${window.CGAnalytics?.isConfigured?.() ? '<h4>Analytics</h4><p>If you accept analytics cookies, Google Analytics receives anonymised usage data about your visit (pages viewed, booking steps reached) as a processor on our behalf. It never receives your name, address, email or phone number, and it is not loaded at all unless you accept.</p>' : ''}
       <h4>Your rights</h4><p>You can request access to, correction of, or deletion of your data by emailing ${business.email}.</p>`;
-    legalContent.cookies.body = `<p>This site doesn't use tracking, advertising or analytics cookies.</p>
-      <h4>What we do use</h4><p>A single cookie is set only if you log into your account at /account — it keeps you signed in for up to 30 days so you don't have to request a new login link every visit. If you never log in, no cookie is stored in your browser between visits.</p>
+    const analyticsEnabled = window.CGAnalytics?.isConfigured?.() ?? false;
+    const analyticsSection = analyticsEnabled
+      ? `<h4>Analytics cookies (optional)</h4>
+         <p>If — and only if — you press "Accept" on the cookie banner, we load Google Analytics, which sets cookies to measure how many people visit, which pages they read and where they drop out of the booking form. We use that solely to improve the site. Advertising and personalisation signals are switched off, so this data is not used to target ads at you.</p>
+         <p>Nothing is loaded and no analytics cookie is set before you accept: if you decline, or simply ignore the banner, the Google Analytics script is never fetched at all. You can change your mind at any time from <a href="#" id="manageCookiesInlineLink">cookie settings</a> at the bottom of the page.</p>`
+      : `<h4>Analytics</h4><p>This site uses no tracking, advertising or analytics cookies.</p>`;
+    legalContent.cookies.body = `<h4>Strictly necessary</h4>
+      <p>Two cookies keep the site working and are set without consent, as they carry no tracking: a security token that protects the booking form against cross-site request forgery, and — only if you log into your account at /account — a session cookie that keeps you signed in for up to 30 days.</p>
+      ${analyticsSection}
       <h4>Stripe</h4><p>When you reach the payment screen, our payment processor Stripe may set its own cookies there for fraud prevention. That happens on Stripe's own site, under their <a href="https://stripe.com/privacy" target="_blank" rel="noopener">privacy policy</a>, not ours.</p>`;
   }
 
@@ -687,7 +773,16 @@
       btnNext.hidden = false;
       btnSubmit.hidden = true;
     }
+    const advanced = n > state.currentStep;
     state.currentStep = n;
+    // Only forward moves are reported: going back to correct a field isn't
+    // funnel progress, and counting it would inflate every step's total.
+    if (advanced) {
+      window.CGAnalytics?.track('booking_step', {
+        step: n,
+        step_name: ['property', 'extras', 'date', 'contact', 'review'][n - 1] || String(n),
+      });
+    }
     if (scroll) document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -1042,6 +1137,12 @@
       const bookingData = await bookingRes.json();
       if (!bookingRes.ok) throw new Error(bookingData.error || 'Could not create the booking');
 
+      window.CGAnalytics?.track('booking_created', {
+        currency: (state.config.business.currencyCode || 'AUD').toUpperCase(),
+        value: bookingData.amount,
+        transaction_id: bookingData.bookingId,
+      });
+
       await uploadPropertyPhotos(bookingData.bookingId);
 
       const sessionRes = await csrfFetch('/api/checkout-session', {
@@ -1051,6 +1152,14 @@
       });
       const sessionData = await sessionRes.json();
       if (!sessionRes.ok) throw new Error(sessionData.error || 'Could not start the payment');
+
+      // GA4's standard funnel event, fired immediately before handing the
+      // visitor to Stripe — the last thing we control before leaving the site.
+      window.CGAnalytics?.track('begin_checkout', {
+        currency: (state.config.business.currencyCode || 'AUD').toUpperCase(),
+        value: bookingData.amount,
+        transaction_id: bookingData.bookingId,
+      });
 
       window.location.href = sessionData.url;
     } catch (err) {
@@ -1109,6 +1218,12 @@
   // [data-modal] links — e.g. the guarantee footnotes — are injected later,
   // once /api/config has loaded.
   document.addEventListener('click', e => {
+    if (e.target.closest('#manageCookiesInlineLink')) {
+      e.preventDefault();
+      closeModal('legalModal');
+      window.CGAnalytics?.openBanner?.();
+      return;
+    }
     const link = e.target.closest('[data-modal]');
     if (!link) return;
     e.preventDefault();
@@ -1234,6 +1349,8 @@
     renderPricingTiers(cfg);
     renderBookingWizard(cfg);
     renderLegalContent(cfg);
+    renderTrustBadges(cfg);
+    renderReviews(cfg);
     bindPillGroups();
 
     // Must run after renderBookingWizard, which is what populates the

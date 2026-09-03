@@ -42,6 +42,17 @@
     const sizeLabel = sizeOption ? sizeOption.label : data.bedrooms;
 
     if (data.paymentStatus === 'paid') {
+      // The conversion event. Fired only on a confirmed-paid session, so it
+      // counts real revenue rather than checkout attempts. The booking id is
+      // the transaction_id, which makes GA4 de-duplicate a refresh of this
+      // page instead of counting the same sale twice.
+      window.CGAnalytics?.track('purchase', {
+        transaction_id: data.id,
+        currency: (cfg.business.currencyCode || 'AUD').toUpperCase(),
+        value: data.amount,
+        items: [{ item_id: data.bedrooms, item_name: `${data.propertyType} clean`, price: data.amount, quantity: 1 }],
+      });
+
       const gstRate = cfg.business.gstRate ?? 0.1;
       const gstAmount = cfg.business.gstRegistered ? data.amount - data.amount / (1 + gstRate) : 0;
       const frequencyOption = cfg.booking.frequencyOptions?.find(f => f.value === data.frequency);

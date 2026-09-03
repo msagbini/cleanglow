@@ -32,7 +32,7 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 }
 
-export function renderSuburbHtml(suburb, baseUrl) {
+export function renderSuburbHtml(suburb, baseUrl, gaMeasurementId = '') {
   const { business } = config;
   const canonicalUrl = `${baseUrl}/end-of-lease-cleaning-${suburb.slug}`;
   const title = `End of Lease Cleaning in ${suburb.name} | ${business.name}`;
@@ -105,6 +105,9 @@ export function renderSuburbHtml(suburb, baseUrl) {
     '{{SITE_DESCRIPTION}}': escapeHtml(description),
     '{{CANONICAL_URL}}': escapeHtml(canonicalUrl),
     '{{ASSET_VERSION}}': ASSET_VERSION,
+    '{{ANALYTICS_META}}': gaMeasurementId
+      ? `<meta name="ga-measurement-id" content="${escapeHtml(gaMeasurementId)}">`
+      : '',
     '{{SITE_NAME}}': escapeHtml(business.name),
     '{{SITE_ICON_HREF}}': escapeHtml(business.logoUrl || '/img/logo-mark.svg'),
     '{{SITE_OG_IMAGE}}': escapeHtml(ogImage),

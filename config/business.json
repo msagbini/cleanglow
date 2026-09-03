@@ -18,6 +18,8 @@
     "serviceAreas": ["Melbourne CBD", "St Kilda", "Richmond", "Fitzroy", "Brunswick", "South Yarra"],
     "social": { "instagram": "#", "facebook": "#", "linkedin": "#" },
     "googleReviewUrl": "",
+    "_reviewsNote": "Real customer reviews only. Each entry: { author, suburb, rating (1-5), text, date (YYYY-MM-DD) }. Leave empty until genuine reviews exist — the section stays hidden, and its Review/AggregateRating structured data is only emitted when this is non-empty. Publishing invented reviews as genuine is misleading conduct under the Australian Consumer Law and breaches Google's structured-data policy.",
+    "reviews": [],
     "currency": "aud",
     "currencySymbol": "$",
     "currencyCode": "AUD",

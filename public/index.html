@@ -4,6 +4,7 @@
 <script src="js/reload-scroll-fix.js?v={{ASSET_VERSION}}"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{ANALYTICS_META}}
 <title>{{SITE_TITLE}}</title>
 <meta name="description" content="{{SITE_DESCRIPTION}}">
 <link rel="canonical" href="{{SITE_URL}}">
@@ -22,6 +23,8 @@
 <meta name="twitter:title" content="{{SITE_TITLE}}">
 <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
 <link rel="icon" href="{{SITE_ICON_HREF}}">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:image" content="{{SITE_OG_IMAGE}}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -354,16 +357,29 @@
 </section>
 
 <!-- ===================== REVIEWS =====================
-     Deliberately removed: this section previously showed three fabricated
-     testimonials (invented names, suburbs and quotes) presented as real
-     customer reviews. Displaying made-up reviews as genuine is misleading
-     under Australian Consumer Law, not just a marketing nicety — so this
-     stays out until there are real ones to show.
-     Once the Google Business Profile review link is live (see the setup
-     guide), a "Reviews" section pulling real reviews can go back here —
-     the review-request SMS sent after every completed job (see
-     server/sms.js reviewRequestMessage) already exists and is what will
-     generate them. -->
+     This section previously showed three fabricated testimonials (invented
+     names, suburbs and quotes) presented as real customer reviews, and was
+     removed: publishing made-up reviews as genuine is misleading conduct
+     under the Australian Consumer Law, not just a marketing nicety.
+
+     What replaces it is the plumbing, not the content. renderReviews() in
+     js/app.js renders this section from config.business.reviews, which ships
+     empty — so the section stays invisible until real reviews exist, and
+     appears (with Review/AggregateRating structured data) the moment they
+     are added. The review-request SMS sent after every completed job
+     (server/sms.js reviewRequestMessage) is what generates them; it is gated
+     on business.googleReviewUrl, which is still blank. Setting that one
+     value is what starts the flow. -->
+<section id="reviews" class="section" hidden>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow" data-i18n="section.reviews.eyebrow">Reviews</span>
+      <h2 data-i18n="section.reviews.title">What our customers say</h2>
+    </div>
+    <div class="reviews-grid" id="reviewsGrid"></div>
+    <p class="reviews-source" id="reviewsSource"></p>
+  </div>
+</section>
 
 <!-- ===================== FAQ ===================== -->
 <section id="faq" class="section">
@@ -411,6 +427,12 @@
     <h2 data-i18n="section.cta.title">Ready to hand back the keys with confidence?</h2>
     <p data-i18n="section.cta.desc">Book now to lock in your preferred time slot.</p>
     <a href="#booking" class="btn btn-primary btn-lg" data-i18n="section.cta.button">Book my end of lease clean</a>
+    <!-- Filled by renderTrustBadges() in js/app.js. Every badge restates a
+         fact already asserted elsewhere on this page and held in
+         config/business.json (insurance cover, ABN, re-clean window, Stripe
+         as the payment processor) — surfaced at the point of decision rather
+         than being a new claim. -->
+    <ul class="trust-badges" id="trustBadges" aria-label="Payment and service guarantees"></ul>
   </div>
 </section>
 
@@ -447,6 +469,7 @@
       <a href="#" data-modal="privacy" data-i18n="footer.privacy">Privacy</a>
       <a href="#" data-modal="terms" data-i18n="footer.terms">Terms</a>
       <a href="#" data-modal="cookies" data-i18n="footer.cookies">Cookies</a>
+      <a href="#" id="manageCookiesLink" hidden>Cookie settings</a>
     </div>
   </div>
 </footer>
@@ -468,6 +491,7 @@
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top" hidden>↑</button>
 
+<script src="js/analytics.js?v={{ASSET_VERSION}}" defer></script>
 <script src="js/i18n.js?v={{ASSET_VERSION}}" defer></script>
 <script src="js/app.js?v={{ASSET_VERSION}}" defer></script>
 </body>
