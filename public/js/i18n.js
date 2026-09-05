@@ -217,6 +217,7 @@ window.CGI18N = (() => {
     'faq.a7': 'Damos un breve período de gracia si vas a llegar tarde. Retrasos más largos o falta total de acceso pueden generar una tarifa de espera o, pasado cierto punto, una tarifa de bloqueo — consulta nuestros términos y condiciones para los montos exactos. Elegir una caja de seguridad/código en vez de estar presente evita este riesgo por completo.',
 
     // Footer
+    'footer.businessHours': 'Horario',
     'footer.company': 'Empresa',
     'footer.serviceAreas': 'Áreas de servicio',
     'footer.contact': 'Contacto',

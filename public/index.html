@@ -19,6 +19,7 @@
 <meta property="og:description" content="{{SITE_DESCRIPTION}}">
 <meta property="og:url" content="{{SITE_URL}}">
 <meta property="og:site_name" content="{{SITE_NAME}}">
+<meta property="og:locale" content="en_AU">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{SITE_TITLE}}">
 <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
@@ -40,21 +41,7 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-800.woff2" crossorigin>
 <link rel="stylesheet" href="css/styles.css?v={{ASSET_VERSION}}">
 <script type="application/ld+json">{{LOCAL_BUSINESS_JSONLD}}</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    { "@type": "Question", "name": "What happens if my landlord isn't satisfied?", "acceptedAnswer": { "@type": "Answer", "text": "We offer a free re-clean guarantee within 7 days of the service if any checklist item doesn't meet your landlord's or agent's standards." } },
-    { "@type": "Question", "name": "Do I need to be there during the clean?", "acceptedAnswer": { "@type": "Answer", "text": "It's not required. You can provide a lockbox or key code instead during booking." } },
-    { "@type": "Question", "name": "Do you bring your own products and equipment?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity." } },
-    { "@type": "Question", "name": "How long does the clean take?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours." } },
-    { "@type": "Question", "name": "Can I cancel or change the date?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment." } },
-    { "@type": "Question", "name": "Does the price include GST?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees." } },
-    { "@type": "Question", "name": "What if I'm running late or can't be there?", "acceptedAnswer": { "@type": "Answer", "text": "We allow a short grace period if you're running late. Extended delays or no access at all can incur a waiting fee or, past a certain point, a lockout fee — see our terms & conditions for the exact amounts. Choosing a lockbox instead of being present avoids this risk entirely." } }
-  ]
-}
-</script>
+{{FAQ_JSONLD}}
 </head>
 <body>
 
@@ -76,8 +63,8 @@
     </nav>
 
     <div class="header-actions">
-      <a href="tel:+61390000000" class="phone-link" id="headerPhoneLink">📞 (03) 9000 0000</a>
-      <a href="tel:+61390000000" class="call-icon-btn" id="headerCallIcon" data-i18n-aria-label="header.callUs" aria-label="Call us">📞</a>
+      <a href="tel:{{PHONE_HREF}}" class="phone-link" id="headerPhoneLink">📞 {{PHONE_DISPLAY}}</a>
+      <a href="tel:{{PHONE_HREF}}" class="call-icon-btn" id="headerCallIcon" data-i18n-aria-label="header.callUs" aria-label="Call us">📞</a>
       <a href="#booking" class="btn btn-primary btn-sm" data-i18n="header.bookNow">Book now</a>
       <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
         <span></span><span></span><span></span>
@@ -150,7 +137,7 @@
       <h2 data-i18n="section.pricing.title">Clear pricing, no surprises</h2>
       <p data-i18n="section.pricing.desc">The final price depends on the size of the property and the extras you choose. Get your exact quote in the booking form below.</p>
     </div>
-    <div class="pricing-grid" id="pricingGrid"></div>
+    <div class="pricing-grid" id="pricingGrid">{{PRICING_CARDS_HTML}}</div>
   </div>
 </section>
 
@@ -388,35 +375,7 @@
       <span class="eyebrow" data-i18n="section.faq.eyebrow">Frequently asked questions</span>
       <h2 data-i18n="section.faq.title">Everything you need to know</h2>
     </div>
-    <div class="accordion" id="faqAccordion">
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q1">What happens if my landlord isn't satisfied?</button>
-        <div class="accordion-panel"><p id="faqA1">We offer a free re-clean guarantee within <span id="faqRecleanWindowHours">72 hours</span> of the service if any checklist item doesn't meet your landlord's or agent's standards.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q2">Do I need to be there during the clean?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a2">It's not required. You can provide a lockbox or key code instead during booking.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q3">Do you bring your own products and equipment?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a3">Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q4">How long does the clean take?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a4">It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q5">Can I cancel or change the date?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a5">Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q6">Does the price include GST?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a6">Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q7">What if I'm running late or can't be there?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a7">We allow a short grace period if you're running late. Extended delays or no access at all can incur a waiting fee or, past a certain point, a lockout fee — see our terms & conditions for the exact amounts. Choosing a lockbox/key code instead of being present avoids this risk entirely.</p></div>
-      </div>
+    <div class="accordion" id="faqAccordion">{{FAQ_HTML}}
     </div>
   </div>
 </section>
@@ -458,9 +417,10 @@
     </div>
     <div class="footer-col" id="contact">
       <h3 data-i18n="footer.contact">Contact</h3>
-      <a href="tel:+61390000000" id="footerPhoneLink">📞 (03) 9000 0000</a>
-      <a href="mailto:hello@spotlessexit.com.au" id="footerEmailLink">✉️ hello@spotlessexit.com.au</a>
-      <span id="footerHours">🕐</span>
+      <a href="tel:{{PHONE_HREF}}" id="footerPhoneLink">📞 {{PHONE_DISPLAY}}</a>
+      <a href="mailto:{{EMAIL}}" id="footerEmailLink">✉️ {{EMAIL}}</a>
+      <span id="footerHours">🕐 Business hours: {{HOURS_TEXT}}</span>
+      <span id="footerAddress">📍 Servicing {{ADDRESS_TEXT}}</span>
     </div>
   </div>
   <div class="container footer-bottom">

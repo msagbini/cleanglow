@@ -12,11 +12,17 @@
 <link rel="alternate" hreflang="x-default" href="{{CANONICAL_URL}}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{{SITE_NAME}}">
+<meta property="og:locale" content="en_AU">
 <meta property="og:title" content="{{SITE_TITLE}}">
 <meta property="og:description" content="{{SITE_DESCRIPTION}}">
 <meta property="og:url" content="{{CANONICAL_URL}}">
 <meta property="og:image" content="{{SITE_OG_IMAGE}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{SITE_TITLE}}">
+<meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
+<meta name="twitter:image" content="{{SITE_OG_IMAGE}}">
 <link rel="icon" href="{{SITE_ICON_HREF}}">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -44,7 +50,7 @@
   </div>
 </header>
 
-<main>
+<main id="main">
   <!-- Visible counterpart to the BreadcrumbList in the page's JSON-LD —
        Google expects the markup to reflect a trail the visitor can actually
        see and use, and it gives these pages a real link back to the hub. -->
@@ -64,6 +70,7 @@
         <span class="eyebrow">END OF LEASE CLEANING · {{SUBURB_NAME}}</span>
         <h1>End of lease cleaning in <span class="accent">{{SUBURB_NAME}}</span>, done right the first time.</h1>
         <p>Moving out of a rental in {{SUBURB_NAME}}? Our fully insured cleaning team follows a property-manager-approved checklist and backs every job with a 100% bond-back guarantee* — get an instant online quote and book in under 3 minutes.</p>
+        <p class="hero-price-line">Bond cleans in {{SUBURB_NAME}} from <strong>{{PRICE_FROM}}</strong> — see your exact price before you book.</p>
         <div class="hero-cta">
           <a href="/#booking" class="btn btn-primary btn-lg">Get an instant quote</a>
           <a href="/#checklist" class="btn btn-ghost btn-lg">See the full checklist</a>
@@ -99,8 +106,29 @@
 </main>
 
 <footer class="site-footer">
+  <div class="container footer-grid footer-grid-narrow">
+    <div class="footer-col">
+      <h2 class="footer-heading">Contact</h2>
+      <a href="tel:{{PHONE_HREF}}">📞 {{PHONE_DISPLAY}}</a>
+      <a href="mailto:{{EMAIL}}">✉️ {{EMAIL}}</a>
+      <span>🕐 Business hours: {{HOURS_TEXT}}</span>
+      <span>📍 Servicing {{ADDRESS_TEXT}}</span>
+    </div>
+    <div class="footer-col">
+      <h2 class="footer-heading">Company</h2>
+      <a href="/">Home</a>
+      <a href="/#services">Services</a>
+      <a href="/#checklist">Checklist</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+  </div>
   <div class="container footer-bottom">
-    <span>© {{SITE_NAME}}. <a href="/">Back to home</a></span>
+    <span>© {{SITE_NAME}}</span>
+    <div class="footer-legal">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/cookies">Cookies</a>
+    </div>
   </div>
 </footer>
 </body>

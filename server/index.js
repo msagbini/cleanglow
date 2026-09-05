@@ -35,6 +35,19 @@ const app = express();
 // exactly one hop (the platform's own edge), not an arbitrary client-supplied chain.
 app.set('trust proxy', 1);
 
+// Force HTTPS. Railway's edge redirects plain HTTP for its own domains, but
+// the app shouldn't depend on that: when the canonical base URL is https
+// (PUBLIC_BASE_URL / the platform domain / the request itself), a request
+// that arrived over plain HTTP is sent to its https twin. Local development
+// (http base URL) is untouched. 301 rather than 302 so browsers and crawlers
+// remember the upgrade; HSTS (below) makes it stick afterwards.
+app.use((req, res, next) => {
+  if (req.secure || req.method !== 'GET' && req.method !== 'HEAD') return next();
+  const baseUrl = resolveBaseUrl(req);
+  if (!baseUrl.startsWith('https://')) return next();
+  return res.redirect(301, `${baseUrl}${req.originalUrl}`);
+});
+
 // Express 4 parses query strings with `qs`, which carries two open moderate
 // advisories (an array-limit bypass and an attacker-controlled denial of
 // service) with no fix available inside express 4.x. Every query parameter
@@ -202,6 +215,9 @@ app.get('/end-of-lease-cleaning-:slug', (req, res, next) => {
   const suburb = getSuburbBySlug(req.params.slug);
   if (!suburb) return next();
   const baseUrl = resolveBaseUrl(req);
+  // Same policy as the home page: always revalidate the document itself,
+  // let the versioned assets it references be the long-lived part.
+  res.set('Cache-Control', 'private, no-cache, must-revalidate');
   res.type('html').send(renderSuburbHtml(suburb, baseUrl, GA_MEASUREMENT_ID));
 });
 

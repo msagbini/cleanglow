@@ -9,12 +9,18 @@
     "heroTitleHtml": "End of lease cleaning that <span class=\"accent\">helps you get your bond back</span>, without the stress.",
     "heroDescription": "Professional teams, full liability insurance, and a checklist approved by property managers. Book in 3 minutes and get an instant quote.",
     "tagline": "End of lease cleaning with a 100% bond-back guarantee*",
-    "seoDescription": "End of lease and bond cleaning in Melbourne, with a 100% bond-back guarantee (conditions apply). Instant online quotes, agent-approved checklist, insured cleaners.",
+    "seoDescription": "End of lease and bond cleaning in Melbourne with a 100% bond-back guarantee (conditions apply). Instant quotes, agent-approved checklist, insured cleaners.",
     "footerDescription": "Professional end of lease cleaning with a 100% bond-back guarantee.* See our guarantee terms for details.",
     "phone": "+61420576710",
     "phoneDisplay": "0420 576 710",
     "email": "hello@cleanglow.com.au",
     "hours": "Mon–Sat, 8:00am–8:00pm",
+    "_openingHoursNote": "Structured twin of `hours`, published as schema.org OpeningHoursSpecification. Keep both in sync.",
+    "openingHours": [
+      { "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "opens": "08:00", "closes": "20:00" }
+    ],
+    "_addressNote": "Service-area business: no shopfront, so no streetAddress/postalCode. Locality + state is what Google Business Profile publishes for a business that travels to the customer. Add streetAddress/postalCode here only if the Google Business Profile shows one.",
+    "address": { "addressLocality": "Melbourne", "addressRegion": "VIC", "addressCountry": "AU" },
     "serviceAreas": ["Melbourne CBD", "St Kilda", "Richmond", "Fitzroy", "Brunswick", "South Yarra"],
     "social": { "instagram": "#", "facebook": "#", "linkedin": "#" },
     "googleReviewUrl": "",
@@ -146,6 +152,15 @@
       "disclaimer": "*Covers re-cleaning of agreed checklist items reported within the window above. Doesn't cover pre-existing damage, fair wear and tear, or the landlord's final bond decision —"
     }
   },
+  "faq": [
+    { "q": "What happens if my landlord isn't satisfied?", "a": "We offer a free re-clean guarantee within {recleanWindow} of the service if any checklist item doesn't meet your landlord's or agent's standards." },
+    { "q": "Do I need to be there during the clean?", "a": "It's not required. You can provide a lockbox or key code instead during booking." },
+    { "q": "Do you bring your own products and equipment?", "a": "Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity." },
+    { "q": "How long does the clean take?", "a": "It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours." },
+    { "q": "Can I cancel or change the date?", "a": "Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment." },
+    { "q": "Does the price include GST?", "a": "The price in your quote is the total you pay — no hidden fees.{gstNote}" },
+    { "q": "What if I'm running late or can't be there?", "a": "We allow a short grace period if you're running late. Extended delays or no access at all can incur a waiting fee or, past a certain point, a lockout fee — see our terms & conditions for the exact amounts. Choosing a lockbox/key code instead of being present avoids this risk entirely." }
+  ],
   "pricingTiers": [
     { "label": "Studio / 1 Bedroom", "priceFrom": 210, "featured": false, "presetBedrooms": "0", "features": ["Full standard clean", "Kitchen & 1 bathroom", "Floors & surfaces"] },
     { "label": "2-3 Bedrooms", "priceFrom": 340, "featured": true, "presetBedrooms": "2", "features": ["Full standard clean", "Up to 2 bathrooms", "Optional deep kitchen clean"] },

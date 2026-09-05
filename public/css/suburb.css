@@ -16,3 +16,11 @@
 .breadcrumb a { color: var(--color-muted); text-decoration: none; }
 .breadcrumb a:hover { color: var(--color-primary-text); text-decoration: underline; }
 .breadcrumb [aria-current='page'] { color: var(--color-ink); font-weight: 600; }
+
+.hero-price-line { font-size: 1rem; color: var(--color-ink); margin: -6px 0 18px; max-width: 520px; }
+.hero-price-line strong { color: var(--color-primary-text); font-size: 1.15rem; }
+.footer-grid-narrow { grid-template-columns: 1.2fr 1fr; max-width: 640px; margin-left: 0; }
+/* Same visual treatment as the home footer's h3s, but an h2 here: the
+   suburb page's sections are h2s, and a footer heading below them must not
+   drop a level. */
+.footer-heading { color: #fff; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }

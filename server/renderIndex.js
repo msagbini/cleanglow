@@ -3,84 +3,72 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { ASSET_VERSION } from './assetVersion.js';
+import { businessNode, serviceNode, addressText, recleanWindowText } from './structuredData.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const template = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html'), 'utf8');
 
 const FALLBACK_ICON_HREF = business => `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E${encodeURIComponent(business.logoEmoji)}%3C/text%3E%3C/svg%3E`;
 
-function buildLocalBusinessJsonLd(business, baseUrl) {
-  const { booking } = config;
-  const currency = (business.currencyCode || 'AUD').toUpperCase();
-
-  // Real per-size prices straight from the pricing catalog, so the offers
-  // published here can never drift from what the booking form charges.
-  // Previously the only price signal was a generic priceRange: '$$'.
-  const sizeOffers = (booking?.sizeField?.options || []).map(option => ({
-    '@type': 'Offer',
-    name: `End of lease clean — ${option.label}`,
-    price: String(option.price),
-    priceCurrency: currency,
-    priceSpecification: {
-      '@type': 'PriceSpecification',
-      price: String(option.price),
-      priceCurrency: currency,
-      // Only asserted when the business is actually GST-registered — for a
-      // non-registered business there is no GST component to claim is
-      // included, and stating either value would misrepresent the price.
-      ...(business.gstRegistered ? { valueAddedTaxIncluded: true } : {}),
-    },
-    availability: 'https://schema.org/InStock',
-    url: `${baseUrl}/#booking`,
-  }));
-
-  const extraOffers = (booking?.extras || []).map(extra => ({
-    '@type': 'Offer',
-    name: extra.label || extra.key,
-    price: String(extra.price),
-    priceCurrency: currency,
-    url: `${baseUrl}/#booking`,
-  }));
-
-  const prices = sizeOffers.map(o => Number(o.price)).filter(Number.isFinite);
-
+function buildBusinessJsonLd(baseUrl) {
   return JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'HousekeepingService',
-    '@id': `${baseUrl}/#business`,
-    name: business.name,
-    description: business.seoDescription || business.heroDescription,
-    url: baseUrl,
-    telephone: business.phone,
-    email: business.email,
-    image: business.ogImageUrl ? `${baseUrl}${business.ogImageUrl}` : undefined,
-    priceRange: '$$',
-    currenciesAccepted: currency,
-    openingHours: business.hours,
-    areaServed: (business.serviceAreas || []).map(name => ({ '@type': 'City', name })),
-    // The concrete, priced thing being sold — this is what lets a result
-    // carry a price, rather than just naming the business.
-    makesOffer: [...sizeOffers, ...extraOffers],
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: 'End of lease cleaning',
-      itemListElement: sizeOffers.map(offer => ({
-        '@type': 'Offer',
-        itemOffered: { '@type': 'Service', name: offer.name, serviceType: 'End of lease cleaning' },
-        price: offer.price,
-        priceCurrency: offer.priceCurrency,
-      })),
-    },
-    ...(prices.length ? {
-      offers: {
-        '@type': 'AggregateOffer',
-        priceCurrency: currency,
-        lowPrice: String(Math.min(...prices)),
-        highPrice: String(Math.max(...prices)),
-        offerCount: String(prices.length),
-      },
-    } : {}),
+    '@graph': [businessNode(baseUrl), serviceNode(baseUrl)],
   });
+}
+
+// The FAQ accordion and its FAQPage markup come from the same config list,
+// so the answer a visitor reads and the answer a crawler indexes can never
+// disagree (they did: the HTML default said "72 hours" until JS ran, while
+// the JSON-LD said "7 days").
+function faqItems({ business, faq }) {
+  const gstNote = business.gstRegistered ? ' All prices include GST.' : '';
+  const windowText = recleanWindowText(business);
+  return (faq || []).map(item => ({
+    q: item.q,
+    text: item.a.replaceAll('{recleanWindow}', windowText).replaceAll('{gstNote}', gstNote),
+    html: escapeHtml(item.a)
+      // The span is what app.js's formatWindow() updates; it must survive escaping.
+      .replaceAll('{recleanWindow}', `<span id="faqRecleanWindowHours">${escapeHtml(windowText)}</span>`)
+      .replaceAll('{gstNote}', escapeHtml(gstNote)),
+  }));
+}
+
+function buildFaqHtml(config) {
+  return faqItems(config).map((item, i) => `
+      <div class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q${i + 1}">${escapeHtml(item.q)}</button>
+        <div class="accordion-panel"><p${i === 0 ? ' id="faqA1"' : ` data-i18n="faq.a${i + 1}"`}>${item.html}</p></div>
+      </div>`).join('');
+}
+
+function buildFaqJsonLd(config) {
+  const items = faqItems(config);
+  if (!items.length) return '';
+  return `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(item => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.text },
+    })),
+  })}</script>`;
+}
+
+// Mirrors renderPricingTiers() in public/js/app.js — same markup — so the
+// prices exist in the served HTML (crawlers, no-JS) and the client pass
+// replaces them with an identical block.
+function buildPricingCardsHtml({ business, pricingTiers }) {
+  const symbol = escapeHtml(business.currencySymbol);
+  return (pricingTiers || []).map((tier, i) => `
+      <div class="price-card reveal reveal-delay-${i + 1} ${tier.featured ? 'featured' : ''}" ${tier.presetBedrooms ? `data-preset-bedrooms="${escapeHtml(tier.presetBedrooms)}"` : ''}>
+        ${tier.featured ? '<span class="price-tag">Most booked</span>' : ''}
+        <h3>${escapeHtml(tier.label)}</h3>
+        <p class="price">from ${symbol}${escapeHtml(tier.priceFrom)}</p>
+        <ul>${(tier.features || []).map(f => `<li>${escapeHtml(f)}</li>`).join('')}</ul>
+        ${tier.presetBedrooms ? '<button type="button" class="btn btn-primary btn-sm price-card-select">Book this size</button>' : ''}
+      </div>`).join('');
 }
 
 // Mirrors renderHero() in public/js/app.js — same sample selection, same
@@ -141,7 +129,19 @@ export function renderIndexHtml(baseUrl, csrfToken = '', gaMeasurementId = '') {
     // approach as the trust list: emit the real rows server-side with an
     // empty, correctly-sized icon slot for the client pass to fill.
     '{{HERO_CARD_ROWS_HTML}}': buildHeroCardRows(config),
-    '{{LOCAL_BUSINESS_JSONLD}}': buildLocalBusinessJsonLd(business, baseUrl),
+    '{{LOCAL_BUSINESS_JSONLD}}': buildBusinessJsonLd(baseUrl),
+    '{{FAQ_JSONLD}}': buildFaqJsonLd(config),
+    '{{FAQ_HTML}}': buildFaqHtml(config),
+    '{{PRICING_CARDS_HTML}}': buildPricingCardsHtml(config),
+    // Contact details in the served HTML. They used to be hardcoded
+    // placeholders ("(03) 9000 0000", a different business's email) that JS
+    // overwrote after load — so every crawler and no-JS client saw the wrong
+    // phone number.
+    '{{PHONE_HREF}}': escapeHtml(business.phone || ''),
+    '{{PHONE_DISPLAY}}': escapeHtml(business.phoneDisplay || business.phone || ''),
+    '{{EMAIL}}': escapeHtml(business.email || ''),
+    '{{HOURS_TEXT}}': escapeHtml(business.hours || ''),
+    '{{ADDRESS_TEXT}}': escapeHtml(addressText(business)),
     // Double-submit CSRF token — the client reads this back out of the
     // meta tag and echoes it in X-CSRF-Token on every write request.
     '{{CSRF_TOKEN}}': escapeHtml(csrfToken),

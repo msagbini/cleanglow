@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { ASSET_VERSION } from './assetVersion.js';
+import { businessNode, serviceNode, addressText, lowestPrice } from './structuredData.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const template = fs.readFileSync(path.join(__dirname, '..', 'public', 'suburb.html'), 'utf8');
@@ -45,49 +46,21 @@ export function renderSuburbHtml(suburb, baseUrl, gaMeasurementId = '') {
     .map(s => `<a href="/end-of-lease-cleaning-${s.slug}">${escapeHtml(s.name)}</a>`)
     .join('\n            ');
 
-  const currency = (business.currencyCode || 'AUD').toUpperCase();
-  const sizeOptions = config.booking?.sizeField?.options || [];
-  const prices = sizeOptions.map(o => Number(o.price)).filter(Number.isFinite);
-
-  // @graph so the page publishes two linked things: the priced service, and
-  // the breadcrumb trail back to the homepage — the latter is what lets a
-  // result render "cleanglow.up.railway.app › End of lease cleaning › Fitzroy"
+  // @graph: the one business entity (same @id as the home page — this is
+  // not a different business per suburb), the priced service scoped to this
+  // suburb, and the breadcrumb trail back to the homepage — the latter is
+  // what lets a result render "cleanglow… › End of lease cleaning › Fitzroy"
   // instead of a bare URL.
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
-      {
-        '@type': 'HousekeepingService',
-        '@id': `${canonicalUrl}#service`,
-        name: `${business.name} — End of lease cleaning in ${suburb.name}`,
-        description,
+      businessNode(baseUrl),
+      serviceNode(baseUrl, {
+        id: `${canonicalUrl}#service`,
         url: canonicalUrl,
-        telephone: business.phone,
-        email: business.email,
-        priceRange: '$$',
-        currenciesAccepted: currency,
-        openingHours: business.hours,
-        areaServed: { '@type': 'City', name: suburb.name },
-        // Same catalog prices the booking form charges, scoped to this suburb.
-        makesOffer: sizeOptions.map(option => ({
-          '@type': 'Offer',
-          name: `End of lease clean in ${suburb.name} — ${option.label}`,
-          price: String(option.price),
-          priceCurrency: currency,
-          availability: 'https://schema.org/InStock',
-          url: `${baseUrl}/#booking`,
-          areaServed: { '@type': 'City', name: suburb.name },
-        })),
-        ...(prices.length ? {
-          offers: {
-            '@type': 'AggregateOffer',
-            priceCurrency: currency,
-            lowPrice: String(Math.min(...prices)),
-            highPrice: String(Math.max(...prices)),
-            offerCount: String(prices.length),
-          },
-        } : {}),
-      },
+        area: suburb.name,
+        name: `${business.name} — End of lease cleaning in ${suburb.name}`,
+      }),
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
@@ -98,6 +71,8 @@ export function renderSuburbHtml(suburb, baseUrl, gaMeasurementId = '') {
       },
     ],
   });
+
+  const priceFrom = lowestPrice();
 
   const replacements = {
     '{{SUBURB_NAME}}': escapeHtml(suburb.name),
@@ -113,6 +88,10 @@ export function renderSuburbHtml(suburb, baseUrl, gaMeasurementId = '') {
     '{{SITE_OG_IMAGE}}': escapeHtml(ogImage),
     '{{PHONE_DISPLAY}}': escapeHtml(business.phoneDisplay || ''),
     '{{PHONE_HREF}}': escapeHtml(business.phone || ''),
+    '{{EMAIL}}': escapeHtml(business.email || ''),
+    '{{HOURS_TEXT}}': escapeHtml(business.hours || ''),
+    '{{ADDRESS_TEXT}}': escapeHtml(addressText(business)),
+    '{{PRICE_FROM}}': priceFrom === null ? '' : `${escapeHtml(business.currencySymbol || '$')}${priceFrom}`,
     '{{RECLEAN_WINDOW_DAYS}}': String(recleanDays),
     '{{OTHER_SUBURBS_LINKS}}': otherSuburbsHtml,
     '{{JSONLD}}': jsonLd,

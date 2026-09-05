@@ -180,7 +180,7 @@
     footerEmail.href = mailHref;
     footerEmail.textContent = `✉️ ${business.email}`;
 
-    document.getElementById('footerHours').textContent = `🕐 ${business.hours}`;
+    document.getElementById('footerHours').textContent = `🕐 ${CGI18N.t('footer.businessHours', 'Business hours')}: ${business.hours}`;
     document.getElementById('footerDescription').textContent = business.footerDescription;
     const abnSuffix = business.abn ? ` · ABN ${business.abn}` : '';
     document.getElementById('footerCopyright').textContent = CGI18N.tf(
