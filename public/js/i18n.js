@@ -34,6 +34,7 @@ window.CGI18N = (() => {
     'nav.faq': 'Preguntas frecuentes',
     'nav.contact': 'Contacto',
     'nav.account': 'Mi cuenta',
+    'a11y.skipToContent': 'Saltar al contenido',
     'header.callUs': 'Llámanos',
     'header.bookNow': 'Reservar ahora',
 
@@ -141,6 +142,10 @@ window.CGI18N = (() => {
     // Nav buttons
     'form.back': '← Atrás',
     'form.next': 'Siguiente →',
+    'form.next.1': 'Elegir extras →',
+    'form.next.2': 'Elegir fecha →',
+    'form.next.3': 'Añadir mis datos →',
+    'form.next.4': 'Revisar reserva →',
     'form.confirmPay': 'Confirmar y pagar →',
     'form.redirectingPayment': 'Redirigiendo al pago seguro…',
 
@@ -167,6 +172,7 @@ window.CGI18N = (() => {
     'form.fullyBooked': 'Completo',
     'extras.fewer': (label) => `Menos ${label}`,
     'extras.more': (label) => `Más ${label}`,
+    'extras.quantity': (label) => `Cantidad de ${label.toLowerCase()}`,
     'photo.remove': (name) => `Eliminar ${name}`,
     'toast.slotReassigned': 'Tu horario seleccionado ya está completo — elegimos el siguiente disponible',
     'toast.genericError': 'Algo salió mal. Por favor intenta de nuevo.',
@@ -212,6 +218,7 @@ window.CGI18N = (() => {
     'faq.a7': 'Damos un breve período de gracia si vas a llegar tarde. Retrasos más largos o falta total de acceso pueden generar una tarifa de espera o, pasado cierto punto, una tarifa de bloqueo — consulta nuestros términos y condiciones para los montos exactos. Elegir una caja de seguridad/código en vez de estar presente evita este riesgo por completo.',
 
     // Footer
+    'footer.businessHours': 'Horario',
     'footer.company': 'Empresa',
     'footer.serviceAreas': 'Áreas de servicio',
     'footer.contact': 'Contacto',

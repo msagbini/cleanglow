@@ -1,0 +1,807 @@
+{
+  "schema_version": "1.1.0",
+  "severity_policy": "2026-09-05",
+  "site_profile": {
+    "tipo": "negocio_local",
+    "etiqueta": "Local business",
+    "confianza": 1.0,
+    "evidencia": [
+      "href=\"tel:",
+      "cleaners",
+      "0400000000",
+      "Servicing"
+    ],
+    "puntuaciones": {
+      "ecommerce": 3.0,
+      "negocio_local": 9.5,
+      "reservas": 2.5
+    },
+    "acciones": [
+      "captura_de_correo"
+    ],
+    "dimensiones": {
+      "entidad": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {
+          "comercial": 1.5
+        },
+        "etiqueta": "Type of organisation",
+        "verificada": false
+      },
+      "industria": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "etiqueta": "Industry",
+        "verificada": false
+      },
+      "audiencia": {
+        "valor": "local",
+        "confianza": 0.95,
+        "evidencia": [
+          "Servicing",
+          "Melbourne"
+        ],
+        "puntuaciones": {
+          "local": 4.5,
+          "internacional": 2.0
+        },
+        "etiqueta": "Audience",
+        "verificada": true
+      },
+      "jurisdiccion": {
+        "valor": "au",
+        "confianza": 1.0,
+        "evidencia": [
+          "Australian Consumer Law",
+          "AUD"
+        ],
+        "puntuaciones": {
+          "au": 3.5
+        },
+        "etiqueta": "Jurisdiction",
+        "verificada": true
+      },
+      "madurez": {
+        "valor": "basico",
+        "confianza": 0.5,
+        "evidencia": [
+          "no CMS, framework or build markers found"
+        ],
+        "puntuaciones": {},
+        "etiqueta": "Digital maturity",
+        "verificada": false
+      },
+      "stack": {
+        "valor": "estatico",
+        "confianza": 0.5,
+        "evidencia": [
+          "no CMS or framework markers found"
+        ],
+        "puntuaciones": {},
+        "etiqueta": "Technology",
+        "verificada": false
+      },
+      "objetivo": {
+        "valor": "captar_leads",
+        "confianza": 0.85,
+        "evidencia": [
+          "<form id=\"bookingForm\" class=\"booking-form\" novalidate> <!--"
+        ],
+        "puntuaciones": {
+          "captar_leads": 2.0
+        },
+        "etiqueta": "Primary goal",
+        "verificada": true
+      },
+      "modelo": {
+        "valor": "servicio_local",
+        "confianza": 1.0,
+        "evidencia": [
+          "site type: negocio_local"
+        ],
+        "puntuaciones": {},
+        "etiqueta": "Business model",
+        "verificada": true
+      },
+      "tamano": {
+        "valor": "pequeno",
+        "confianza": 0.5,
+        "evidencia": [
+          "1 distinct internal link(s) on this page"
+        ],
+        "puntuaciones": {},
+        "estimado": true,
+        "etiqueta": "Size",
+        "verificada": false
+      }
+    }
+  },
+  "generated_at": "2026-09-05T12:54:16.260218+00:00",
+  "mode": "single-process",
+  "target": {
+    "requested_url": "http://localhost:4242/",
+    "final_url": "http://localhost:4242/",
+    "http_status": 200,
+    "fetch_error": null,
+    "response_time_ms": 45,
+    "html_bytes": 36502,
+    "https": false
+  },
+  "tools": {
+    "lighthouse": {
+      "status": "error",
+      "reason": "Unable to connect to Chrome\n",
+      "retries": 1
+    },
+    "render": null,
+    "html_parser": "python stdlib html.parser",
+    "http_client": "python stdlib urllib"
+  },
+  "metrics": {
+    "lighthouse_scores": null,
+    "core_web_vitals": null,
+    "lighthouse_opportunities": null,
+    "audit_duration_s": 57.17
+  },
+  "page_facts": {
+    "title": "End of Lease & Bond Cleaning Melbourne | CleanGlow",
+    "lang": "en",
+    "meta_description": "End of lease and bond cleaning in Melbourne, with a 100% bond-back guarantee (conditions apply). Instant online quotes, agent-approved checklist, insured cleaners.",
+    "canonical": "http://localhost:4242",
+    "h1_count": 1,
+    "image_count": 0,
+    "script_count": 6,
+    "anchor_count": 28,
+    "form_count": 1
+  },
+  "summary": {
+    "complete": true,
+    "global_score": 36,
+    "total_findings": 24,
+    "by_severity": {
+      "critical": 1,
+      "high": 5,
+      "medium": 3,
+      "low": 4,
+      "info": 11
+    },
+    "auto_fixable": 2,
+    "unverified": 11
+  },
+  "by_specialist": {
+    "seo": {
+      "label": "SEO & Content",
+      "status": "ok",
+      "score": 97,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 1,
+        "info": 0
+      },
+      "finding_ids": [
+        "seo.meta_description.too_long"
+      ]
+    },
+    "backend": {
+      "label": "Backend & Infrastructure",
+      "status": "ok",
+      "score": 97,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 1,
+        "info": 1
+      },
+      "finding_ids": [
+        "backend.protocol.no_h3",
+        "backend.compression.brotli_unverified"
+      ]
+    },
+    "frontend": {
+      "label": "Frontend & UX",
+      "status": "ok",
+      "score": 83,
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": [
+        "frontend.script.render_blocking"
+      ]
+    },
+    "a11y": {
+      "label": "Accessibility (WCAG 2.2 / EN 301 549)",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "a11y.contrast.unverified"
+      ]
+    },
+    "conversion": {
+      "label": "Consumer Psychology & Conversion",
+      "status": "ok",
+      "score": 76,
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 1,
+        "low": 1,
+        "info": 2
+      },
+      "finding_ids": [
+        "conversion.cta.no_verb",
+        "conversion.form.too_many_fields",
+        "conversion.popup.suspected_interstitial",
+        "conversion.cta.contrast_unverified",
+        "conversion.urgency.present"
+      ]
+    },
+    "design": {
+      "label": "Design & Identity",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 4
+      },
+      "finding_ids": [
+        "design.brand_consistency.unverified",
+        "design.dark_mode.not_applicable",
+        "design.manifest.missing",
+        "design.theme_color.missing"
+      ]
+    },
+    "security": {
+      "label": "Security & Compliance",
+      "status": "ok",
+      "score": 63,
+      "counts": {
+        "critical": 1,
+        "high": 1,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "security.transport.no_https",
+        "security.cookie.weak_flags",
+        "security.tls.expiry_unverified"
+      ]
+    },
+    "analytics": {
+      "label": "Analytics & Data",
+      "status": "ok",
+      "score": 81,
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 1,
+        "info": 1
+      },
+      "finding_ids": [
+        "analytics.tracking.none",
+        "analytics.search_console.unverified",
+        "analytics.server_side.unverified"
+      ]
+    },
+    "content": {
+      "label": "Content & Veracity",
+      "status": "ok",
+      "score": 93,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 1,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": [
+        "content.testimonial.generic"
+      ]
+    },
+    "unicity": {
+      "label": "Design Originality",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": []
+    },
+    "local": {
+      "label": "Local Business",
+      "status": "ok",
+      "score": 78,
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 1,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": [
+        "local.schema.missing",
+        "local.nap.no_address"
+      ]
+    },
+    "commerce": {
+      "label": "Shop & Bookings",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "commerce.not_applicable"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "security.transport.no_https",
+      "specialist": "security",
+      "category": "transport",
+      "severity": "critical",
+      "title": "The site is not served over HTTPS",
+      "evidence": "Final URL: http://localhost:4242/",
+      "recommendation": "Install a TLS certificate and force HTTPS with a 301 redirect + HSTS.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "analytics.tracking.none",
+      "specialist": "analytics",
+      "category": "coverage",
+      "severity": "high",
+      "title": "No analytics tool was detected",
+      "evidence": "Patterns evaluated: 8; matches: 0.",
+      "recommendation": "Install at least one measurement tool (GA4, Plausible or Matomo).",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {
+        "detected": {
+          "Google Analytics 4": false,
+          "Google Tag Manager": false,
+          "Meta Pixel": false,
+          "Hotjar": false,
+          "Microsoft Clarity": false,
+          "Plausible": false,
+          "Matomo": false,
+          "Segment": false
+        }
+      }
+    },
+    {
+      "id": "conversion.cta.no_verb",
+      "specialist": "conversion",
+      "category": "cta",
+      "severity": "high",
+      "title": "1 button(s) whose label does not say what happens",
+      "evidence": "'next'",
+      "recommendation": "Say what the visitor gets: «Get a quote», «Download the report», «Book a table». «Submit» describes what the browser does, not what they get, and the person hesitating in front of the button is exactly the one who needs to be told. Link text is not counted here — that is reported separately as an accessibility issue.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.7,
+      "verified": false,
+      "data": {
+        "labels": [
+          "next"
+        ]
+      }
+    },
+    {
+      "id": "frontend.script.render_blocking",
+      "specialist": "frontend",
+      "category": "performance",
+      "severity": "high",
+      "title": "1 scripts block rendering",
+      "evidence": "js/reload-scroll-fix.js?v=1502d5236cb4",
+      "recommendation": "Add defer (or async if it does not depend on the DOM) to the <script src> tags in <head>.",
+      "auto_fixable": true,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {
+        "sources": [
+          "js/reload-scroll-fix.js?v=1502d5236cb4"
+        ]
+      }
+    },
+    {
+      "id": "local.schema.missing",
+      "specialist": "local",
+      "category": "markup",
+      "severity": "high",
+      "title": "No LocalBusiness markup",
+      "evidence": "No JSON-LD block declares LocalBusiness or a subtype.",
+      "recommendation": "Add LocalBusiness JSON-LD with name, address, phone, opening hours and service area. It is what Google reads to place you in the map results, which is where the calls come from.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "security.cookie.weak_flags",
+      "specialist": "security",
+      "category": "cookies",
+      "severity": "high",
+      "title": "Cookie 'cg_csrf' without Secure",
+      "evidence": "cg_csrf=820dfa55b68b824c82eb57a451182e7e269588fe8442460e6410fef55ad65aab; Max-Age=43200; Path=/; HttpOnly; SameSite=Lax",
+      "recommendation": "Issue cookies with Secure; HttpOnly; SameSite=Lax (or Strict).",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {
+        "cookie": "cg_csrf",
+        "missing": [
+          "Secure"
+        ]
+      }
+    },
+    {
+      "id": "content.testimonial.generic",
+      "specialist": "content",
+      "category": "veracity",
+      "severity": "medium",
+      "title": "1 testimonial(s) with no attribution",
+      "evidence": "Glowing quotes with no name, no role and nothing tying them to a real person.",
+      "recommendation": "Add a name, or a role and company — either one is enough to stop it reading as invented. A photo is not required and is not what this checks: a stock portrait proves nothing. What counts is that the quote can be attributed to someone.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {
+        "cantidad": 1
+      }
+    },
+    {
+      "id": "conversion.form.too_many_fields",
+      "specialist": "conversion",
+      "category": "friction",
+      "severity": "medium",
+      "title": "Form #1 con 13 fields",
+      "evidence": "action='(empty)'",
+      "recommendation": "Cut it down to the essential fields; every extra field lowers conversion.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.7,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "local.nap.no_address",
+      "specialist": "local",
+      "category": "contact",
+      "severity": "medium",
+      "title": "No postal address found",
+      "evidence": "No address markup and no recognisable postcode on the page.",
+      "recommendation": "Publish the full address, identical to the one on your Google Business Profile. Google cross-checks the two, and a mismatch costs local ranking.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.7,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "analytics.search_console.unverified",
+      "specialist": "analytics",
+      "category": "coverage",
+      "severity": "low",
+      "title": "No Search Console / Bing verification meta",
+      "evidence": "There is no google-site-verification and no msvalidate.01.",
+      "recommendation": "Verify the property to get access to organic search data.",
+      "auto_fixable": false,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/",
+      "confidence": 0.6,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "backend.protocol.no_h3",
+      "specialist": "backend",
+      "category": "protocol",
+      "severity": "low",
+      "title": "HTTP/3 is not advertised",
+      "evidence": "Alt-Svc=''",
+      "recommendation": "Enable HTTP/3 at the CDN; it shortens the handshake on mobile networks.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.6,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "conversion.popup.suspected_interstitial",
+      "specialist": "conversion",
+      "category": "friction",
+      "severity": "low",
+      "title": "Possible lead-capture interstitial",
+      "evidence": "Modal markers and email-capture markers appear together.",
+      "recommendation": "Intrusive mobile interstitials are penalised by Google and raise bounce rate. Check manually.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.35,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "seo.meta_description.too_long",
+      "specialist": "seo",
+      "category": "meta",
+      "severity": "low",
+      "title": "meta description is 163 characters",
+      "evidence": "End of lease and bond cleaning in Melbourne, with a 100% bond-back guarantee (conditions apply). Instant online quotes, agent-approved checklist, insured cleaners.",
+      "recommendation": "Trim to <=158 characters.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.9,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "a11y.contrast.unverified",
+      "specialist": "a11y",
+      "category": "coverage",
+      "severity": "info",
+      "title": "Colour contrast, focus order and alt-text quality have not been checked",
+      "evidence": "The analysis reads the served HTML: it neither computes styles nor navigates with a keyboard, so it cannot measure real contrast ratio (WCAG 1.4.3), focus order (2.4.3) or whether an alt text actually describes the image (1.1.1).",
+      "recommendation": "Complete this with a manual review and a browser tool (axe DevTools, Lighthouse). This section covers the criteria that leave a trace in the markup, not full conformance with EN 301 549.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "analytics.server_side.unverified",
+      "specialist": "analytics",
+      "category": "architecture",
+      "severity": "info",
+      "title": "Server-side measurement cannot be verified from the HTML",
+      "evidence": "Static analysis cannot see runtime requests.",
+      "recommendation": "Run the Playwright worker with network capture to list the real measurement calls.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "backend.compression.brotli_unverified",
+      "specialist": "backend",
+      "category": "performance",
+      "severity": "info",
+      "title": "Could not check whether the server offers Brotli",
+      "evidence": "La sonda HEAD con Accept-Encoding: br devolvio 200 sin Content-Encoding (many servers do not compress bodyless responses)",
+      "recommendation": "Check by hand with: curl -sI -H 'Accept-Encoding: br' <url>",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "commerce.not_applicable",
+      "specialist": "commerce",
+      "category": "coverage",
+      "severity": "info",
+      "title": "Shop and booking checks were not applied",
+      "evidence": "Detected site type: Local business.",
+      "recommendation": "These checks (Product markup, shipping and returns policy, booking engine, menu) only make sense for a site that sells or takes bookings. Nothing here counts against the score.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "conversion.cta.contrast_unverified",
+      "specialist": "conversion",
+      "category": "cta",
+      "severity": "info",
+      "title": "Call-to-action contrast and visibility not checked in this pass",
+      "evidence": "Static analysis does not compute rendered contrast.",
+      "recommendation": "Run the Playwright + axe-core worker to measure real call-to-action contrast.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "conversion.urgency.present",
+      "specialist": "conversion",
+      "category": "ethics",
+      "severity": "info",
+      "title": "Urgency or scarcity messages detected",
+      "evidence": "Offer / time-limit wording present.",
+      "recommendation": "Check the scarcity is real. False scarcity breaches EU consumer law (Directive 2005/29/EC, Annex I) and destroys trust.",
+      "auto_fixable": false,
+      "risk_class": "dangerous",
+      "target": "http://localhost:4242/",
+      "confidence": 0.5,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "design.brand_consistency.unverified",
+      "specialist": "design",
+      "category": "identity",
+      "severity": "info",
+      "title": "Brand consistency across pages not checked",
+      "evidence": "This pass analyses a single URL.",
+      "recommendation": "Run the multi-page crawler and compare tokens, logo and tone across templates.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "design.dark_mode.not_applicable",
+      "specialist": "design",
+      "category": "system",
+      "severity": "info",
+      "title": "Dark mode is not expected for this audience",
+      "evidence": "No prefers-color-scheme and none needed: detected site type: Local business.",
+      "recommendation": "Not a fault. A trade site is read outdoors, in daylight, on a phone at full brightness: dark text on a light background wins there. Nothing to change.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "design.manifest.missing",
+      "specialist": "design",
+      "category": "identity",
+      "severity": "info",
+      "title": "No web app manifest",
+      "evidence": "There is no <link rel=\"manifest\">.",
+      "recommendation": "Add manifest.json with the name, icons and brand colours.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "design.theme_color.missing",
+      "specialist": "design",
+      "category": "identity",
+      "severity": "info",
+      "title": "No <meta name=\"theme-color\">",
+      "evidence": "Not declared.",
+      "recommendation": "Set theme-color for the mobile browser UI.",
+      "auto_fixable": true,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "security.tls.expiry_unverified",
+      "specialist": "security",
+      "category": "transport",
+      "severity": "info",
+      "title": "TLS certificate expiry and chain not checked in this pass",
+      "evidence": "The capture uses the system CA store; it inspects neither dates nor chain.",
+      "recommendation": "Run the TLS worker (sslyze or `openssl s_client`) for expiry date, protocol version and cipher suites.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    }
+  ],
+  "context": {
+    "robots_txt_status": 200,
+    "sitemap_status": 200,
+    "http_redirect": null,
+    "not_found_probe": {
+      "url": "http://localhost:4242/__auditagent_probe_1788612799",
+      "status": 404
+    },
+    "exposed_paths": {
+      "/.env": {
+        "status": 404,
+        "bytes": 143
+      },
+      "/.git/config": {
+        "status": 404,
+        "bytes": 150
+      },
+      "/.git/HEAD": {
+        "status": 404,
+        "bytes": 148
+      },
+      "/wp-config.php.bak": {
+        "status": 404,
+        "bytes": 156
+      },
+      "/backup.zip": {
+        "status": 404,
+        "bytes": 149
+      },
+      "/.DS_Store": {
+        "status": 404,
+        "bytes": 148
+      },
+      "/config.json": {
+        "status": 404,
+        "bytes": 150
+      },
+      "/phpinfo.php": {
+        "status": 404,
+        "bytes": 150
+      },
+      "/server-status": {
+        "status": 404,
+        "bytes": 152
+      },
+      "/.svn/entries": {
+        "status": 404,
+        "bytes": 151
+      }
+    }
+  }
+}

@@ -15,8 +15,16 @@ import seoRouter from './routes/seo.js';
 import leadsRouter from './routes/leads.js';
 import { adminAuth } from './middleware/adminAuth.js';
 import { requireSameOrigin } from './middleware/requireSameOrigin.js';
-import { renderIndexHtml } from './renderIndex.js';
+import { requireCsrf, issueCsrfToken } from './middleware/csrf.js';
+import { renderIndexHtml, renderSuccessHtml } from './renderIndex.js';
+import { resolveBaseUrl, describeBaseUrlConfig } from './baseUrl.js';
 import { getSuburbBySlug, renderSuburbHtml } from './suburbs.js';
+import { renderLegalHtml } from './renderLegal.js';
+import { LEGAL_PAGES } from './legal.js';
+import { GA_MEASUREMENT_ID } from './analytics.js';
+
+// Google Search Console "HTML tag" verification token (the content= value).
+const SEARCH_CONSOLE_VERIFICATION = (process.env.SEARCH_CONSOLE_VERIFICATION || '').trim().replace(/[^A-Za-z0-9_-]/g, '');
 import { startAbandonedLeadSweep } from './leadSweep.js';
 import { startBookingReminderSweep } from './bookingReminders.js';
 import { startBackupSweep } from './dbBackup.js';
@@ -33,23 +41,88 @@ const app = express();
 // exactly one hop (the platform's own edge), not an arbitrary client-supplied chain.
 app.set('trust proxy', 1);
 
+// Force HTTPS. Railway's edge redirects plain HTTP for its own domains, but
+// the app shouldn't depend on that: when the canonical base URL is https
+// (PUBLIC_BASE_URL / the platform domain / the request itself), a request
+// that arrived over plain HTTP is sent to its https twin. Local development
+// (http base URL) is untouched. 301 rather than 302 so browsers and crawlers
+// remember the upgrade; HSTS (below) makes it stick afterwards.
+app.use((req, res, next) => {
+  if (req.secure || req.method !== 'GET' && req.method !== 'HEAD') return next();
+  const baseUrl = resolveBaseUrl(req);
+  if (!baseUrl.startsWith('https://')) return next();
+  return res.redirect(301, `${baseUrl}${req.originalUrl}`);
+});
+
+// Express 4 parses query strings with `qs`, which carries two open moderate
+// advisories (an array-limit bypass and an attacker-controlled denial of
+// service) with no fix available inside express 4.x. Every query parameter
+// this app reads is a flat scalar — date, lang, phase, token, status, v —
+// so none of qs's nested/bracket syntax is needed, and `express.urlencoded`
+// (the other qs entry point) isn't used at all. Switching to Node's own
+// querystring parser takes qs off the request path entirely, which fixes
+// the exposure rather than waiting on a dependency bump.
+app.set('query parser', 'simple');
+
 app.use(compression());
+
+// See server/analytics.js — Google's hosts are added to the CSP below
+// exclusively when analytics is actually configured.
+const analyticsScriptSrc = GA_MEASUREMENT_ID ? ['https://www.googletagmanager.com'] : [];
+const analyticsConnectSrc = GA_MEASUREMENT_ID
+  ? ['https://www.google-analytics.com', 'https://*.google-analytics.com', 'https://*.analytics.google.com', 'https://www.googletagmanager.com']
+  : [];
+const analyticsImgSrc = GA_MEASUREMENT_ID
+  ? ['https://www.google-analytics.com', 'https://*.google-analytics.com', 'https://www.googletagmanager.com']
+  : [];
 
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", ...analyticsScriptSrc],
       styleSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'blob:'],
-      connectSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'blob:', ...analyticsImgSrc],
+      connectSrc: ["'self'", ...analyticsConnectSrc],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
-      frameAncestors: ["'self'"],
+      // Nothing on this site is ever meant to be framed, and no page frames
+      // anything — 'none' (paired with X-Frame-Options: DENY below for older
+      // agents) closes clickjacking of the booking form outright, where the
+      // previous 'self' still permitted same-origin framing.
+      frameAncestors: ["'none'"],
+      frameSrc: ["'none'"],
+      // The booking form only ever posts to this origin via fetch; pinning
+      // form-action means an injected <form action="https://evil/"> can't
+      // exfiltrate what a customer typed.
+      formAction: ["'self'"],
+      // Stripe Checkout is a full-page redirect, not an embedded frame, so
+      // it needs no allowance here.
+      upgradeInsecureRequests: [],
     },
   },
+  // 1 year + preload is the threshold the hstspreload.org list requires.
+  strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  // Helmet defaults to SAMEORIGIN; DENY matches frameAncestors 'none' above.
+  frameguard: { action: 'deny' },
+  // Helmet's default is `no-referrer`, which strips the Referer even on
+  // same-site navigations. This keeps same-origin referrers (useful for
+  // in-site analytics) while still sending nothing but the bare origin
+  // cross-site, and nothing at all on an HTTPS->HTTP downgrade.
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
+
+// Helmet doesn't set this one. The site uses none of these APIs, so denying
+// them means an injected script can't quietly reach for the camera, mic or
+// location, and third-party ad/tracking APIs stay off.
+app.use((req, res, next) => {
+  res.setHeader(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), interest-cohort=(), browsing-topics=()'
+  );
+  next();
+});
 
 // Stripe webhook needs the raw request body for signature verification,
 // so it must be registered before the express.json() body parser below.
@@ -81,9 +154,18 @@ app.use('/api/checkout-session', writeLimiter);
 app.use('/api/leads', writeLimiter);
 app.use('/api/account/request-link', accountLinkLimiter);
 
+// CSRF on the public booking funnel. requireCsrf is a no-op for safe
+// methods, so GET /api/bookings/availability and the checkout-session
+// confirm endpoint keep working unchanged.
+app.use('/api/bookings', requireCsrf);
+app.use('/api/checkout-session', requireCsrf);
+app.use('/api/leads', requireCsrf);
+
 // Gate /admin (static UI) and /api/admin (data) before the public static
 // middleware below, which would otherwise serve public/admin/* unprotected.
-app.use('/admin', adminLimiter, adminAuth, express.static(path.join(publicDir, 'admin')));
+app.use('/admin', adminLimiter, adminAuth, express.static(path.join(publicDir, 'admin'), {
+  setHeaders(res) { res.setHeader('Cache-Control', 'no-store'); },
+}));
 app.use('/api/admin', adminLimiter, adminAuth, requireSameOrigin, adminRouter);
 
 // No Basic Auth here — access is gated by the unguessable token in the URL
@@ -100,8 +182,30 @@ app.use('/api/account', requireSameOrigin, accountRouter);
 // URL) filled in from config/business.json, ahead of the static middleware
 // below which would otherwise serve the raw template with {{TOKENS}} in it.
 app.get(['/', '/index.html'], (req, res) => {
-  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
-  res.type('html').send(renderIndexHtml(baseUrl));
+  const baseUrl = resolveBaseUrl(req);
+  const csrfToken = issueCsrfToken(req, res);
+  // The page carries a per-visitor CSRF token, so it must be revalidated
+  // rather than replayed from a shared/proxy cache. `no-cache` (not
+  // `no-store`) still allows the back/forward cache, so returning to the
+  // booking form keeps the form state the visitor already filled in.
+  res.set('Cache-Control', 'private, no-cache, must-revalidate');
+  res.type('html').send(renderIndexHtml(baseUrl, csrfToken, GA_MEASUREMENT_ID, SEARCH_CONSOLE_VERIFICATION));
+});
+
+// Lets the client recover from an expired token without losing the booking
+// it has already filled in: on a 403 with code "csrf" it re-fetches here and
+// retries the write once (see js/app.js).
+app.get('/api/csrf', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ token: issueCsrfToken(req, res) });
+});
+
+// Rendered rather than served from disk so its {{ANALYTICS_META}} and
+// {{ASSET_VERSION}} tokens get substituted — express.static below would
+// otherwise ship the raw template.
+app.get('/success.html', (req, res) => {
+  res.set('Cache-Control', 'private, no-cache, must-revalidate');
+  res.type('html').send(renderSuccessHtml(resolveBaseUrl(req), GA_MEASUREMENT_ID));
 });
 
 // Suburb landing pages — one per configured service area, e.g.
@@ -110,13 +214,67 @@ app.get(['/', '/index.html'], (req, res) => {
 app.get('/end-of-lease-cleaning-:slug', (req, res, next) => {
   const suburb = getSuburbBySlug(req.params.slug);
   if (!suburb) return next();
-  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
-  res.type('html').send(renderSuburbHtml(suburb, baseUrl));
+  const baseUrl = resolveBaseUrl(req);
+  // Same policy as the home page: always revalidate the document itself,
+  // let the versioned assets it references be the long-lived part.
+  res.set('Cache-Control', 'private, no-cache, must-revalidate');
+  res.type('html').send(renderSuburbHtml(suburb, baseUrl, GA_MEASUREMENT_ID));
+});
+
+// Terms, privacy and cookies as real, linkable, indexable pages (the home
+// page still opens the same copy in a modal). ?lang=es for the Spanish
+// version; the path prefix matches no static file, so this is safe ahead
+// of express.static.
+app.get(Object.values(LEGAL_PAGES).map(p => p.path), (req, res, next) => {
+  const key = Object.keys(LEGAL_PAGES).find(k => LEGAL_PAGES[k].path === req.path);
+  const html = key && renderLegalHtml(key, {
+    baseUrl: resolveBaseUrl(req),
+    lang: req.query.lang === 'es' ? 'es' : 'en',
+    gaMeasurementId: GA_MEASUREMENT_ID,
+  });
+  if (!html) return next();
+  res.set('Cache-Control', 'public, max-age=3600, must-revalidate');
+  res.type('html').send(html);
 });
 
 app.use(seoRouter);
 
-app.use(express.static(publicDir));
+// Static assets were previously served with `Cache-Control: max-age=0`, so a
+// returning visitor revalidated the stylesheet, both scripts and every font
+// on every single navigation. Two tiers replace that:
+//
+//   * A request carrying `?v=<hash>` is, by construction, for one exact
+//     build of that file (see assetVersion.js) — safe to cache immutably.
+//     A deploy that changes the file changes the hash in the HTML, so a
+//     stale copy can never be served.
+//   * Fonts and images are content-addressed by filename here (they change
+//     by being replaced, not edited), so they get a long cache too.
+//
+// The HTML documents themselves are rendered above and never reach this
+// middleware, so they keep their own no-cache policy and stay fresh.
+const ONE_YEAR_SECONDS = 31536000;
+const ONE_WEEK_SECONDS = 604800;
+app.use(express.static(publicDir, {
+  setHeaders(res, filePath) {
+    const isVersioned = Boolean(res.req?.query?.v);
+    const isLongLived = /[\\/](fonts|img)[\\/]/.test(filePath);
+    if (isVersioned || isLongLived) {
+      res.setHeader('Cache-Control', `public, max-age=${ONE_YEAR_SECONDS}, immutable`);
+    } else if (/\.html?$/.test(filePath)) {
+      // The app shells (/account/, /proof/, /cleaner/, /success.html) are
+      // the entry point to a deploy's JS — cache one for a week and a
+      // redeploy wouldn't reach that visitor for a week. They must
+      // revalidate; the assets they reference are what gets cached.
+      res.setHeader('Cache-Control', 'private, no-cache, must-revalidate');
+    } else if (/\.(css|js)$/.test(filePath)) {
+      // An unversioned CSS/JS request (a hand-typed URL, or an old cached
+      // HTML document referencing the bare path) still has to revalidate.
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', `public, max-age=${ONE_WEEK_SECONDS}`);
+    }
+  },
+}));
 
 // The token is a client-side route param, not a real file — registered
 // AFTER express.static so real files under /cleaner/ (app.js, cleaner.css)
@@ -164,11 +322,22 @@ process.on('unhandledRejection', err => {
 const port = process.env.PORT || 4242;
 const server = app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
+  // Surfaces a stale/misconfigured PUBLIC_BASE_URL in the deploy logs — the
+  // exact failure that had every canonical and og:url on the live site
+  // advertising a different Railway domain than the one serving it.
+  const baseUrlNotice = describeBaseUrlConfig();
+  if (baseUrlNotice) console.warn(baseUrlNotice);
+  console.log(`Canonical base URL: ${resolveBaseUrl()}`);
   if (!process.env.STRIPE_SECRET_KEY) {
     console.warn('⚠️  STRIPE_SECRET_KEY is not set — payments won\'t work until you configure it in .env');
   }
   if (!process.env.ADMIN_USER || !process.env.ADMIN_PASS) {
     console.warn('⚠️  ADMIN_USER/ADMIN_PASS not set — the /admin panel is disabled until you configure them in .env');
+  }
+  if (!GA_MEASUREMENT_ID) {
+    console.warn('⚠️  GA_MEASUREMENT_ID not set — analytics and the cookie-consent banner are disabled (the site then sets no non-essential storage at all).');
+  } else {
+    console.log(`Analytics enabled (${GA_MEASUREMENT_ID}) — loaded only after explicit visitor consent.`);
   }
   if (!process.env.CLICKSEND_USERNAME || !process.env.CLICKSEND_API_KEY) {
     console.warn('⚠️  CLICKSEND_USERNAME/CLICKSEND_API_KEY not set — abandoned-booking SMS reminders are disabled (logged instead) until you configure them.');

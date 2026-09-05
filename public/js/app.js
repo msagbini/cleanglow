@@ -13,6 +13,43 @@
   };
   const MAX_PHOTOS = 8;
 
+  /* ============ CSRF ============
+   * Every write to the booking funnel echoes the server-issued token from
+   * the page's <meta name="csrf-token">. If the token has expired (the page
+   * sat open longer than the cookie's lifetime, or was restored from the
+   * back/forward cache), the server answers 403 with code "csrf" — we then
+   * fetch a fresh token and replay the request once, so a customer never
+   * loses a booking they have already filled in to an expired token. */
+  let csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+  async function refreshCsrfToken() {
+    try {
+      const res = await fetch('/api/csrf', { cache: 'no-store' });
+      if (!res.ok) return false;
+      const data = await res.json();
+      if (!data.token) return false;
+      csrfToken = data.token;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Drop-in replacement for fetch() on state-changing requests.
+  async function csrfFetch(url, options = {}) {
+    const send = () => fetch(url, {
+      ...options,
+      headers: { ...(options.headers || {}), 'X-CSRF-Token': csrfToken },
+    });
+    let res = await send();
+    if (res.status === 403) {
+      // Read the body from a clone so the caller can still consume res.json().
+      const reason = await res.clone().json().catch(() => ({}));
+      if (reason.code === 'csrf' && (await refreshCsrfToken())) res = await send();
+    }
+    return res;
+  }
+
   // Small, consistent line-icon set (brand-colored, in a soft circular chip
   // via CSS) used in place of raw emoji in a few high-visibility spots —
   // emoji render inconsistently across OS/browser and read as less
@@ -100,6 +137,12 @@
       const img = document.createElement('img');
       img.src = business.logoUrl;
       img.alt = `${business.name} logo`;
+      // Explicit intrinsic size so the browser reserves the box before the
+      // SVG loads — without it the header logo pushed the wordmark sideways
+      // on first paint. CSS still controls the rendered size.
+      img.width = 32;
+      img.height = 32;
+      img.decoding = 'async';
       el.appendChild(img);
     } else {
       el.textContent = business.logoEmoji;
@@ -137,7 +180,7 @@
     footerEmail.href = mailHref;
     footerEmail.textContent = `✉️ ${business.email}`;
 
-    document.getElementById('footerHours').textContent = `🕐 ${business.hours}`;
+    document.getElementById('footerHours').textContent = `🕐 ${CGI18N.t('footer.businessHours', 'Business hours')}: ${business.hours}`;
     document.getElementById('footerDescription').textContent = business.footerDescription;
     const abnSuffix = business.abn ? ` · ABN ${business.abn}` : '';
     document.getElementById('footerCopyright').textContent = CGI18N.tf(
@@ -173,10 +216,16 @@
       facebook: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M14.5 9H17V6h-2.5C12.6 6 11 7.6 11 9.9V12H9v3h2v6h3v-6h2.4l.6-3H14v-1.7c0-.7.3-1.3 1.5-1.3Z"/></svg>',
       linkedin: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="5.3" cy="5.3" r="2" /><path d="M3.7 9.5h3.2V20H3.7Zm6.2 0h3v1.5h.1c.4-.8 1.5-1.7 3.1-1.7 3.3 0 4 2.2 4 5V20h-3.2v-4.9c0-1.2 0-2.7-1.7-2.7-1.6 0-1.9 1.3-1.9 2.6V20H9.9Z"/></svg>',
     };
-    Object.entries(business.social).forEach(([key, url]) => {
+    // Only real profiles get a link: the config ships "#" placeholders until
+    // the profiles exist, and a link to nowhere is worse than no link.
+    const networkName = { instagram: 'Instagram', facebook: 'Facebook', linkedin: 'LinkedIn' };
+    Object.entries(business.social || {}).forEach(([key, url]) => {
+      if (!/^https?:\/\//i.test(url || '')) return;
       const a = document.createElement('a');
       a.href = url;
-      a.setAttribute('aria-label', key);
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.setAttribute('aria-label', `${business.name} on ${networkName[key] || key}`);
       a.innerHTML = socialIcons[key] || key.slice(0, 2).toUpperCase();
       socialWrap.appendChild(a);
     });
@@ -188,12 +237,15 @@
     document.getElementById('heroTitle').innerHTML = business.heroTitleHtml;
     document.getElementById('heroDescription').textContent = business.heroDescription;
 
+    // Must mirror the server-rendered structure in renderIndex.js exactly —
+    // same <li>, same icon wrapper at the same size — so replacing it here
+    // changes no geometry and causes no layout shift.
     document.getElementById('heroTrust').innerHTML = business.heroTrust
-      .map(item => `<li>${ICONS[item.icon] || ''}<span>${item.text}</span></li>`).join('');
+      .map(item => `<li><span class="hero-trust-icon">${ICONS[item.icon] || ''}</span><span>${item.text}</span></li>`).join('');
 
     const heroFootnote = document.getElementById('heroGuaranteeFootnote');
     if (heroFootnote && business.guaranteeFootnote) {
-      heroFootnote.innerHTML = `${business.guaranteeFootnote} <a href="#" data-modal="terms">${CGI18N.t('hero.guaranteeTermsLink', 'Guarantee Terms')}</a>`;
+      heroFootnote.innerHTML = `${business.guaranteeFootnote} <a href="/terms" data-modal="terms">${CGI18N.t('hero.guaranteeTermsLink', 'Guarantee Terms')}</a>`;
     }
 
     const sampleSize = booking.sizeField.options[Math.min(2, booking.sizeField.options.length - 1)];
@@ -206,6 +258,84 @@
       ${sampleExtras.map(e => `<div class="hero-card-row"><span><span class="inline-icon">${ICONS[e.icon] || ''}</span>${e.label}</span><span>+ ${business.currencySymbol}${e.price}</span></div>`).join('')}
       <div class="hero-card-row hero-card-total"><span>${CGI18N.t('hero.estimatedTotal', 'Estimated total')}</span><span>${business.currencySymbol}${total}</span></div>
     `;
+  }
+
+  // Trust signals at the point of decision. Nothing here is a new claim:
+  // each item restates a fact held in config/business.json and already
+  // stated elsewhere on the page — surfaced next to the CTA because that is
+  // where a visitor decides whether to hand over their address and card.
+  function renderTrustBadges(cfg) {
+    const el = document.getElementById('trustBadges');
+    if (!el) return;
+    const { business } = cfg;
+    const recleanDays = Math.round((business.recleanWindowHours ?? 168) / 24);
+    const badges = [
+      { icon: 'shield', text: CGI18N.t('badge.stripe', 'Secure payment via Stripe') },
+      business.insuranceAmount
+        ? { icon: 'badge', text: CGI18N.tf('badge.insured', a => `${a} public liability cover`, business.insuranceAmount) }
+        : null,
+      { icon: 'refresh', text: CGI18N.tf('badge.reclean', d => `Free re-clean within ${d} days`, recleanDays) },
+      business.abn ? { icon: 'badge', text: CGI18N.tf('badge.abn', a => `ABN ${a}`, business.abn) } : null,
+    ].filter(Boolean);
+    el.innerHTML = badges
+      .map(b => `<li><span class="trust-badge-icon">${ICONS[b.icon] || ''}</span><span>${b.text}</span></li>`)
+      .join('');
+  }
+
+  // Renders only genuine reviews supplied in config/business.json. The list
+  // ships empty, so the whole section stays hidden until there are real ones
+  // — see the comment above #reviews in index.html for why fabricated
+  // testimonials are not an acceptable placeholder here.
+  function renderReviews(cfg) {
+    const section = document.getElementById('reviews');
+    const grid = document.getElementById('reviewsGrid');
+    if (!section || !grid) return;
+    const reviews = Array.isArray(cfg.business.reviews) ? cfg.business.reviews.filter(r => r && r.text && r.author) : [];
+    if (!reviews.length) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+    const stars = n => '★'.repeat(Math.round(n)) + '☆'.repeat(Math.max(0, 5 - Math.round(n)));
+    grid.innerHTML = reviews.map(r => `
+      <figure class="review-card reveal">
+        <div class="review-stars" aria-label="${Number(r.rating) || 5} out of 5">${stars(Number(r.rating) || 5)}</div>
+        <blockquote>${escapeHtml(r.text)}</blockquote>
+        <figcaption>${escapeHtml(r.author)}${r.suburb ? ` · ${escapeHtml(r.suburb)}` : ''}</figcaption>
+      </figure>`).join('');
+
+    const avg = reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviews.length;
+    const source = document.getElementById('reviewsSource');
+    if (source) {
+      source.textContent = CGI18N.tf('reviews.summary',
+        (a, n) => `${a} average from ${n} verified customer ${n === 1 ? 'review' : 'reviews'}.`,
+        avg.toFixed(1), reviews.length);
+    }
+
+    // Structured data is emitted only alongside reviews that are actually on
+    // the page — marking up ratings with no visible reviews behind them is a
+    // Google structured-data policy violation.
+    const ld = document.createElement('script');
+    ld.type = 'application/ld+json';
+    ld.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'HousekeepingService',
+      name: cfg.business.name,
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: avg.toFixed(1),
+        reviewCount: String(reviews.length),
+        bestRating: '5',
+      },
+      review: reviews.map(r => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: r.author },
+        reviewRating: { '@type': 'Rating', ratingValue: String(Number(r.rating) || 5), bestRating: '5' },
+        reviewBody: r.text,
+        ...(r.date ? { datePublished: r.date } : {}),
+      })),
+    });
+    document.head.appendChild(ld);
   }
 
   function renderTrustStrip(cfg) {
@@ -230,7 +360,7 @@
       <ul class="checklist reveal reveal-delay-${i + 1}">${col.map(item => `<li>✔ ${item}</li>`).join('')}</ul>
     `).join('');
     const disclaimer = checklist.guarantee.disclaimer
-      ? `<p class="guarantee-disclaimer">${checklist.guarantee.disclaimer} <a href="#" data-modal="terms">${CGI18N.t('hero.guaranteeTermsLink', 'Guarantee Terms')}</a></p>`
+      ? `<p class="guarantee-disclaimer">${checklist.guarantee.disclaimer} <a href="/terms" data-modal="terms">${CGI18N.t('hero.guaranteeTermsLink', 'Guarantee Terms')}</a></p>`
       : '';
     document.getElementById('guaranteeCard').innerHTML = `
       <h3>${ICONS.shield}<span>${checklist.guarantee.title}</span></h3>
@@ -279,12 +409,12 @@
     const { booking } = cfg;
 
     document.getElementById('frequencyPills').innerHTML = (booking.frequencyOptions || []).map((f, i) => `
-      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${f.value}">${f.label}${f.discount ? ` (save ${Math.round(f.discount * 100)}%)` : ''}</button>
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" aria-pressed="${i === 0}" data-value="${f.value}">${f.label}${f.discount ? ` (save ${Math.round(f.discount * 100)}%)` : ''}</button>
     `).join('');
     state.frequency = booking.frequencyOptions?.[0]?.value || 'once';
 
     document.getElementById('propertyTypePills').innerHTML = booking.serviceTypes.map((t, i) => `
-      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${t.value}"><span class="inline-icon">${ICONS[t.icon] || ''}</span>${t.label}</button>
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" aria-pressed="${i === 0}" data-value="${t.value}"><span class="inline-icon">${ICONS[t.icon] || ''}</span>${t.label}</button>
     `).join('');
     state.propertyType = booking.serviceTypes[0].value;
 
@@ -303,7 +433,8 @@
         <div class="extra-qty">
           <button type="button" class="extra-qty-btn" data-qty-delta="-1" data-qty-for="${e.key}" aria-label="${CGI18N.tf('extras.fewer', l => `Fewer ${l}`, e.label)}">−</button>
           <input type="number" name="extras" min="0" max="${e.maxQuantity ?? 12}" step="1" value="0"
-                 data-key="${e.key}" data-price="${e.price}" data-label="${e.label}" id="extraQty_${e.key}">
+                 data-key="${e.key}" data-price="${e.price}" data-label="${e.label}" id="extraQty_${e.key}"
+                 aria-label="${CGI18N.tf('extras.quantity', l => `Number of ${l.toLowerCase()}`, e.label)}">
           <button type="button" class="extra-qty-btn" data-qty-delta="1" data-qty-for="${e.key}" aria-label="${CGI18N.tf('extras.more', l => `More ${l}`, e.label)}">+</button>
         </div>
       </div>
@@ -412,8 +543,9 @@
       group.addEventListener('click', e => {
         const btn = e.target.closest('.pill');
         if (!btn) return;
-        group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        group.querySelectorAll('.pill').forEach(p => { p.classList.remove('active'); p.setAttribute('aria-pressed', 'false'); });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         if (name === 'propertyType') {
           state.propertyType = btn.dataset.value;
           const serviceType = state.config.booking.serviceTypes.find(t => t.value === btn.dataset.value);
@@ -426,74 +558,11 @@
     });
   }
 
-  function renderLegalContentEs(cfg) {
-    const { business } = cfg;
-    const accessPolicy = cfg.booking.accessPolicy ?? {};
-    const accessLateFee = `${business.currencySymbol}${((accessPolicy.lateFeePerBlockCents ?? 0) / 100).toFixed(0)}`;
-    const accessLockoutFee = `${business.currencySymbol}${((accessPolicy.lockoutFeeCents ?? 0) / 100).toFixed(0)}`;
-    legalContent.terms.title = 'Términos y Condiciones';
-    legalContent.privacy.title = 'Política de Privacidad';
-    legalContent.cookies.title = 'Cookies';
-    legalContent.terms.body = `<p>Al reservar un servicio con ${business.name} aceptas los siguientes términos:</p>
-      <h4>1. Reservas y pago</h4><p>El precio mostrado es una estimación basada en los datos que proporcionas. El monto final se confirma tras la inspección inicial del equipo.</p>
-      <h4>2. Cancelaciones</h4><p>Puedes cancelar o reprogramar gratis hasta 24 horas antes de tu cita. Cancelaciones posteriores pueden generar una tarifa del 20%.</p>
-      <h4>3. Garantía de Devolución del Depósito y Re-limpieza</h4>
-      <p><strong>Lo que garantizamos:</strong> si tu administrador de propiedad o arrendador señala un ítem de tu <em>checklist acordado</em> que no se completó a un estándar profesional, volveremos a limpiar ese ítem sin costo — las veces que sea necesario para cumplir el estándar — siempre que:</p>
-      <ul>
-        <li>se nos reporte por escrito (email, o una nota en tu informe de condición/salida de la propiedad) dentro de ${formatWindow(business.recleanWindowHours)} desde la limpieza; y</li>
-        <li>tú o tu administrador de propiedad den a nuestro equipo acceso razonable para realizar la re-limpieza.</li>
-      </ul>
-      <p><strong>Qué significa — y qué no significa — "garantía 100% de devolución del depósito":</strong> describe nuestro compromiso de volver a limpiar los ítems del checklist hasta que cumplan un estándar profesional. <strong>No</strong> es una garantía del monto del depósito en sí. Que tu depósito se devuelva en su totalidad es una decisión de tu arrendador, administrador de propiedad o (en caso de disputa) la autoridad de arrendamiento correspondiente, según factores fuera de nuestro control — por ejemplo daños a la propiedad, renta impaga, estado del jardín/césped, o artículos faltantes.</p>
-      <p><strong>Qué no cubre:</strong> daños preexistentes, desgaste normal, moho, olores o manchas causados por condiciones previas a nuestro servicio, ítems fuera del checklist acordado al reservar, y solicitudes de re-limpieza hechas después de la ventana de ${formatWindow(business.recleanWindowHours)} o donde no se dio acceso.</p>
-      <h4>4. Acceso a la Propiedad y Tardanza</h4>
-      <p>El método de acceso elegido al reservar — que estés presente, o una caja de seguridad/código — determina cómo entra nuestro equipo. Si eliges caja de seguridad, la ubicación y el código deben indicarse en el formulario de reserva; si cambian antes de la cita, avísanos de inmediato.</p>
-      <p>Si vas a estar presente: damos <strong>${accessPolicy.gracePeriodMinutes} minutos de gracia</strong> sin costo desde el inicio de tu horario reservado. Después de eso, se aplica una tarifa de <strong>${accessLateFee}</strong> por cada ${accessPolicy.lateFeeBlockMinutes} minutos adicionales que nuestro equipo espera, ya que ese tiempo se le resta directamente a otras reservas de ese día. Si sigue sin haber acceso después de <strong>${accessPolicy.lockoutThresholdMinutes} minutos</strong> en total, trataremos la cita como un caso de bloqueo: se aplica una tarifa de bloqueo de <strong>${accessLockoutFee}</strong>, la visita se cancela, y deberá reservarse de nuevo como una cita nueva (sujeta a disponibilidad) en vez de completarse ese mismo día.</p>
-      <h4>5. Servicios Básicos y Condiciones de Trabajo Seguras</h4>
-      <p>Debe haber agua y electricidad conectadas y accesibles en la propiedad para la cita reservada — si no las hay, puede aplicar la misma política de tardanza/bloqueo anterior, ya que nuestro equipo podría no poder completar la limpieza. Nuestro equipo puede negarse a limpiar o pausar el trabajo, sin que cuente como una cita incumplida de su parte, si la propiedad presenta un riesgo real de seguridad (ej. un animal agresivo sin control, materiales peligrosos expuestos, peligro estructural) — por favor indica cualquier situación relevante en las notas de la propiedad al reservar.</p>
-      <h4>6. Cancelaciones o Retrasos por Parte de ${business.name}</h4>
-      <p>En raras ocasiones podríamos necesitar cancelar o reprogramar una cita nosotros mismos — por ejemplo, clima severo, enfermedad de un miembro del equipo, o un problema con el vehículo. En estos casos te avisaremos lo antes posible y te ofreceremos una reprogramación gratuita para el próximo horario disponible, o un reembolso completo si prefieres no reservar de nuevo. Nunca se aplica ninguna tarifa por una cancelación o retraso de nuestra parte.</p>
-      <h4>7. Planes recurrentes y cancelación anticipada</h4><p>Los planes semanales, quincenales y mensuales se facturan automáticamente a una tarifa con descuento que refleja la naturaleza continua y repetida del servicio. Si un plan recurrente se cancela antes de completar el mínimo de ${state.config.booking.earlyCancellationMinCycles ?? 3} limpiezas, aplica una tarifa única de cancelación anticipada equivalente a una visita a la tarifa con descuento, cobrada a la tarjeta registrada, para recuperar el descuento otorgado bajo el supuesto de negocio continuo. Esta tarifa no aplica una vez completado el número mínimo de limpiezas — el plan puede cancelarse en cualquier momento sin costo a partir de entonces.</p>`;
-    legalContent.privacy.body = `<p>Tus datos personales se usan únicamente para gestionar tu reserva y comunicarnos contigo sobre el servicio.</p>
-      <h4>Datos que recopilamos</h4><p>Nombre, email, número de teléfono, la dirección de la propiedad a limpiar, y cualquier foto antes/después enviada para el trabajo. Si eliges notificar a un administrador de propiedad, también recopilamos su dirección de email para ese único propósito.</p>
-      <h4>Cómo los usamos</h4><p>No compartimos tus datos con terceros salvo el equipo de limpieza asignado a tu servicio y, solo si eliges proporcionarlo, el email del administrador de propiedad/agente que nos indiques — usado únicamente para enviarle la prueba de que la limpieza acordada se completó.</p>
-      <h4>Tus derechos</h4><p>Puedes solicitar acceso, corrección o eliminación de tus datos escribiendo a ${business.email}.</p>`;
-    legalContent.cookies.body = `<p>Este sitio no usa cookies de seguimiento, publicidad o analítica.</p>
-      <h4>Lo que sí usamos</h4><p>Se establece una única cookie solo si inicias sesión en tu cuenta en /account — te mantiene con la sesión iniciada hasta por 30 días para que no tengas que solicitar un nuevo enlace de acceso en cada visita. Si nunca inicias sesión, no se guarda ninguna cookie en tu navegador entre visitas.</p>
-      <h4>Stripe</h4><p>Cuando llegas a la pantalla de pago, nuestro procesador de pagos Stripe puede establecer sus propias cookies allí para prevención de fraude. Eso ocurre en el sitio de Stripe, bajo su <a href="https://stripe.com/privacy" target="_blank" rel="noopener">política de privacidad</a>, no la nuestra.</p>`;
-  }
-
+  // The legal copy is rendered by the server (server/legal.js) and arrives
+  // with /api/config — the same text that /terms, /privacy and /cookies
+  // serve as pages. The modal is a convenience on top of those URLs.
   function renderLegalContent(cfg) {
-    if (CGI18N.getLang() === 'es') return renderLegalContentEs(cfg);
-    const { business } = cfg;
-    const accessPolicy = cfg.booking.accessPolicy ?? {};
-    const accessLateFee = `${business.currencySymbol}${((accessPolicy.lateFeePerBlockCents ?? 0) / 100).toFixed(0)}`;
-    const accessLockoutFee = `${business.currencySymbol}${((accessPolicy.lockoutFeeCents ?? 0) / 100).toFixed(0)}`;
-    legalContent.terms.body = `<p>By booking a service with ${business.name} you agree to the following terms:</p>
-      <h4>1. Bookings and payment</h4><p>The price shown is an estimate based on the details you provide. The final amount is confirmed after the team's initial inspection.</p>
-      <h4>2. Cancellations</h4><p>You can cancel or reschedule for free up to 24 hours before your appointment. Later cancellations may incur a 20% fee.</p>
-      <h4>3. Bond-Back & Re-clean Guarantee</h4>
-      <p><strong>What we guarantee:</strong> if your property manager or landlord flags an item from your <em>agreed checklist</em> that wasn't completed to a professional standard, we will re-clean that item at no charge — as many times as it takes to meet the standard — provided:</p>
-      <ul>
-        <li>it is reported to us in writing (email, or a note on your property condition/exit report) within ${formatWindow(business.recleanWindowHours)} of the clean; and</li>
-        <li>you or your property manager give our team reasonable access to carry out the re-clean.</li>
-      </ul>
-      <p><strong>What "100% bond-back guarantee" means — and doesn't mean:</strong> it describes our commitment to re-clean checklist items until they meet a professional standard. It is <strong>not</strong> a guarantee of the bond amount itself. Whether your bond is returned in full is a decision made by your landlord, property manager, or (if disputed) the relevant tenancy authority, based on factors outside our control — for example property damage, unpaid rent, garden/lawn condition, or missing items.</p>
-      <p><strong>What isn't covered:</strong> pre-existing damage, fair wear and tear, mould, odours or staining caused by conditions that existed before our service, items outside the checklist agreed at booking, and re-clean requests made after the ${formatWindow(business.recleanWindowHours)} reporting window or where access wasn't provided.</p>
-      <h4>4. Property Access & Lateness</h4>
-      <p>The access method chosen at booking — you being present, or a lockbox/key code — determines how our team gets in. If you choose a lockbox, its location and code must be given in the booking form; if either changes before the appointment, let us know immediately.</p>
-      <p>If you'll be present: we allow a <strong>${accessPolicy.gracePeriodMinutes}-minute grace period</strong> from the start of your booked time slot at no charge. After that, a <strong>${accessLateFee}</strong> fee applies for each additional ${accessPolicy.lateFeeBlockMinutes} minutes our team waits, since that time is taken directly from other customers' bookings that day. If access still hasn't been provided after <strong>${accessPolicy.lockoutThresholdMinutes} minutes</strong> total, we'll treat the appointment as a lockout: a <strong>${accessLockoutFee}</strong> lockout fee applies, the visit is cancelled, and it will need to be rebooked as a new appointment (subject to availability) rather than completed the same day.</p>
-      <h4>5. Utilities & Safe Working Conditions</h4>
-      <p>Working water and electricity must be connected and accessible at the property for the booked appointment — if they aren't, the lateness/lockout policy above may apply, as our team may be unable to complete the clean. Our team may decline or pause a clean, without it counting as a missed appointment on their part, if the property presents a genuine safety risk (e.g. an uncontrolled aggressive animal, exposed hazardous materials, structural danger) — please disclose anything relevant in the property notes at booking.</p>
-      <h4>6. Cancellations or Delays by ${business.name}</h4>
-      <p>On rare occasions we may need to cancel or reschedule an appointment ourselves — for example severe weather, a team member's illness, or a vehicle issue. In these cases you'll be notified as early as possible and offered a free reschedule to the next available slot, or a full refund if you'd prefer not to rebook. No fee ever applies for a cancellation or delay on our side.</p>
-      <h4>7. Recurring plans and early cancellation</h4><p>Weekly, fortnightly and monthly plans are billed automatically at a discounted rate that reflects the ongoing, repeat nature of the service. If a recurring plan is cancelled before the minimum of ${state.config.booking.earlyCancellationMinCycles ?? 3} cleans has been completed, a one-off early-cancellation fee equal to one visit at the discounted rate applies, charged to the card on file, to recover the discount given on the assumption of ongoing business. This fee does not apply once the minimum number of cleans has been completed — the plan can then be cancelled at any time with no fee.</p>`;
-    legalContent.privacy.body = `<p>Your personal data is used only to manage your booking and communicate with you about the service.</p>
-      <h4>Data we collect</h4><p>Name, email, phone number, the address of the property to be cleaned, and any before/after photos submitted for the job. If you choose to notify a property manager, we also collect their email address for that one purpose.</p>
-      <h4>How we use it</h4><p>We don't share your data with third parties other than the cleaning team assigned to your service and, only if you choose to provide one, the property manager/agent email you give us — used solely to send them proof that the agreed clean was completed.</p>
-      <h4>Your rights</h4><p>You can request access to, correction of, or deletion of your data by emailing ${business.email}.</p>`;
-    legalContent.cookies.body = `<p>This site doesn't use tracking, advertising or analytics cookies.</p>
-      <h4>What we do use</h4><p>A single cookie is set only if you log into your account at /account — it keeps you signed in for up to 30 days so you don't have to request a new login link every visit. If you never log in, no cookie is stored in your browser between visits.</p>
-      <h4>Stripe</h4><p>When you reach the payment screen, our payment processor Stripe may set its own cookies there for fraud prevention. That happens on Stripe's own site, under their <a href="https://stripe.com/privacy" target="_blank" rel="noopener">privacy policy</a>, not ours.</p>`;
+    Object.assign(legalContent, cfg.legal || {});
   }
 
   /* ============ GST (mirrors server/config.js's computeGstComponentCents) ============ */
@@ -640,60 +709,158 @@
     } else {
       btnNext.hidden = false;
       btnSubmit.hidden = true;
+      // The button says what the next step is, not a bare "Next": a visitor
+      // (or a screen reader) reading only the button knows what happens.
+      const nextLabels = ['Choose extras →', 'Pick a date →', 'Add your details →', 'Review booking →'];
+      btnNext.textContent = CGI18N.t(`form.next.${n}`, nextLabels[n - 1] || 'Continue →');
     }
+    const advanced = n > state.currentStep;
     state.currentStep = n;
+    // Only forward moves are reported: going back to correct a field isn't
+    // funnel progress, and counting it would inflate every step's total.
+    if (advanced) {
+      window.CGAnalytics?.track('booking_step', {
+        step: n,
+        step_name: ['property', 'extras', 'date', 'contact', 'review'][n - 1] || String(n),
+      });
+    }
     if (scroll) document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ============ Inline field validation ============
+   * Feedback used to be a single transient toast: it named only the first
+   * problem, vanished after ~3s, wasn't attached to the field it was about,
+   * and was invisible to a screen reader. On a five-step form that is a real
+   * source of abandonment. Each rule below now renders a persistent message
+   * beside its own field, marks the field aria-invalid and points at the
+   * message with aria-describedby, and re-checks as the visitor types once
+   * they've seen an error — while never interrupting a field they are still
+   * filling in for the first time. */
+
+  const FIELD_RULES = {
+    fullName: value => (value.trim().length >= 2
+      ? null
+      : CGI18N.t('field.fullName', 'Enter your first and last name')),
+    email: value => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+      ? null
+      : CGI18N.t('toast.invalidEmail', 'Enter a valid email address')),
+    phone: value => (/^0\d{9}$/.test(value.replace(/\s/g, ''))
+      ? null
+      : CGI18N.t('toast.invalidPhone', 'Enter a 10-digit phone number starting with 0 (e.g. 0400000000)')),
+    postcode: value => (/^\d{4}$/.test(value.trim())
+      ? null
+      : CGI18N.t('toast.invalidPostcode', 'Enter a 4-digit postcode (e.g. 3000)')),
+    address: value => (value.trim().length >= 6
+      ? null
+      : CGI18N.t('field.address', 'Enter the full street address, including the suburb')),
+    // Optional — only validated once something has actually been typed.
+    agentEmail: value => (!value.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+      ? null
+      : CGI18N.t('toast.invalidEmail', 'Enter a valid email address')),
+    bookingDate: value => {
+      if (!value) return CGI18N.t('toast.selectDate', 'Select a date for your service');
+      const chosen = new Date(`${value}T00:00:00`);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (chosen < today) return CGI18N.t('toast.pastDate', 'The date can\'t be in the past');
+      const maxDateVal = document.getElementById('bookingDate').max;
+      if (maxDateVal && value > maxDateVal) {
+        return CGI18N.t('toast.dateTooFar', 'Please pick a date within the next few months');
+      }
+      return null;
+    },
+  };
+
+  function errorElementFor(field) {
+    const id = `${field.id}-error`;
+    let el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement('p');
+      el.className = 'field-error';
+      el.id = id;
+      // role="alert" so the message is announced the moment it appears,
+      // without moving focus away from the field being corrected.
+      el.setAttribute('role', 'alert');
+      // A checkbox lives inside its <label>, so the message goes after the
+      // whole row rather than between the box and its text.
+      const anchor = field.type === 'checkbox' ? field.closest('.checkbox-row') || field : field;
+      anchor.insertAdjacentElement('afterend', el);
+    }
+    return el;
+  }
+
+  function showFieldError(field, message) {
+    const el = errorElementFor(field);
+    el.textContent = message;
+    el.hidden = false;
+    field.setAttribute('aria-invalid', 'true');
+    field.setAttribute('aria-describedby', el.id);
+    field.classList.add('field-invalid');
+  }
+
+  function clearFieldError(field) {
+    const el = document.getElementById(`${field.id}-error`);
+    if (el) { el.textContent = ''; el.hidden = true; }
+    field.removeAttribute('aria-invalid');
+    field.removeAttribute('aria-describedby');
+    field.classList.remove('field-invalid');
+  }
+
+  // Returns an error message for the field, or null when it's acceptable.
+  function checkField(field) {
+    const isCheckbox = field.type === 'checkbox';
+    const value = isCheckbox ? '' : field.value;
+    if (field.required && (isCheckbox ? !field.checked : !value.trim())) {
+      return isCheckbox
+        ? CGI18N.t('field.requiredCheckbox', 'Please tick this box to continue')
+        : CGI18N.t('field.required', 'This field is required');
+    }
+    // A blank optional field is fine; only run the format rule on real input.
+    if (!field.required && !isCheckbox && !value.trim()) return null;
+    const rule = FIELD_RULES[field.id];
+    return rule ? rule(value) : null;
+  }
+
+  function validateField(field) {
+    const error = checkField(field);
+    if (error) showFieldError(field, error);
+    else clearFieldError(field);
+    return !error;
+  }
+
+  // Wire live feedback: check on blur, then keep re-checking on every
+  // keystroke *only* for a field already showing an error, so the message
+  // clears the instant it's fixed but never appears mid-typing.
+  function initLiveValidation() {
+    const watched = new Set([...Object.keys(FIELD_RULES), ...Array.from(form.querySelectorAll('[required]')).map(f => f.id)]);
+    watched.forEach(id => {
+      const field = document.getElementById(id);
+      if (!field) return;
+      field.addEventListener('blur', () => validateField(field));
+      const liveEvent = field.type === 'checkbox' || field.tagName === 'SELECT' ? 'change' : 'input';
+      field.addEventListener(liveEvent, () => {
+        if (field.classList.contains('field-invalid')) validateField(field);
+      });
+    });
   }
 
   function validateStep(n) {
     const stepEl = steps.find(s => Number(s.dataset.step) === n);
-    const requiredFields = Array.from(stepEl.querySelectorAll('[required]'));
-    for (const field of requiredFields) {
-      if (!field.value || (field.type === 'checkbox' && !field.checked)) {
-        field.focus();
-        showToast(CGI18N.t('toast.requiredFields', 'Please fill in the required fields (*)'));
-        return false;
-      }
+    // Every field in the step is checked, not just the first failure, so the
+    // visitor sees everything they need to fix in one pass.
+    const fields = Array.from(stepEl.querySelectorAll('input, select, textarea'))
+      .filter(f => f.id && !f.disabled && (f.required || f.id in FIELD_RULES));
+    const invalid = fields.filter(field => !validateField(field));
+
+    if (invalid.length) {
+      invalid[0].focus();
+      showToast(invalid.length === 1
+        ? checkField(invalid[0])
+        : CGI18N.tf('toast.fixFields', n => `Please fix ${n} fields to continue`, invalid.length));
+      return false;
     }
-    if (n === 4) {
-      const email = document.getElementById('email').value;
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        document.getElementById('email').focus();
-        showToast(CGI18N.t('toast.invalidEmail', 'Enter a valid email address'));
-        return false;
-      }
-      const phone = document.getElementById('phone').value;
-      if (!/^0\d{9}$/.test(phone)) {
-        document.getElementById('phone').focus();
-        showToast(CGI18N.t('toast.invalidPhone', 'Enter a 10-digit phone number starting with 0 (e.g. 0400000000)'));
-        return false;
-      }
-      const postcode = document.getElementById('postcode').value;
-      if (!/^\d{4}$/.test(postcode)) {
-        document.getElementById('postcode').focus();
-        showToast(CGI18N.t('toast.invalidPostcode', 'Enter a 4-digit postcode (e.g. 3000)'));
-        return false;
-      }
-    }
+
     if (n === 3) {
-      const dateVal = document.getElementById('bookingDate').value;
-      if (!dateVal) {
-        document.getElementById('bookingDate').focus();
-        showToast(CGI18N.t('toast.selectDate', 'Select a date for your service'));
-        return false;
-      }
-      const chosen = new Date(dateVal + 'T00:00:00');
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (chosen < today) {
-        showToast(CGI18N.t('toast.pastDate', 'The date can\'t be in the past'));
-        return false;
-      }
-      const maxDateVal = document.getElementById('bookingDate').max;
-      if (maxDateVal && dateVal > maxDateVal) {
-        showToast(CGI18N.t('toast.dateTooFar', 'Please pick a date within the next few months'));
-        return false;
-      }
       const timeSelect = document.getElementById('bookingTime');
       const selectedOption = timeSelect.options[timeSelect.selectedIndex];
       if (selectedOption && selectedOption.disabled) {
@@ -760,32 +927,35 @@
     const postcode = escapeHtml(document.getElementById('postcode').value);
 
     const editLabel = CGI18N.t('review.edit', 'Edit');
-    const termsLink = `<a href="#" data-modal="terms">${CGI18N.t('review.terms', 'terms')}</a>`;
-    document.getElementById('reviewBox').innerHTML = `
-      <div class="review-section">
-        <button type="button" class="review-edit" data-goto="1">${editLabel}</button>
+    // Each "Edit" button names what it edits: four identical accessible names
+    // are indistinguishable in a screen reader's element list.
+    const editBtn = (step, what) => `<button type="button" class="summary-edit" data-goto="${step}" aria-label="${editLabel}: ${what}">${editLabel}</button>`;
+    const termsLink = `<a href="/terms" data-modal="terms">${CGI18N.t('review.terms', 'terms')}</a>`;
+    document.getElementById('bookingSummary').innerHTML = `
+      <div class="summary-section">
+        ${editBtn(1, CGI18N.t('review.property', 'Property'))}
         <h4>${CGI18N.t('review.property', 'Property')}</h4>
         <p>${serviceType.label} · ${sizeOptionDisplayLabel(serviceType, sizeOption)} · ${secondaryOption ? secondaryOption.label : ''}</p>
       </div>
-      <div class="review-section">
-        <button type="button" class="review-edit" data-goto="2">${editLabel}</button>
+      <div class="summary-section">
+        ${editBtn(2, CGI18N.t('review.extras', 'Extras'))}
         <h4>${CGI18N.t('review.extras', 'Extras')}</h4>
         <p>${extrasLabel}</p>
       </div>
-      <div class="review-section">
-        <button type="button" class="review-edit" data-goto="3">${editLabel}</button>
+      <div class="summary-section">
+        ${editBtn(3, CGI18N.t('review.dateTime', 'Date & time'))}
         <h4>${CGI18N.t('review.dateTime', 'Date & time')}</h4>
         <p>${dateFormatted} · ${timeVal} ${CGI18N.t('review.slot', 'slot')} · ${CGI18N.t('review.urgency', 'urgency')}: ${urgencyOption ? urgencyOption.label : state.urgency}</p>
       </div>
-      <div class="review-section">
-        <button type="button" class="review-edit" data-goto="4">${editLabel}</button>
+      <div class="summary-section">
+        ${editBtn(4, CGI18N.t('review.contact', 'Contact details'))}
         <h4>${CGI18N.t('review.contact', 'Contact details')}</h4>
         <p>${name}<br>${email} · ${phone}<br>${address}, ${postcode}</p>
       </div>
-      <div class="review-section">
+      <div class="summary-section">
         <h4>${CGI18N.t('review.frequency', 'Cleaning frequency')}</h4>
         <p>${frequencyOption.label}${isRecurring ? CGI18N.t('review.billedAuto', ' — billed automatically each cycle') : ''}</p>
-        ${isRecurring ? `<p class="review-cancellation-note">${
+        ${isRecurring ? `<p class="summary-cancellation-note">${
           CGI18N.tf(
             'review.cancellationNote',
             (n, terms) => `Cancelling before your ${n}${getOrdinalSuffix(n)} clean incurs a one-off early-cancellation fee equal to one visit at your discounted rate — see ${terms}.`,
@@ -793,14 +963,14 @@
           )
         }</p>` : ''}
       </div>
-      <div class="review-section">
+      <div class="summary-section">
         <h4>${isRecurring ? CGI18N.t('review.totalPerVisit', 'Total per visit') : CGI18N.t('review.totalToPay', 'Total to pay')}</h4>
-        <p class="review-total-price">${currencySymbol}${total.toFixed(0)}${isRecurring ? ` <span class="review-discount-tag">/ ${frequencyOption.label.toLowerCase()}</span>` : ''} ${discount > 0 ? `<span class="review-discount-tag">${CGI18N.t('review.discountApplied', '(discount applied)')}</span>` : ''}</p>
-        ${computeGstComponent(total) > 0 ? `<p class="review-gst-note">${CGI18N.tf('review.includesGst', a => `Includes ${a} GST`, `${currencySymbol}${computeGstComponent(total).toFixed(2)}`)}</p>` : ''}
+        <p class="summary-total-price">${currencySymbol}${total.toFixed(0)}${isRecurring ? ` <span class="summary-discount-tag">/ ${frequencyOption.label.toLowerCase()}</span>` : ''} ${discount > 0 ? `<span class="summary-discount-tag">${CGI18N.t('review.discountApplied', '(discount applied)')}</span>` : ''}</p>
+        ${computeGstComponent(total) > 0 ? `<p class="summary-gst-note">${CGI18N.tf('review.includesGst', a => `Includes ${a} GST`, `${currencySymbol}${computeGstComponent(total).toFixed(2)}`)}</p>` : ''}
       </div>
     `;
 
-    document.querySelectorAll('.review-edit').forEach(btn => {
+    document.querySelectorAll('.summary-edit').forEach(btn => {
       btn.addEventListener('click', () => showStep(Number(btn.dataset.goto)));
     });
   }
@@ -858,7 +1028,7 @@
     const formData = new FormData();
     state.photos.forEach(file => formData.append('photos', file));
     try {
-      const res = await fetch(`/api/bookings/${encodeURIComponent(bookingId)}/photos`, {
+      const res = await csrfFetch(`/api/bookings/${encodeURIComponent(bookingId)}/photos`, {
         method: 'POST',
         body: formData,
       });
@@ -903,7 +1073,7 @@
 
     setSubmitting(true);
     try {
-      const bookingRes = await fetch('/api/bookings', {
+      const bookingRes = await csrfFetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -911,15 +1081,29 @@
       const bookingData = await bookingRes.json();
       if (!bookingRes.ok) throw new Error(bookingData.error || 'Could not create the booking');
 
+      window.CGAnalytics?.track('booking_created', {
+        currency: (state.config.business.currencyCode || 'AUD').toUpperCase(),
+        value: bookingData.amount,
+        transaction_id: bookingData.bookingId,
+      });
+
       await uploadPropertyPhotos(bookingData.bookingId);
 
-      const sessionRes = await fetch('/api/checkout-session', {
+      const sessionRes = await csrfFetch('/api/checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId: bookingData.bookingId }),
       });
       const sessionData = await sessionRes.json();
       if (!sessionRes.ok) throw new Error(sessionData.error || 'Could not start the payment');
+
+      // GA4's standard funnel event, fired immediately before handing the
+      // visitor to Stripe — the last thing we control before leaving the site.
+      window.CGAnalytics?.track('begin_checkout', {
+        currency: (state.config.business.currencyCode || 'AUD').toUpperCase(),
+        value: bookingData.amount,
+        transaction_id: bookingData.bookingId,
+      });
 
       window.location.href = sessionData.url;
     } catch (err) {
@@ -978,6 +1162,12 @@
   // [data-modal] links — e.g. the guarantee footnotes — are injected later,
   // once /api/config has loaded.
   document.addEventListener('click', e => {
+    if (e.target.closest('#manageCookiesInlineLink')) {
+      e.preventDefault();
+      closeModal('legalModal');
+      window.CGAnalytics?.openBanner?.();
+      return;
+    }
     const link = e.target.closest('[data-modal]');
     if (!link) return;
     e.preventDefault();
@@ -1006,14 +1196,37 @@
   /* ============ Mobile nav ============ */
   const navToggle = document.getElementById('navToggle');
   const mainNav = document.getElementById('mainNav');
-  navToggle.addEventListener('click', () => {
-    const isOpen = mainNav.classList.toggle('open');
-    navToggle.setAttribute('aria-expanded', String(isOpen));
+
+  // One function owns the menu's state so the class, aria-expanded and the
+  // button's label can never drift apart — every path that opens or closes
+  // the menu (button, link, Escape, outside click) goes through here.
+  function setNavOpen(open) {
+    mainNav.classList.toggle('open', open);
+    navToggle.setAttribute('aria-expanded', String(open));
+    navToggle.setAttribute('aria-label', open
+      ? CGI18N.t('header.closeMenu', 'Close menu')
+      : CGI18N.t('header.openMenu', 'Open menu'));
+  }
+
+  navToggle.addEventListener('click', () => setNavOpen(!mainNav.classList.contains('open')));
+  mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setNavOpen(false)));
+
+  // Escape closes the menu and returns focus to the control that opened it,
+  // so a keyboard user isn't stranded inside a menu they can't dismiss.
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && mainNav.classList.contains('open')) {
+      setNavOpen(false);
+      navToggle.focus();
+    }
   });
-  mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-    mainNav.classList.remove('open');
-    navToggle.setAttribute('aria-expanded', 'false');
-  }));
+
+  // Tapping anywhere outside dismisses it — the expected behaviour for an
+  // overlay menu on mobile, where there's no other obvious way out.
+  document.addEventListener('click', e => {
+    if (!mainNav.classList.contains('open')) return;
+    if (mainNav.contains(e.target) || navToggle.contains(e.target)) return;
+    setNavOpen(false);
+  });
 
   /* ============ Back to top / WhatsApp float ============ */
   // Both float over page content, so they only appear once the visitor has
@@ -1054,7 +1267,7 @@
     document.getElementById('reCleanReminderLabel').innerHTML =
       '<input type="checkbox" id="reCleanReminder" name="reCleanReminder" checked> Notifícame si mi arrendador/agente no queda conforme con algo (re-limpieza gratuita dentro de <span id="recleanWindowHours">72h</span>)';
     document.getElementById('termsAgreeLabel').innerHTML =
-      '<input type="checkbox" id="terms" name="terms" required> Acepto los <a href="#" data-modal="terms">términos y condiciones</a> y la <a href="#" data-modal="privacy">política de privacidad</a> *';
+      '<input type="checkbox" id="terms" name="terms" required> Acepto los <a href="/terms" data-modal="terms">términos y condiciones</a> y la <a href="/privacy" data-modal="privacy">política de privacidad</a> *';
     document.getElementById('agentNotifyLabel').innerHTML =
       '<input type="checkbox" id="agentEmailToggle"> Notificar automáticamente a mi administrador de propiedad cuando la limpieza esté lista (opcional)';
     document.getElementById('faqA1').innerHTML =
@@ -1080,7 +1293,13 @@
     renderPricingTiers(cfg);
     renderBookingWizard(cfg);
     renderLegalContent(cfg);
+    renderTrustBadges(cfg);
+    renderReviews(cfg);
     bindPillGroups();
+
+    // Must run after renderBookingWizard, which is what populates the
+    // selects and sets the date field's min/max.
+    initLiveValidation();
 
     els.bedrooms.addEventListener('change', updatePriceSummary);
     els.bathrooms.addEventListener('change', updatePriceSummary);
@@ -1103,7 +1322,7 @@
       const email = document.getElementById('email').value;
       const phone = document.getElementById('phone').value;
       if (!email && !phone) return;
-      fetch('/api/leads', {
+      csrfFetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, phone }),
@@ -1253,7 +1472,7 @@
       btn.disabled = true;
       btn.textContent = CGI18N.t('resume.redirecting', 'Redirecting…');
       try {
-        const res = await fetch('/api/checkout-session', {
+        const res = await csrfFetch('/api/checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ bookingId: booking.id }),

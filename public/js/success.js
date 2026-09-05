@@ -14,7 +14,7 @@
   function renderError(message) {
     render(`
       <div class="result-icon">⚠️</div>
-      <h3>We couldn't confirm the payment</h3>
+      <h1>We couldn't confirm the payment</h1>
       <p>${message}</p>
       <a class="btn btn-primary" href="/index.html#booking">Try again</a>
     `);
@@ -42,6 +42,17 @@
     const sizeLabel = sizeOption ? sizeOption.label : data.bedrooms;
 
     if (data.paymentStatus === 'paid') {
+      // The conversion event. Fired only on a confirmed-paid session, so it
+      // counts real revenue rather than checkout attempts. The booking id is
+      // the transaction_id, which makes GA4 de-duplicate a refresh of this
+      // page instead of counting the same sale twice.
+      window.CGAnalytics?.track('purchase', {
+        transaction_id: data.id,
+        currency: (cfg.business.currencyCode || 'AUD').toUpperCase(),
+        value: data.amount,
+        items: [{ item_id: data.bedrooms, item_name: `${data.propertyType} clean`, price: data.amount, quantity: 1 }],
+      });
+
       const gstRate = cfg.business.gstRate ?? 0.1;
       const gstAmount = cfg.business.gstRegistered ? data.amount - data.amount / (1 + gstRate) : 0;
       const frequencyOption = cfg.booking.frequencyOptions?.find(f => f.value === data.frequency);
@@ -49,7 +60,7 @@
 
       render(`
         <div class="result-icon">✅</div>
-        <h3>${isRecurring ? 'Your recurring clean is now active!' : 'Booking confirmed and paid!'}</h3>
+        <h1>${isRecurring ? 'Your recurring clean is now active!' : 'Booking confirmed and paid!'}</h1>
         <p>We've sent the details to <strong>${escapeHtml(data.email)}</strong>. We'll be in touch to confirm access.</p>
         <div class="result-summary">
           <div>${propertyLabel} · ${sizeLabel} · ${data.bathrooms} bathroom(s)</div>
@@ -84,7 +95,7 @@
     } else {
       render(`
         <div class="result-icon">⏳</div>
-        <h3>Your payment is processing</h3>
+        <h1>Your payment is processing</h1>
         <p>This can take a few seconds. We'll email you as soon as it's confirmed.</p>
         <p class="result-ref">Booking reference: <strong>${data.id}</strong></p>
         <a class="btn btn-ghost" href="/index.html">Back to home</a>

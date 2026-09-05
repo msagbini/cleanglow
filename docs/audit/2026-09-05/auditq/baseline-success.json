@@ -1,0 +1,903 @@
+{
+  "schema_version": "1.1.0",
+  "severity_policy": "2026-09-05",
+  "site_profile": {
+    "tipo": "generico",
+    "etiqueta": "General website",
+    "confianza": 0.0,
+    "evidencia": [],
+    "puntuaciones": {},
+    "acciones": [],
+    "dimensiones": {
+      "entidad": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "etiqueta": "Type of organisation",
+        "verificada": false
+      },
+      "industria": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "etiqueta": "Industry",
+        "verificada": false
+      },
+      "audiencia": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "etiqueta": "Audience",
+        "verificada": false
+      },
+      "jurisdiccion": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "etiqueta": "Jurisdiction",
+        "verificada": false
+      },
+      "madurez": {
+        "valor": "basico",
+        "confianza": 0.5,
+        "evidencia": [
+          "no CMS, framework or build markers found"
+        ],
+        "puntuaciones": {},
+        "etiqueta": "Digital maturity",
+        "verificada": false
+      },
+      "stack": {
+        "valor": "estatico",
+        "confianza": 0.5,
+        "evidencia": [
+          "no CMS or framework markers found"
+        ],
+        "puntuaciones": {},
+        "etiqueta": "Technology",
+        "verificada": false
+      },
+      "objetivo": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "etiqueta": "Primary goal",
+        "verificada": false
+      },
+      "modelo": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "etiqueta": "Business model",
+        "verificada": false
+      },
+      "tamano": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "estimado": true,
+        "etiqueta": "Size",
+        "verificada": false
+      }
+    }
+  },
+  "generated_at": "2026-09-05T12:54:30.778323+00:00",
+  "mode": "single-process",
+  "target": {
+    "requested_url": "http://localhost:4242/success.html",
+    "final_url": "http://localhost:4242/success.html",
+    "http_status": 200,
+    "fetch_error": null,
+    "response_time_ms": 38,
+    "html_bytes": 938,
+    "https": false
+  },
+  "tools": {
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "--no-lighthouse"
+    },
+    "render": null,
+    "html_parser": "python stdlib html.parser",
+    "http_client": "python stdlib urllib"
+  },
+  "metrics": {
+    "lighthouse_scores": null,
+    "core_web_vitals": null,
+    "lighthouse_opportunities": null,
+    "audit_duration_s": 0.23
+  },
+  "page_facts": {
+    "title": "Booking confirmed",
+    "lang": "en",
+    "meta_description": null,
+    "canonical": null,
+    "h1_count": 0,
+    "image_count": 0,
+    "script_count": 3,
+    "anchor_count": 0,
+    "form_count": 0
+  },
+  "summary": {
+    "complete": true,
+    "global_score": 25,
+    "total_findings": 35,
+    "by_severity": {
+      "critical": 2,
+      "high": 6,
+      "medium": 9,
+      "low": 8,
+      "info": 10
+    },
+    "auto_fixable": 7,
+    "unverified": 15
+  },
+  "by_specialist": {
+    "seo": {
+      "label": "SEO & Content",
+      "status": "ok",
+      "score": 45,
+      "counts": {
+        "critical": 1,
+        "high": 2,
+        "medium": 4,
+        "low": 4,
+        "info": 0
+      },
+      "finding_ids": [
+        "seo.robots.noindex",
+        "seo.h1.missing",
+        "seo.meta_description.missing",
+        "seo.canonical.missing",
+        "seo.content.thin",
+        "seo.opengraph.image_missing",
+        "seo.structured_data.missing",
+        "seo.headings.skipped_level",
+        "seo.opengraph.description_missing",
+        "seo.opengraph.title_missing",
+        "seo.opengraph.url_missing"
+      ]
+    },
+    "backend": {
+      "label": "Backend & Infrastructure",
+      "status": "ok",
+      "score": 90,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 1,
+        "low": 1,
+        "info": 0
+      },
+      "finding_ids": [
+        "backend.compression.missing",
+        "backend.protocol.no_h3"
+      ]
+    },
+    "frontend": {
+      "label": "Frontend & UX",
+      "status": "ok",
+      "score": 71,
+      "counts": {
+        "critical": 0,
+        "high": 2,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": [
+        "frontend.csr.shell_suspected",
+        "frontend.script.render_blocking"
+      ]
+    },
+    "a11y": {
+      "label": "Accessibility (WCAG 2.2 / EN 301 549)",
+      "status": "ok",
+      "score": 93,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 1,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "a11y.landmark.no_main",
+        "a11y.contrast.unverified"
+      ]
+    },
+    "conversion": {
+      "label": "Consumer Psychology & Conversion",
+      "status": "ok",
+      "score": 72,
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 2,
+        "low": 1,
+        "info": 1
+      },
+      "finding_ids": [
+        "conversion.cta.missing",
+        "conversion.contact.no_channel",
+        "conversion.trust.no_social_proof",
+        "conversion.value.no_pricing_signal",
+        "conversion.cta.contrast_unverified"
+      ]
+    },
+    "design": {
+      "label": "Design & Identity",
+      "status": "ok",
+      "score": 97,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 1,
+        "info": 4
+      },
+      "finding_ids": [
+        "design.logo.not_detected",
+        "design.brand_consistency.unverified",
+        "design.dark_mode.unsupported",
+        "design.manifest.missing",
+        "design.theme_color.missing"
+      ]
+    },
+    "security": {
+      "label": "Security & Compliance",
+      "status": "ok",
+      "score": 68,
+      "counts": {
+        "critical": 1,
+        "high": 0,
+        "medium": 1,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "security.transport.no_https",
+        "security.compliance.no_legal_links",
+        "security.tls.expiry_unverified"
+      ]
+    },
+    "analytics": {
+      "label": "Analytics & Data",
+      "status": "ok",
+      "score": 81,
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 1,
+        "info": 1
+      },
+      "finding_ids": [
+        "analytics.tracking.none",
+        "analytics.search_console.unverified",
+        "analytics.server_side.unverified"
+      ]
+    },
+    "content": {
+      "label": "Content & Veracity",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": []
+    },
+    "unicity": {
+      "label": "Design Originality",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": []
+    },
+    "local": {
+      "label": "Local Business",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "local.not_applicable"
+      ]
+    },
+    "commerce": {
+      "label": "Shop & Bookings",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "commerce.not_applicable"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "security.transport.no_https",
+      "specialist": "security",
+      "category": "transport",
+      "severity": "critical",
+      "title": "The site is not served over HTTPS",
+      "evidence": "Final URL: http://localhost:4242/success.html",
+      "recommendation": "Install a TLS certificate and force HTTPS with a 301 redirect + HSTS.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "seo.robots.noindex",
+      "specialist": "seo",
+      "category": "indexation",
+      "severity": "critical",
+      "title": "The page is marked noindex",
+      "evidence": "meta robots='noindex, nofollow'",
+      "recommendation": "Remove noindex if the page should rank. Check it is not intentional.",
+      "auto_fixable": false,
+      "risk_class": "dangerous",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "analytics.tracking.none",
+      "specialist": "analytics",
+      "category": "coverage",
+      "severity": "high",
+      "title": "No analytics tool was detected",
+      "evidence": "Patterns evaluated: 8; matches: 0.",
+      "recommendation": "Install at least one measurement tool (GA4, Plausible or Matomo).",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {
+        "detected": {
+          "Google Analytics 4": false,
+          "Google Tag Manager": false,
+          "Meta Pixel": false,
+          "Hotjar": false,
+          "Microsoft Clarity": false,
+          "Plausible": false,
+          "Matomo": false,
+          "Segment": false
+        }
+      }
+    },
+    {
+      "id": "conversion.cta.missing",
+      "specialist": "conversion",
+      "category": "cta",
+      "severity": "high",
+      "title": "No clear call to action was detected",
+      "evidence": "0 links and 0 buttons analysed; none with a recognised action verb.",
+      "recommendation": "Add a primary call to action with an action verb, visible without scrolling.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.6,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "frontend.csr.shell_suspected",
+      "specialist": "frontend",
+      "category": "rendering",
+      "severity": "high",
+      "title": "The page appears to render on the client and JavaScript was NOT executed",
+      "evidence": "The downloaded HTML has 113 characters of visible text and an empty root container or no h1.",
+      "recommendation": "Run the audit again with rendering enabled (AUDIT_RENDER=1). Until then, the content findings for this page may be artefacts of JavaScript not having run.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.7,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "frontend.script.render_blocking",
+      "specialist": "frontend",
+      "category": "performance",
+      "severity": "high",
+      "title": "3 scripts block rendering",
+      "evidence": "js/reload-scroll-fix.js?v=1502d5236cb4; js/analytics.js?v=1502d5236cb4; js/success.js?v=1502d5236cb4",
+      "recommendation": "Add defer (or async if it does not depend on the DOM) to the <script src> tags in <head>.",
+      "auto_fixable": true,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {
+        "sources": [
+          "js/reload-scroll-fix.js?v=1502d5236cb4",
+          "js/analytics.js?v=1502d5236cb4",
+          "js/success.js?v=1502d5236cb4"
+        ]
+      }
+    },
+    {
+      "id": "seo.h1.missing",
+      "specialist": "seo",
+      "category": "headings",
+      "severity": "high",
+      "title": "No <h1>",
+      "evidence": "0 h1 elements in the document.",
+      "recommendation": "Add exactly one h1 describing the main content.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "seo.meta_description.missing",
+      "specialist": "seo",
+      "category": "meta",
+      "severity": "high",
+      "title": "Missing <meta name=\"description\">",
+      "evidence": "There is no meta description in <head>.",
+      "recommendation": "Add a unique 120-158 character description.",
+      "auto_fixable": true,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "a11y.landmark.no_main",
+      "specialist": "a11y",
+      "category": "estructura",
+      "severity": "medium",
+      "title": "The page has no <main> region",
+      "evidence": "Regions found: ninguna.",
+      "recommendation": "Wrap the main content in <main> (or role=\"main\"). It is the jump screen readers use to skip the navigation on every page (WCAG 1.3.1).",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {
+        "landmarks": []
+      }
+    },
+    {
+      "id": "backend.compression.missing",
+      "specialist": "backend",
+      "category": "performance",
+      "severity": "medium",
+      "title": "Response is not compressed",
+      "evidence": "There is no Content-Encoding header.",
+      "recommendation": "Enable Brotli (or gzip) for text/html, css, js, json and svg.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "conversion.contact.no_channel",
+      "specialist": "conversion",
+      "category": "trust",
+      "severity": "medium",
+      "title": "There is no visible contact channel on the page",
+      "evidence": "No mailto:, tel: or contact link.",
+      "recommendation": "Show a phone number, email or chat; no contact details lowers perceived trust.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.7,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "conversion.trust.no_social_proof",
+      "specialist": "conversion",
+      "category": "trust",
+      "severity": "medium",
+      "title": "No detectable social-proof signals",
+      "evidence": "No terms for testimonials, reviews, guarantees or certifications were found.",
+      "recommendation": "Add verifiable testimonials, client logos or ratings with Review schema.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.5,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "security.compliance.no_legal_links",
+      "specialist": "security",
+      "category": "compliance",
+      "severity": "medium",
+      "title": "No links to a privacy policy or legal notice",
+      "evidence": "No legal links were detected on the page.",
+      "recommendation": "Publish a privacy policy, legal notice and cookie policy, linked from the footer.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.7,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "seo.canonical.missing",
+      "specialist": "seo",
+      "category": "indexation",
+      "severity": "medium",
+      "title": "Missing <link rel=\"canonical\">",
+      "evidence": "There is no canonical in <head>.",
+      "recommendation": "Add an absolute, self-referencing canonical.",
+      "auto_fixable": true,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "seo.content.thin",
+      "specialist": "seo",
+      "category": "content",
+      "severity": "medium",
+      "title": "Thin content: ~15 visible words",
+      "evidence": "15 words after stripping markup.",
+      "recommendation": "Expand to >=600 useful words, or mark the page noindex if it is utilitarian.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.6,
+      "verified": false,
+      "data": {
+        "word_count": 15
+      }
+    },
+    {
+      "id": "seo.opengraph.image_missing",
+      "specialist": "seo",
+      "category": "social",
+      "severity": "medium",
+      "title": "Missing og:image",
+      "evidence": "There is no <meta property=\"og:image\">",
+      "recommendation": "Add Open Graph to control how the link is shared.",
+      "auto_fixable": false,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "seo.structured_data.missing",
+      "specialist": "seo",
+      "category": "structured_data",
+      "severity": "medium",
+      "title": "No JSON-LD structured data",
+      "evidence": "0 application/ld+json blocks.",
+      "recommendation": "Add schema.org (Organization, WebSite, BreadcrumbList and the page type).",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "analytics.search_console.unverified",
+      "specialist": "analytics",
+      "category": "coverage",
+      "severity": "low",
+      "title": "No Search Console / Bing verification meta",
+      "evidence": "There is no google-site-verification and no msvalidate.01.",
+      "recommendation": "Verify the property to get access to organic search data.",
+      "auto_fixable": false,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.6,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "backend.protocol.no_h3",
+      "specialist": "backend",
+      "category": "protocol",
+      "severity": "low",
+      "title": "HTTP/3 is not advertised",
+      "evidence": "Alt-Svc=''",
+      "recommendation": "Enable HTTP/3 at the CDN; it shortens the handshake on mobile networks.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.6,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "conversion.value.no_pricing_signal",
+      "specialist": "conversion",
+      "category": "value_prop",
+      "severity": "low",
+      "title": "No price or free-of-charge signal",
+      "evidence": "No amount and no 'free' anywhere on the page.",
+      "recommendation": "State a price, a range or 'free'; hidden pricing is a common cause of drop-off.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.4,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "design.logo.not_detected",
+      "specialist": "design",
+      "category": "identity",
+      "severity": "low",
+      "title": "No logo could be identified in the markup",
+      "evidence": "No img, alt or class containing 'logo'.",
+      "recommendation": "Give the logo a descriptive alt (the brand name) and link it to the home page.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.4,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "seo.headings.skipped_level",
+      "specialist": "seo",
+      "category": "headings",
+      "severity": "low",
+      "title": "Heading hierarchy skips a level (h3 with no h2)",
+      "evidence": "h2=0, h3=1",
+      "recommendation": "Keep the h1>h2>h3 order for accessibility and semantics.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "seo.opengraph.description_missing",
+      "specialist": "seo",
+      "category": "social",
+      "severity": "low",
+      "title": "Missing og:description",
+      "evidence": "There is no <meta property=\"og:description\">",
+      "recommendation": "Add Open Graph to control how the link is shared.",
+      "auto_fixable": true,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "seo.opengraph.title_missing",
+      "specialist": "seo",
+      "category": "social",
+      "severity": "low",
+      "title": "Missing og:title",
+      "evidence": "There is no <meta property=\"og:title\">",
+      "recommendation": "Add Open Graph to control how the link is shared.",
+      "auto_fixable": true,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "seo.opengraph.url_missing",
+      "specialist": "seo",
+      "category": "social",
+      "severity": "low",
+      "title": "Missing og:url",
+      "evidence": "There is no <meta property=\"og:url\">",
+      "recommendation": "Add Open Graph to control how the link is shared.",
+      "auto_fixable": true,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "a11y.contrast.unverified",
+      "specialist": "a11y",
+      "category": "coverage",
+      "severity": "info",
+      "title": "Colour contrast, focus order and alt-text quality have not been checked",
+      "evidence": "The analysis reads the served HTML: it neither computes styles nor navigates with a keyboard, so it cannot measure real contrast ratio (WCAG 1.4.3), focus order (2.4.3) or whether an alt text actually describes the image (1.1.1).",
+      "recommendation": "Complete this with a manual review and a browser tool (axe DevTools, Lighthouse). This section covers the criteria that leave a trace in the markup, not full conformance with EN 301 549.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "analytics.server_side.unverified",
+      "specialist": "analytics",
+      "category": "architecture",
+      "severity": "info",
+      "title": "Server-side measurement cannot be verified from the HTML",
+      "evidence": "Static analysis cannot see runtime requests.",
+      "recommendation": "Run the Playwright worker with network capture to list the real measurement calls.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "commerce.not_applicable",
+      "specialist": "commerce",
+      "category": "coverage",
+      "severity": "info",
+      "title": "Shop and booking checks were not applied",
+      "evidence": "Detected site type: General website.",
+      "recommendation": "These checks (Product markup, shipping and returns policy, booking engine, menu) only make sense for a site that sells or takes bookings. Nothing here counts against the score.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "conversion.cta.contrast_unverified",
+      "specialist": "conversion",
+      "category": "cta",
+      "severity": "info",
+      "title": "Call-to-action contrast and visibility not checked in this pass",
+      "evidence": "Static analysis does not compute rendered contrast.",
+      "recommendation": "Run the Playwright + axe-core worker to measure real call-to-action contrast.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "design.brand_consistency.unverified",
+      "specialist": "design",
+      "category": "identity",
+      "severity": "info",
+      "title": "Brand consistency across pages not checked",
+      "evidence": "This pass analyses a single URL.",
+      "recommendation": "Run the multi-page crawler and compare tokens, logo and tone across templates.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "design.dark_mode.unsupported",
+      "specialist": "design",
+      "category": "system",
+      "severity": "info",
+      "title": "No declared dark-mode support",
+      "evidence": "Neither prefers-color-scheme nor meta color-scheme appears.",
+      "recommendation": "Define color-scheme and a dark palette if it suits your audience.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.6,
+      "verified": false,
+      "data": {}
+    },
+    {
+      "id": "design.manifest.missing",
+      "specialist": "design",
+      "category": "identity",
+      "severity": "info",
+      "title": "No web app manifest",
+      "evidence": "There is no <link rel=\"manifest\">.",
+      "recommendation": "Add manifest.json with the name, icons and brand colours.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "design.theme_color.missing",
+      "specialist": "design",
+      "category": "identity",
+      "severity": "info",
+      "title": "No <meta name=\"theme-color\">",
+      "evidence": "Not declared.",
+      "recommendation": "Set theme-color for the mobile browser UI.",
+      "auto_fixable": true,
+      "risk_class": "safe",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "local.not_applicable",
+      "specialist": "local",
+      "category": "coverage",
+      "severity": "info",
+      "title": "Local-business checks were not applied",
+      "evidence": "Detected site type: General website.",
+      "recommendation": "These checks (click-to-call, address, opening hours, LocalBusiness markup) only make sense for a business that serves customers in a place. Nothing here counts against the score.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {}
+    },
+    {
+      "id": "security.tls.expiry_unverified",
+      "specialist": "security",
+      "category": "transport",
+      "severity": "info",
+      "title": "TLS certificate expiry and chain not checked in this pass",
+      "evidence": "The capture uses the system CA store; it inspects neither dates nor chain.",
+      "recommendation": "Run the TLS worker (sslyze or `openssl s_client`) for expiry date, protocol version and cipher suites.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "http://localhost:4242/success.html",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {}
+    }
+  ],
+  "context": {
+    "robots_txt_status": 200,
+    "sitemap_status": 200,
+    "http_redirect": null,
+    "not_found_probe": {
+      "url": "http://localhost:4242/__auditagent_probe_1788612870",
+      "status": 404
+    },
+    "exposed_paths": null
+  }
+}

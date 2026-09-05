@@ -1,0 +1,4495 @@
+{
+  "label": "antes",
+  "generated": "2026-09-05T13:11:10.759Z",
+  "pages": {
+    "home": {
+      "360": {
+        "scrollWidth": 360,
+        "innerWidth": 360,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 360,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 123,
+            "h": 26
+          },
+          {
+            "tag": "a",
+            "id": "headerCallIcon",
+            "cls": "call-icon-btn",
+            "text": "Call us",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 80,
+            "h": 35
+          },
+          {
+            "tag": "button",
+            "id": "navToggle",
+            "cls": "nav-toggle",
+            "text": "Open menu",
+            "w": 34,
+            "h": 28
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 262,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 270,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 262,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 278,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 278,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 278,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 278,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 278,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 135,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 133,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 328,
+            "h": 26
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 328,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "390": {
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 390,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": "headerCallIcon",
+            "cls": "call-icon-btn",
+            "text": "Call us",
+            "w": 38,
+            "h": 38
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 91,
+            "h": 38
+          },
+          {
+            "tag": "button",
+            "id": "navToggle",
+            "cls": "nav-toggle",
+            "text": "Open menu",
+            "w": 34,
+            "h": 28
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 292,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 301,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 292,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 308,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 308,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 308,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 308,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 308,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 150,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 148,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 358,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 358,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "412": {
+        "scrollWidth": 412,
+        "innerWidth": 412,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 412,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": "headerCallIcon",
+            "cls": "call-icon-btn",
+            "text": "Call us",
+            "w": 38,
+            "h": 38
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 91,
+            "h": 38
+          },
+          {
+            "tag": "button",
+            "id": "navToggle",
+            "cls": "nav-toggle",
+            "text": "Open menu",
+            "w": 34,
+            "h": 28
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 314,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 323,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 314,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 330,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 330,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 330,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 330,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 330,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 161,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 159,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 380,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 380,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "768": {
+        "scrollWidth": 768,
+        "innerWidth": 768,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 768,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 62,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 69,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Pricing",
+            "w": 50,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 31,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Contact",
+            "w": 60,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 282,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 290,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 282,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 315,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 315,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 315,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 315,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 646,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 111,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 107,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 186,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 133,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 172,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 172,
+            "h": 45
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "1024": {
+        "scrollWidth": 1024,
+        "innerWidth": 1024,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 1024,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 62,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 69,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Pricing",
+            "w": 50,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 31,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Contact",
+            "w": 60,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": "headerPhoneLink",
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 243,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 251,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 243,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 247,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 247,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 247,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 247,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 509,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 111,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 107,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 280,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 200,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "1280": {
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 1180,
+        "h1FontPx": 33.28,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 62,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 69,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Pricing",
+            "w": 50,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 31,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Contact",
+            "w": 60,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": "headerPhoneLink",
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 304,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 295,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 605,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 111,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 107,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 330,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "1440": {
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 62,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 69,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Pricing",
+            "w": 50,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 31,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Contact",
+            "w": 60,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": "headerPhoneLink",
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 304,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 295,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 605,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 111,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 107,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 330,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "1920": {
+        "scrollWidth": 1920,
+        "innerWidth": 1920,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 62,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 69,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Pricing",
+            "w": 50,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 31,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Contact",
+            "w": 60,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": "headerPhoneLink",
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 304,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 295,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 605,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 111,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 107,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 330,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "2560": {
+        "scrollWidth": 2560,
+        "innerWidth": 2560,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 62,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 69,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Pricing",
+            "w": 50,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 31,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Contact",
+            "w": 60,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": "headerPhoneLink",
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 304,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 295,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 605,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 111,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 107,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 330,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      },
+      "3840": {
+        "scrollWidth": 3840,
+        "innerWidth": 3840,
+        "overflow": false,
+        "modalOpenOnLoad": true,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": "logoLink",
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 62,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 69,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Pricing",
+            "w": 50,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 31,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Contact",
+            "w": 60,
+            "h": 24
+          },
+          {
+            "tag": "a",
+            "id": "headerPhoneLink",
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 304,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book this size",
+            "w": 295,
+            "h": 36
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "One-time clean",
+            "w": 145,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Weekly (save 15%)",
+            "w": 163,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Fortnightly (save 10%)",
+            "w": 189,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Monthly (save 5%)",
+            "w": 162,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill.active",
+            "text": "Apartment",
+            "w": 132,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "House",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Studio",
+            "w": 103,
+            "h": 40
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "cls": "pill",
+            "text": "Office",
+            "w": 102,
+            "h": 40
+          },
+          {
+            "tag": "select",
+            "id": "bedrooms",
+            "cls": null,
+            "text": "Studio (0 bed)1 Bedroom2 Bedro",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "select",
+            "id": "bathrooms",
+            "cls": null,
+            "text": "1 Bathroom2 Bathrooms3 Bathroo",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "sqm",
+            "cls": null,
+            "text": "",
+            "w": 295,
+            "h": 45
+          },
+          {
+            "tag": "select",
+            "id": "furnished",
+            "cls": null,
+            "text": "Furnished\n                  Em",
+            "w": 295,
+            "h": 47
+          },
+          {
+            "tag": "input",
+            "id": "propertyPhotos",
+            "cls": null,
+            "text": "",
+            "w": 605,
+            "h": 44
+          },
+          {
+            "tag": "button",
+            "id": "btnBack",
+            "cls": "btn.btn-ghost",
+            "text": "← Back",
+            "w": 111,
+            "h": 47
+          },
+          {
+            "tag": "button",
+            "id": "btnNext",
+            "cls": "btn.btn-primary",
+            "text": "Next →",
+            "w": 107,
+            "h": 47
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 330,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "instagram",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "facebook",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "linkedin",
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Services",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Checklist",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "FAQ",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "My account",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "St Kilda",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerPhoneLink",
+            "cls": null,
+            "text": "📞 0420 576 710",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": "footerEmailLink",
+            "cls": null,
+            "text": "✉️ hello@cleanglow.com.au",
+            "w": 235,
+            "h": 22
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Privacy",
+            "w": 46,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Terms",
+            "w": 38,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Cookies",
+            "w": 54,
+            "h": 21
+          }
+        ]
+      }
+    },
+    "suburb": {
+      "360": {
+        "scrollWidth": 360,
+        "innerWidth": 360,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 360,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 123,
+            "h": 26
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 80,
+            "h": 35
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "390": {
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 390,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 91,
+            "h": 38
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "412": {
+        "scrollWidth": 412,
+        "innerWidth": 412,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 412,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 91,
+            "h": 38
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "768": {
+        "scrollWidth": 768,
+        "innerWidth": 768,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 768,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "1024": {
+        "scrollWidth": 1024,
+        "innerWidth": 1024,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1024,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "1280": {
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 33.28,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "1440": {
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "1920": {
+        "scrollWidth": 1920,
+        "innerWidth": 1920,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "2560": {
+        "scrollWidth": 2560,
+        "innerWidth": 2560,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      },
+      "3840": {
+        "scrollWidth": 3840,
+        "innerWidth": 3840,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": [
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "logo",
+            "text": "CleanGlow",
+            "w": 148,
+            "h": 32
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "phone-link",
+            "text": "📞 0420 576 710",
+            "w": 115,
+            "h": 23
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": "btn.btn-primary",
+            "text": "Book now",
+            "w": 104,
+            "h": 40
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Home",
+            "w": 40,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "End of lease cleaning",
+            "w": 135,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Melbourne CBD",
+            "w": 146,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Richmond",
+            "w": 106,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Fitzroy",
+            "w": 82,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "Brunswick",
+            "w": 108,
+            "h": 41
+          },
+          {
+            "tag": "a",
+            "id": null,
+            "cls": null,
+            "text": "South Yarra",
+            "w": 115,
+            "h": 41
+          }
+        ]
+      }
+    }
+  },
+  "nota": "modalOpenOnLoad=true en esta pasada es un artefacto de la sonda (contaba un [role=dialog] dentro de un ancestro hidden); corregido antes de la pasada \"despues\". No había ningún modal abierto al cargar en ninguna de las dos."
+}

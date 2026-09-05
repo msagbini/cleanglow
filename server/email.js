@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { config, computeGstComponentCents } from './config.js';
 import { buildBookingIcs } from './ics.js';
+import { resolveBaseUrl } from './baseUrl.js';
 
 let transporter = null;
 if (process.env.SMTP_HOST) {
@@ -87,7 +88,7 @@ export async function sendCustomerConfirmation(booking, referralCode) {
     '',
     `Nos pondremos en contacto para coordinar el acceso a ${booking.address}.`,
     '',
-    `Gestiona esta reserva cuando quieras (ver detalles, o cancelar una limpieza recurrente) en ${process.env.PUBLIC_BASE_URL || ''}/account/ — solo ingresa este email, sin necesidad de contraseña.`,
+    `Gestiona esta reserva cuando quieras (ver detalles, o cancelar una limpieza recurrente) en ${resolveBaseUrl()}/account/ — solo ingresa este email, sin necesidad de contraseña.`,
   ] : [
     `Hi ${booking.full_name},`,
     '',
@@ -97,7 +98,7 @@ export async function sendCustomerConfirmation(booking, referralCode) {
     '',
     `We'll be in touch to coordinate access to ${booking.address}.`,
     '',
-    `Manage this booking anytime (view details, or cancel a recurring clean) at ${process.env.PUBLIC_BASE_URL || ''}/account/ — just enter this email, no password needed.`,
+    `Manage this booking anytime (view details, or cancel a recurring clean) at ${resolveBaseUrl()}/account/ — just enter this email, no password needed.`,
   ];
   if (referralCode) {
     const symbol = config.business.currencySymbol;
@@ -166,7 +167,7 @@ export async function sendMagicLink(email, verifyUrl, lang) {
 // remember to forward anything themselves.
 export async function sendAgentProofLink(booking) {
   const isEs = booking.language === 'es';
-  const proofUrl = `${process.env.PUBLIC_BASE_URL || ''}/proof/${booking.id}${isEs ? '?lang=es' : ''}`;
+  const proofUrl = `${resolveBaseUrl()}/proof/${booking.id}${isEs ? '?lang=es' : ''}`;
   await send({
     to: booking.agent_email,
     subject: isEs ? `Prueba de limpieza — ${booking.address} (${booking.id})` : `Proof of clean — ${booking.address} (${booking.id})`,

@@ -4,6 +4,7 @@
 // instance app with a handful of leads a day, not a job-queue problem.
 import { findStaleLeads, markLeadReminded } from './db.js';
 import { sendSms, abandonedBookingMessage } from './sms.js';
+import { resolveBaseUrl } from './baseUrl.js';
 
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000; // check every 5 minutes
 const ABANDONED_AFTER_MINUTES = 30; // remind once a lead has gone quiet this long
@@ -17,7 +18,7 @@ export async function runSweepOnce() {
   // down the whole live site — without this, Node's default behavior on an
   // unhandled rejection from this setInterval callback is to crash the process.
   try {
-    const baseUrl = process.env.PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 4242}`;
+    const baseUrl = resolveBaseUrl();
     const staleLeads = findStaleLeads(ABANDONED_AFTER_MINUTES);
     for (const lead of staleLeads) {
       await sendSms(lead.phone, abandonedBookingMessage(baseUrl));

@@ -1,0 +1,210 @@
+{
+  "label": "despues",
+  "generated": "2026-09-05T13:38:17.551Z",
+  "pages": {
+    "home": {
+      "360": {
+        "scrollWidth": 360,
+        "innerWidth": 360,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 360,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "390": {
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 390,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "412": {
+        "scrollWidth": 412,
+        "innerWidth": 412,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 412,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "768": {
+        "scrollWidth": 768,
+        "innerWidth": 768,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 768,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "1024": {
+        "scrollWidth": 1024,
+        "innerWidth": 1024,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1024,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "1280": {
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 33.28,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "1440": {
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "1920": {
+        "scrollWidth": 1920,
+        "innerWidth": 1920,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1320,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "2560": {
+        "scrollWidth": 2560,
+        "innerWidth": 2560,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1600,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "3840": {
+        "scrollWidth": 3840,
+        "innerWidth": 3840,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1600,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      }
+    },
+    "suburb": {
+      "360": {
+        "scrollWidth": 360,
+        "innerWidth": 360,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 360,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "390": {
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 390,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "412": {
+        "scrollWidth": 412,
+        "innerWidth": 412,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 412,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "768": {
+        "scrollWidth": 768,
+        "innerWidth": 768,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 768,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "1024": {
+        "scrollWidth": 1024,
+        "innerWidth": 1024,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1024,
+        "h1FontPx": 27.2,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "1280": {
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 33.28,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "1440": {
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1180,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "1920": {
+        "scrollWidth": 1920,
+        "innerWidth": 1920,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1320,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "2560": {
+        "scrollWidth": 2560,
+        "innerWidth": 2560,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1600,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      },
+      "3840": {
+        "scrollWidth": 3840,
+        "innerWidth": 3840,
+        "overflow": false,
+        "modalOpenOnLoad": false,
+        "containerWidth": 1600,
+        "h1FontPx": 36.8,
+        "bodyFontPx": 16,
+        "smallTargets": []
+      }
+    }
+  }
+}

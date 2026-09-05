@@ -1,23 +1,61 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-AU"{{ANALYTICS_HTML_ATTRS}}>
 <head>
-<script src="js/reload-scroll-fix.js"></script>
 <meta charset="UTF-8">
+<script src="js/reload-scroll-fix.js?v={{ASSET_VERSION}}" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Booking confirmed</title>
-<link rel="icon" href="/img/logo-mark.svg">
-<link rel="stylesheet" href="css/styles.css">
-<link rel="stylesheet" href="css/success.css">
+{{ANALYTICS_META}}
+<!-- Post-payment page: deliberately noindex (it carries a booking reference
+     in its URL) and disallowed in robots.txt. Everything else a page needs
+     is still here so it is a complete document, not a JS shell. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Booking confirmed | {{SITE_NAME}}</title>
+<meta name="description" content="Your {{SITE_NAME}} end of lease clean is booked. This page confirms the payment and shows your booking reference.">
+<link rel="canonical" href="{{SITE_URL}}/success.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{SITE_NAME}}">
+<meta property="og:locale" content="en_AU">
+<meta property="og:title" content="Booking confirmed | {{SITE_NAME}}">
+<meta property="og:description" content="Your {{SITE_NAME}} end of lease clean is booked.">
+<meta property="og:url" content="{{SITE_URL}}/success.html">
+<meta property="og:image" content="{{SITE_OG_IMAGE}}">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="{{SITE_ICON_HREF}}">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="{{THEME_COLOR}}">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-600.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-700.woff2" crossorigin>
+<link rel="stylesheet" href="css/styles.css?v={{ASSET_VERSION}}">
+<link rel="stylesheet" href="css/success.css?v={{ASSET_VERSION}}">
+<script type="application/ld+json">{{JSONLD}}</script>
 </head>
 <body>
-<div class="result-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="result-page">
+  <a href="/" class="logo result-logo"><span class="logo-mark"><img src="{{SITE_ICON_HREF}}" alt="" width="32" height="32" decoding="async"></span><span class="logo-text">{{SITE_NAME}}</span></a>
   <div class="result-card" id="resultCard">
     <div class="spinner"></div>
-    <h3>Confirming your payment…</h3>
+    <h1>Confirming your payment…</h1>
     <p>One moment, we're verifying the transaction with our payment provider.</p>
+    <p class="result-ref">Questions? Call <a href="tel:{{PHONE_HREF}}">{{PHONE_DISPLAY}}</a> or email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>.</p>
+    <a class="btn btn-ghost" href="/">Back to {{SITE_NAME}}</a>
   </div>
-</div>
+</main>
+<footer class="result-footer">
+  <div class="container footer-bottom">
+    <span>© {{SITE_NAME}} · ABN {{ABN}} · Business hours: {{HOURS_TEXT}} · Servicing {{ADDRESS_TEXT}}</span>
+    <div class="footer-legal">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/cookies">Cookies</a>
+    </div>
+  </div>
+</footer>
 
-<script src="js/success.js"></script>
+<script src="js/analytics.js?v={{ASSET_VERSION}}" defer></script>
+<script src="js/success.js?v={{ASSET_VERSION}}" defer></script>
 </body>
 </html>

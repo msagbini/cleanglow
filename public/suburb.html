@@ -1,27 +1,49 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-AU"{{ANALYTICS_HTML_ATTRS}}>
 <head>
-<script src="js/reload-scroll-fix.js"></script>
 <meta charset="UTF-8">
+<script src="js/reload-scroll-fix.js?v={{ASSET_VERSION}}" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{ANALYTICS_META}}
 <title>{{SITE_TITLE}}</title>
 <meta name="description" content="{{SITE_DESCRIPTION}}">
 <link rel="canonical" href="{{CANONICAL_URL}}">
+<link rel="alternate" hreflang="en-AU" href="{{CANONICAL_URL}}">
+<link rel="alternate" hreflang="x-default" href="{{CANONICAL_URL}}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{SITE_NAME}}">
+<meta property="og:locale" content="en_AU">
 <meta property="og:title" content="{{SITE_TITLE}}">
 <meta property="og:description" content="{{SITE_DESCRIPTION}}">
 <meta property="og:url" content="{{CANONICAL_URL}}">
 <meta property="og:image" content="{{SITE_OG_IMAGE}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{SITE_TITLE}}">
+<meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
+<meta name="twitter:image" content="{{SITE_OG_IMAGE}}">
 <link rel="icon" href="{{SITE_ICON_HREF}}">
-<link rel="stylesheet" href="css/styles.css">
-<link rel="stylesheet" href="css/suburb.css">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="{{THEME_COLOR}}">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-500.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-600.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-700.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-800.woff2" crossorigin>
+<link rel="stylesheet" href="css/styles.css?v={{ASSET_VERSION}}">
+<link rel="stylesheet" href="css/suburb.css?v={{ASSET_VERSION}}">
 <script type="application/ld+json">{{JSONLD}}</script>
+<script src="js/analytics.js?v={{ASSET_VERSION}}" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="logo">
-      <span class="logo-mark"><img src="{{SITE_ICON_HREF}}" alt=""></span>
+      <span class="logo-mark"><img src="{{SITE_ICON_HREF}}" alt="" width="32" height="32" decoding="async"></span>
       <span class="logo-text">{{SITE_NAME}}</span>
     </a>
     <div class="header-actions">
@@ -31,13 +53,27 @@
   </div>
 </header>
 
-<main>
+<main id="main">
+  <!-- Visible counterpart to the BreadcrumbList in the page's JSON-LD —
+       Google expects the markup to reflect a trail the visitor can actually
+       see and use, and it gives these pages a real link back to the hub. -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li><a href="/#services">End of lease cleaning</a></li>
+        <li aria-current="page">{{SUBURB_NAME}}</li>
+      </ol>
+    </div>
+  </nav>
+
   <section class="hero">
     <div class="container hero-inner">
       <div class="hero-copy">
         <span class="eyebrow">END OF LEASE CLEANING · {{SUBURB_NAME}}</span>
         <h1>End of lease cleaning in <span class="accent">{{SUBURB_NAME}}</span>, done right the first time.</h1>
         <p>Moving out of a rental in {{SUBURB_NAME}}? Our fully insured cleaning team follows a property-manager-approved checklist and backs every job with a 100% bond-back guarantee* — get an instant online quote and book in under 3 minutes.</p>
+        <p class="hero-price-line">Bond cleans in {{SUBURB_NAME}} from <strong>{{PRICE_FROM}}</strong> — see your exact price before you book.</p>
         <div class="hero-cta">
           <a href="/#booking" class="btn btn-primary btn-lg">Get an instant quote</a>
           <a href="/#checklist" class="btn btn-ghost btn-lg">See the full checklist</a>
@@ -73,8 +109,29 @@
 </main>
 
 <footer class="site-footer">
+  <div class="container footer-grid footer-grid-narrow">
+    <div class="footer-col">
+      <h2 class="footer-heading">Contact</h2>
+      <a href="tel:{{PHONE_HREF}}">📞 {{PHONE_DISPLAY}}</a>
+      <a href="mailto:{{EMAIL}}">✉️ {{EMAIL}}</a>
+      <span>🕐 Business hours: {{HOURS_TEXT}}</span>
+      <span>📍 Servicing {{ADDRESS_TEXT}}</span>
+    </div>
+    <div class="footer-col">
+      <h2 class="footer-heading">Company</h2>
+      <a href="/">Home</a>
+      <a href="/#services">Services</a>
+      <a href="/#checklist">Checklist</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+  </div>
   <div class="container footer-bottom">
-    <span>© {{SITE_NAME}}. <a href="/">Back to home</a></span>
+    <span>© {{SITE_NAME}}</span>
+    <div class="footer-legal">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/cookies">Cookies</a>
+    </div>
   </div>
 </footer>
 </body>

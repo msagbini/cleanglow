@@ -1,0 +1,34 @@
+{
+  "final-home": {
+    "scores": {
+      "performance": 0.98,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    },
+    "vitals": {
+      "first_contentful_paint_ms": 833.62705,
+      "largest_contentful_paint_ms": 2038.5082000000002,
+      "total_blocking_time_ms": 118,
+      "cumulative_layout_shift": 5.079992147410774e-05,
+      "speed_index_ms": 979.3591864788534,
+      "time_to_interactive_ms": 2038.5082000000002
+    }
+  },
+  "final-suburb": {
+    "scores": {
+      "performance": 1,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    },
+    "vitals": {
+      "first_contentful_paint_ms": 911.9682,
+      "largest_contentful_paint_ms": 1517.9523,
+      "total_blocking_time_ms": 0,
+      "cumulative_layout_shift": 0,
+      "speed_index_ms": 911.9682,
+      "time_to_interactive_ms": 1517.9523
+    }
+  }
+}

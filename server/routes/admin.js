@@ -14,6 +14,7 @@ import { runBackupOnce } from '../dbBackup.js';
 import { toCsv } from '../csv.js';
 import { getStripe } from './payments.js';
 import { sendExtraChargeLink } from '../email.js';
+import { resolveBaseUrl } from '../baseUrl.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
@@ -90,7 +91,7 @@ router.post('/bookings/:id/extra-charge', async (req, res) => {
   const reason = String(req.body?.reason ?? '').trim().slice(0, 200);
   if (!reason) return res.status(400).json({ error: 'A reason is required' });
 
-  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const baseUrl = resolveBaseUrl(req);
   let session;
   try {
     session = await stripe.checkout.sessions.create({

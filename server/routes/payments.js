@@ -10,12 +10,19 @@ import { notifyPaidBooking, sendCustomerConfirmation, sendExtraChargePaidConfirm
 import { getOrCreateReferralCodeForCustomer } from '../referrals.js';
 import { sendOwnerPush } from '../push.js';
 import { publicView } from './bookings.js';
+import { resolveBaseUrl } from '../baseUrl.js';
 
 const router = Router();
 
 export function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) return null;
-  return new Stripe(process.env.STRIPE_SECRET_KEY);
+  // STRIPE_API_HOST points the SDK at a local stand-in (stripe-mock, or the
+  // one in the test suite) so the whole checkout -> webhook -> confirmation
+  // path can be exercised without network access. Unset in production.
+  const options = process.env.STRIPE_API_HOST
+    ? { host: process.env.STRIPE_API_HOST, port: Number(process.env.STRIPE_API_PORT || 443), protocol: process.env.STRIPE_API_PROTOCOL || 'https' }
+    : undefined;
+  return new Stripe(process.env.STRIPE_SECRET_KEY, options);
 }
 
 async function markPaidOnce(booking, subscriptionId) {
@@ -71,7 +78,7 @@ router.post('/checkout-session', async (req, res) => {
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
   if (booking.status === 'paid') return res.status(409).json({ error: 'This booking has already been paid' });
 
-  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const baseUrl = resolveBaseUrl(req);
   const frequency = getFrequencyOption(booking.frequency);
   const isRecurring = booking.frequency !== 'once' && !!frequency.stripeInterval;
 

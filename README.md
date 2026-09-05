@@ -45,6 +45,7 @@ STRIPE_WEBHOOK_SECRET=whsec_... # ver sección de webhooks más abajo
 PUBLIC_BASE_URL=http://localhost:4242
 ADMIN_USER=admin                # panel en /admin — déjalo vacío para desactivarlo
 ADMIN_PASS=elige-una-contraseña-fuerte
+GA_MEASUREMENT_ID=              # opcional — ver "Analítica y cookies" más abajo
 ```
 
 Arranca el servidor:
@@ -55,6 +56,68 @@ npm start        # o: npm run dev  (reinicia solo al guardar cambios)
 
 Abre `http://localhost:4242`. Sin `STRIPE_SECRET_KEY` la web funciona igual, pero al
 confirmar una reserva el servidor devuelve un error claro en vez de iniciar el pago.
+
+## Analítica y cookies
+
+La analítica está **desactivada por defecto**. Sin `GA_MEASUREMENT_ID` el sitio no
+carga ningún script de terceros, no guarda nada en el navegador salvo las dos
+cookies estrictamente necesarias (el token CSRF del formulario y, si inicias
+sesión, la de `/account`), no muestra banner de cookies y mantiene la
+Content-Security-Policy más estricta posible.
+
+Al definir `GA_MEASUREMENT_ID` (formato `G-XXXXXXXXXX`) se activan tres cosas a la
+vez, por diseño:
+
+1. Aparece un banner de consentimiento con **Aceptar** y **Rechazar** igual de
+   prominentes. `gtag.js` **no se descarga hasta que alguien pulsa Aceptar** — ni
+   siquiera con Consent Mode en `denied`, porque eso seguiría enviando pings a
+   Google sin permiso. La decisión se guarda en `localStorage`, no en una cookie,
+   para que rechazar no deje rastro alguno.
+2. La política de cookies y la de privacidad pasan a describir la analítica
+   automáticamente. Ese texto se deriva de la misma señal, así que no puede
+   quedarse desfasado respecto a lo que el sitio hace de verdad.
+3. La CSP añade los dominios de Google, y sólo entonces.
+
+Quien acepte puede cambiar de opinión desde **Cookie settings** en el pie.
+
+Eventos que se envían (sólo con consentimiento): `booking_step` en cada paso del
+formulario, `booking_created`, `begin_checkout` y `purchase` en la página de
+confirmación.
+
+### Search Console
+
+Para verificar la propiedad en Google Search Console con el método «etiqueta
+HTML», copia el valor `content=` de la etiqueta que te da Google en la variable
+`SEARCH_CONSOLE_VERIFICATION`. La página de inicio emitirá
+`<meta name="google-site-verification">`; sin la variable no se emite nada.
+
+## Páginas legales
+
+Los términos, la política de privacidad y la de cookies viven en
+`server/legal.js` (inglés y español) y se sirven de dos formas desde esa única
+fuente:
+
+- como páginas reales en `/terms`, `/privacy` y `/cookies` (`?lang=es` para la
+  versión en español), con URL canónica y presentes en el sitemap — es la URL
+  que piden Stripe y Google para una política pública;
+- dentro de `/api/config` (`legal`), que es lo que abre el modal de la página
+  de inicio. Los enlaces del pie apuntan a las páginas reales y el JS los
+  intercepta para abrir el modal; sin JS, la página real se abre igual.
+
+## Reseñas
+
+`config/business.json` incluye `business.reviews`, vacío de fábrica. Mientras esté
+vacío la sección de reseñas permanece oculta y **no** se emite structured data de
+valoraciones. Al añadir reseñas reales la sección aparece sola, con su marcado
+`Review`/`AggregateRating`.
+
+No pongas reseñas inventadas: publicarlas como si fueran reales es conducta
+engañosa bajo la Australian Consumer Law y viola las políticas de datos
+estructurados de Google. Para conseguir reseñas de verdad, rellena
+`business.googleReviewUrl` con el enlace de tu ficha de Google Business: el SMS
+que ya se envía tras cada limpieza terminada (`server/sms.js`,
+`reviewRequestMessage`) está esperando exactamente ese valor para empezar a
+pedirlas.
 
 ## Adaptar el sitio a otro negocio
 
@@ -81,6 +144,19 @@ Tras editar el JSON, reinicia el servidor; no requiere build ni redeploy de asse
 ⚠️ **Los testimonios y las estadísticas de la franja de confianza son contenido de ejemplo.**
 Reemplázalos por datos reales antes de publicar el sitio — mostrar reseñas o cifras de
 actividad inventadas puede constituir publicidad engañosa bajo la Australian Consumer Law.
+
+### Dirección, horario y FAQ
+
+- `business.address` (`addressLocality`, `addressRegion`, `addressCountry` y,
+  solo si el perfil de Google Business muestra una calle, `streetAddress` y
+  `postalCode`) alimenta el `PostalAddress` del JSON-LD y la línea «Servicing …»
+  del pie. Un negocio que va al cliente publica localidad y estado, no una calle.
+- `business.openingHours` es la versión estructurada de `business.hours`
+  (`OpeningHoursSpecification`); mantén las dos en sincronía.
+- `faq` es la lista de preguntas: de ella salen el acordeón y el marcado
+  `FAQPage`, así que no pueden discrepar. `{recleanWindow}` y `{gstNote}` se
+  sustituyen por la ventana de re-limpieza y por la nota de GST (solo si
+  `gstRegistered` es `true`).
 
 ## GST, ABN y moneda
 
@@ -152,6 +228,14 @@ en vez de quedar abierto con credenciales por defecto.
 4. Tras pagar, Stripe te redirige a `/success.html`, que confirma el pago y muestra la
    referencia de la reserva. El webhook actualiza la reserva en la base de datos aunque
    el cliente cierre la pestaña antes de volver.
+
+### Probar el flujo completo sin red (stand-in de Stripe)
+
+`STRIPE_API_HOST`, `STRIPE_API_PORT` y `STRIPE_API_PROTOCOL` apuntan el SDK de
+Stripe a un servidor local (por ejemplo [stripe-mock](https://github.com/stripe/stripe-mock)),
+lo que permite recorrer reserva → sesión de Checkout → webhook firmado →
+página de confirmación sin salir de la máquina. Déjalas sin definir en
+producción.
 
 ## Notificaciones por email (opcional)
 

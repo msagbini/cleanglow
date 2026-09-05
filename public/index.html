@@ -1,44 +1,53 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-AU"{{ANALYTICS_HTML_ATTRS}}>
 <head>
-<script src="js/reload-scroll-fix.js"></script>
 <meta charset="UTF-8">
+<script src="js/reload-scroll-fix.js?v={{ASSET_VERSION}}" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{ANALYTICS_META}}
 <title>{{SITE_TITLE}}</title>
 <meta name="description" content="{{SITE_DESCRIPTION}}">
 <link rel="canonical" href="{{SITE_URL}}">
+<!-- Single-locale site (English/Australia). Self-referencing hreflang plus
+     x-default tells search engines this URL is the right one for every
+     region, so no other host or locale gets treated as an alternate. -->
+<link rel="alternate" hreflang="en-AU" href="{{SITE_URL}}">
+<link rel="alternate" hreflang="x-default" href="{{SITE_URL}}">
+<meta name="csrf-token" content="{{CSRF_TOKEN}}">
+{{VERIFICATION_META}}
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{SITE_TITLE}}">
 <meta property="og:description" content="{{SITE_DESCRIPTION}}">
 <meta property="og:url" content="{{SITE_URL}}">
 <meta property="og:site_name" content="{{SITE_NAME}}">
+<meta property="og:locale" content="en_AU">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{SITE_TITLE}}">
 <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
 <link rel="icon" href="{{SITE_ICON_HREF}}">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="{{THEME_COLOR}}">
 <meta property="og:image" content="{{SITE_OG_IMAGE}}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:image" content="{{SITE_OG_IMAGE}}">
-<link rel="stylesheet" href="css/styles.css">
+<!-- Every weight below renders above the fold (header, badge, h1, body copy,
+     buttons). Fetching them with the stylesheet rather than after it stops
+     the hero reflowing when the swap lands — that reflow measured a 0.375
+     layout shift, on its own a Core Web Vitals failure. 68 KB in total. -->
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-500.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-600.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-700.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-800.woff2" crossorigin>
+<link rel="stylesheet" href="css/styles.css?v={{ASSET_VERSION}}">
 <script type="application/ld+json">{{LOCAL_BUSINESS_JSONLD}}</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    { "@type": "Question", "name": "What happens if my landlord isn't satisfied?", "acceptedAnswer": { "@type": "Answer", "text": "We offer a free re-clean guarantee within 7 days of the service if any checklist item doesn't meet your landlord's or agent's standards." } },
-    { "@type": "Question", "name": "Do I need to be there during the clean?", "acceptedAnswer": { "@type": "Answer", "text": "It's not required. You can provide a lockbox or key code instead during booking." } },
-    { "@type": "Question", "name": "Do you bring your own products and equipment?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity." } },
-    { "@type": "Question", "name": "How long does the clean take?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours." } },
-    { "@type": "Question", "name": "Can I cancel or change the date?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment." } },
-    { "@type": "Question", "name": "Does the price include GST?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees." } },
-    { "@type": "Question", "name": "What if I'm running late or can't be there?", "acceptedAnswer": { "@type": "Answer", "text": "We allow a short grace period if you're running late. Extended delays or no access at all can incur a waiting fee or, past a certain point, a lockout fee — see our terms & conditions for the exact amounts. Choosing a lockbox instead of being present avoids this risk entirely." } }
-  ]
-}
-</script>
+{{FAQ_JSONLD}}
 </head>
 <body>
+<a class="skip-link" href="#main" data-i18n="a11y.skipToContent">Skip to content</a>
 
 <!-- ===================== HEADER ===================== -->
 <header class="site-header" id="top">
@@ -58,34 +67,36 @@
     </nav>
 
     <div class="header-actions">
-      <a href="tel:+61390000000" class="phone-link" id="headerPhoneLink">📞 (03) 9000 0000</a>
-      <a href="tel:+61390000000" class="call-icon-btn" id="headerCallIcon" data-i18n-aria-label="header.callUs" aria-label="Call us">📞</a>
+      <a href="tel:{{PHONE_HREF}}" class="phone-link" id="headerPhoneLink">📞 {{PHONE_DISPLAY}}</a>
+      <a href="tel:{{PHONE_HREF}}" class="call-icon-btn" id="headerCallIcon" data-i18n-aria-label="header.callUs" aria-label="Call us">📞</a>
       <a href="#booking" class="btn btn-primary btn-sm" data-i18n="header.bookNow">Book now</a>
-      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
 </header>
 
+<main id="main">
+
 <!-- ===================== HERO ===================== -->
 <section class="hero">
   <div class="container hero-inner">
     <div class="hero-copy">
-      <span class="badge" id="heroBadge">✔ 100% Guarantee</span>
+      <span class="badge" id="heroBadge">{{HERO_BADGE}}</span>
       <h1 id="heroTitle">{{HERO_TITLE_HTML}}</h1>
       <p id="heroDescription">{{HERO_DESCRIPTION}}</p>
       <div class="hero-cta">
         <a href="#booking" class="btn btn-primary btn-lg" data-i18n="hero.bookNow">Book now</a>
         <a href="#pricing" class="btn btn-ghost btn-lg" data-i18n="hero.seePricing">See pricing</a>
       </div>
-      <ul class="hero-trust" id="heroTrust"></ul>
+      <ul class="hero-trust" id="heroTrust">{{HERO_TRUST_HTML}}</ul>
       <p class="hero-areas" id="heroAreasText">Servicing {{SERVICE_AREAS_TEXT}} and nearby suburbs.</p>
-      <p class="hero-guarantee-footnote" id="heroGuaranteeFootnote"></p>
+      <p class="hero-guarantee-footnote" id="heroGuaranteeFootnote">{{HERO_FOOTNOTE_HTML}}</p>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-card">
-        <div id="heroCardRows"></div>
+        <div id="heroCardRows">{{HERO_CARD_ROWS_HTML}}</div>
         <span class="hero-card-tag" data-i18n="hero.instantQuote">Instant quote</span>
       </div>
     </div>
@@ -130,7 +141,7 @@
       <h2 data-i18n="section.pricing.title">Clear pricing, no surprises</h2>
       <p data-i18n="section.pricing.desc">The final price depends on the size of the property and the extras you choose. Get your exact quote in the booking form below.</p>
     </div>
-    <div class="pricing-grid" id="pricingGrid"></div>
+    <div class="pricing-grid" id="pricingGrid">{{PRICING_CARDS_HTML}}</div>
   </div>
 </section>
 
@@ -165,11 +176,11 @@
           <fieldset class="form-step active" data-step="1">
             <legend data-i18n="form.step1.legend">Tell us about the property</legend>
 
-            <label class="field-label" data-i18n="form.howOften">How often?</label>
-            <div class="pill-group" data-name="frequency" id="frequencyPills"></div>
+            <span class="field-label" id="frequencyLabel" data-i18n="form.howOften">How often?</span>
+            <div class="pill-group" data-name="frequency" id="frequencyPills" role="group" aria-labelledby="frequencyLabel"></div>
 
-            <label class="field-label" data-i18n="form.propertyType">Property type</label>
-            <div class="pill-group" data-name="propertyType" id="propertyTypePills"></div>
+            <span class="field-label" id="propertyTypeLabel" data-i18n="form.propertyType">Property type</span>
+            <div class="pill-group" data-name="propertyType" id="propertyTypePills" role="group" aria-labelledby="propertyTypeLabel"></div>
 
             <div class="field-row">
               <div class="field">
@@ -240,7 +251,7 @@
               </div>
             </div>
 
-            <label class="field-label" data-i18n="form.speed">Cleaning speed</label>
+            <span class="field-label" data-i18n="form.speed">Cleaning speed</span>
             <p class="urgency-badge" id="urgencyBadge" data-i18n="form.urgencyDefault">Pick a date to see if a speed surcharge applies</p>
 
             <div class="checkbox-row">
@@ -299,7 +310,7 @@
             <div class="checkbox-row">
               <label class="checkbox-line" id="termsAgreeLabel">
                 <input type="checkbox" id="terms" name="terms" required>
-                I agree to the <a href="#" data-modal="terms">terms & conditions</a> and <a href="#" data-modal="privacy">privacy policy</a> *
+                I agree to the <a href="/terms" data-modal="terms">terms & conditions</a> and <a href="/privacy" data-modal="privacy">privacy policy</a> *
               </label>
             </div>
           </fieldset>
@@ -307,14 +318,14 @@
           <!-- STEP 5: REVIEW -->
           <fieldset class="form-step" data-step="5">
             <legend data-i18n="form.step5.legend">Review and confirm your booking</legend>
-            <div class="review-box" id="reviewBox">
+            <div class="booking-summary" id="bookingSummary">
               <!-- filled dynamically -->
             </div>
           </fieldset>
 
           <div class="form-nav">
             <button type="button" class="btn btn-ghost" id="btnBack" disabled data-i18n="form.back">← Back</button>
-            <button type="button" class="btn btn-primary" id="btnNext" data-i18n="form.next">Next →</button>
+            <button type="button" class="btn btn-primary" id="btnNext">Choose extras →</button>
             <button type="submit" class="btn btn-success" id="btnSubmit" hidden data-i18n="form.confirmPay">Confirm and pay →</button>
           </div>
         </form>
@@ -337,16 +348,29 @@
 </section>
 
 <!-- ===================== REVIEWS =====================
-     Deliberately removed: this section previously showed three fabricated
-     testimonials (invented names, suburbs and quotes) presented as real
-     customer reviews. Displaying made-up reviews as genuine is misleading
-     under Australian Consumer Law, not just a marketing nicety — so this
-     stays out until there are real ones to show.
-     Once the Google Business Profile review link is live (see the setup
-     guide), a "Reviews" section pulling real reviews can go back here —
-     the review-request SMS sent after every completed job (see
-     server/sms.js reviewRequestMessage) already exists and is what will
-     generate them. -->
+     This section previously showed three fabricated testimonials (invented
+     names, suburbs and quotes) presented as real customer reviews, and was
+     removed: publishing made-up reviews as genuine is misleading conduct
+     under the Australian Consumer Law, not just a marketing nicety.
+
+     What replaces it is the plumbing, not the content. renderReviews() in
+     js/app.js renders this section from config.business.reviews, which ships
+     empty — so the section stays invisible until real reviews exist, and
+     appears (with Review/AggregateRating structured data) the moment they
+     are added. The review-request SMS sent after every completed job
+     (server/sms.js reviewRequestMessage) is what generates them; it is gated
+     on business.googleReviewUrl, which is still blank. Setting that one
+     value is what starts the flow. -->
+<section id="reviews" class="section" hidden>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow" data-i18n="section.reviews.eyebrow">Reviews</span>
+      <h2 data-i18n="section.reviews.title">What our customers say</h2>
+    </div>
+    <div class="reviews-grid" id="reviewsGrid"></div>
+    <p class="reviews-source" id="reviewsSource"></p>
+  </div>
+</section>
 
 <!-- ===================== FAQ ===================== -->
 <section id="faq" class="section">
@@ -355,35 +379,7 @@
       <span class="eyebrow" data-i18n="section.faq.eyebrow">Frequently asked questions</span>
       <h2 data-i18n="section.faq.title">Everything you need to know</h2>
     </div>
-    <div class="accordion" id="faqAccordion">
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q1">What happens if my landlord isn't satisfied?</button>
-        <div class="accordion-panel"><p id="faqA1">We offer a free re-clean guarantee within <span id="faqRecleanWindowHours">72 hours</span> of the service if any checklist item doesn't meet your landlord's or agent's standards.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q2">Do I need to be there during the clean?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a2">It's not required. You can provide a lockbox or key code instead during booking.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q3">Do you bring your own products and equipment?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a3">Yes, our teams arrive with all the products, machinery and protective equipment needed. We only need access to water and electricity.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q4">How long does the clean take?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a4">It depends on the size of the property and the extras booked. As a guide, a 2-bedroom apartment usually takes between 3 and 5 hours.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q5">Can I cancel or change the date?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a5">Yes, you can reschedule or cancel your booking for free up to 24 hours before your appointment.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q6">Does the price include GST?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a6">Yes — all prices shown in your quote are GST-inclusive where applicable. No hidden fees.</p></div>
-      </div>
-      <div class="accordion-item">
-        <button class="accordion-trigger" aria-expanded="false" data-i18n="faq.q7">What if I'm running late or can't be there?</button>
-        <div class="accordion-panel"><p data-i18n="faq.a7">We allow a short grace period if you're running late. Extended delays or no access at all can incur a waiting fee or, past a certain point, a lockout fee — see our terms & conditions for the exact amounts. Choosing a lockbox/key code instead of being present avoids this risk entirely.</p></div>
-      </div>
+    <div class="accordion" id="faqAccordion">{{FAQ_HTML}}
     </div>
   </div>
 </section>
@@ -394,8 +390,16 @@
     <h2 data-i18n="section.cta.title">Ready to hand back the keys with confidence?</h2>
     <p data-i18n="section.cta.desc">Book now to lock in your preferred time slot.</p>
     <a href="#booking" class="btn btn-primary btn-lg" data-i18n="section.cta.button">Book my end of lease clean</a>
+    <!-- Filled by renderTrustBadges() in js/app.js. Every badge restates a
+         fact already asserted elsewhere on this page and held in
+         config/business.json (insurance cover, ABN, re-clean window, Stripe
+         as the payment processor) — surfaced at the point of decision rather
+         than being a new claim. -->
+    <ul class="trust-badges" id="trustBadges" aria-label="Payment and service guarantees"></ul>
   </div>
 </section>
+
+</main>
 
 <!-- ===================== FOOTER ===================== -->
 <footer class="site-footer">
@@ -406,28 +410,30 @@
       <div class="footer-social" id="footerSocial"></div>
     </div>
     <div class="footer-col">
-      <h4 data-i18n="footer.company">Company</h4>
+      <h3 data-i18n="footer.company">Company</h3>
       <a href="#services" data-i18n="nav.services">Services</a>
       <a href="#checklist" data-i18n="nav.checklist">Checklist</a>
       <a href="#faq" data-i18n="nav.faq">FAQ</a>
       <a href="/account/" data-i18n="nav.account">My account</a>
     </div>
     <div class="footer-col" id="footerServiceAreas">
-      <h4 data-i18n="footer.serviceAreas">Service areas</h4>
+      <h3 data-i18n="footer.serviceAreas">Service areas</h3>
     </div>
     <div class="footer-col" id="contact">
-      <h4 data-i18n="footer.contact">Contact</h4>
-      <a href="tel:+61390000000" id="footerPhoneLink">📞 (03) 9000 0000</a>
-      <a href="mailto:hello@spotlessexit.com.au" id="footerEmailLink">✉️ hello@spotlessexit.com.au</a>
-      <span id="footerHours">🕐</span>
+      <h3 data-i18n="footer.contact">Contact</h3>
+      <a href="tel:{{PHONE_HREF}}" id="footerPhoneLink">📞 {{PHONE_DISPLAY}}</a>
+      <a href="mailto:{{EMAIL}}" id="footerEmailLink">✉️ {{EMAIL}}</a>
+      <span id="footerHours">🕐 Business hours: {{HOURS_TEXT}}</span>
+      <span id="footerAddress">📍 Servicing {{ADDRESS_TEXT}}</span>
     </div>
   </div>
   <div class="container footer-bottom">
     <span id="footerCopyright">© 2026. All rights reserved.</span>
     <div class="footer-legal">
-      <a href="#" data-modal="privacy" data-i18n="footer.privacy">Privacy</a>
-      <a href="#" data-modal="terms" data-i18n="footer.terms">Terms</a>
-      <a href="#" data-modal="cookies" data-i18n="footer.cookies">Cookies</a>
+      <a href="/privacy" data-modal="privacy" data-i18n="footer.privacy">Privacy</a>
+      <a href="/terms" data-modal="terms" data-i18n="footer.terms">Terms</a>
+      <a href="/cookies" data-modal="cookies" data-i18n="footer.cookies">Cookies</a>
+      <a href="#" id="manageCookiesLink" hidden>Cookie settings</a>
     </div>
   </div>
 </footer>
@@ -441,7 +447,7 @@
   </div>
 </div>
 
-<a class="whatsapp-float whatsapp-float-hidden" id="whatsappFloat" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+<a class="whatsapp-float whatsapp-float-hidden" id="whatsappFloat" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 24 24" width="26" height="26" fill="#fff" aria-hidden="true">
     <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01C17.19 3.03 14.7 2 12.04 2Zm0 18.16h-.01c-1.48 0-2.94-.4-4.21-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.39c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.17 8.17 0 0 1 2.41 5.83c0 4.55-3.7 8.24-8.22 8.24Zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.71-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.86.84-.86 2.05 0 1.21.88 2.38 1 2.54.12.17 1.73 2.64 4.19 3.71.59.25 1.05.4 1.4.51.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.11-.23-.17-.48-.29Z"/>
   </svg>
@@ -449,7 +455,8 @@
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top" hidden>↑</button>
 
-<script src="js/i18n.js"></script>
-<script src="js/app.js"></script>
+<script src="js/analytics.js?v={{ASSET_VERSION}}" defer></script>
+<script src="js/i18n.js?v={{ASSET_VERSION}}" defer></script>
+<script src="js/app.js?v={{ASSET_VERSION}}" defer></script>
 </body>
 </html>
