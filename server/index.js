@@ -19,6 +19,9 @@ import { requireCsrf, issueCsrfToken } from './middleware/csrf.js';
 import { renderIndexHtml, renderSuccessHtml } from './renderIndex.js';
 import { resolveBaseUrl, describeBaseUrlConfig } from './baseUrl.js';
 import { getSuburbBySlug, renderSuburbHtml } from './suburbs.js';
+import { renderLegalHtml } from './renderLegal.js';
+import { LEGAL_PAGES } from './legal.js';
+import { GA_MEASUREMENT_ID } from './analytics.js';
 import { startAbandonedLeadSweep } from './leadSweep.js';
 import { startBookingReminderSweep } from './bookingReminders.js';
 import { startBackupSweep } from './dbBackup.js';
@@ -60,14 +63,8 @@ app.set('query parser', 'simple');
 
 app.use(compression());
 
-// Analytics is opt-in at the deployment level: with no GA_MEASUREMENT_ID the
-// page never gets the meta tag, never loads gtag.js, never shows a consent
-// banner — and the CSP below stays at 'self' only. Google's hosts are added
-// to the policy exclusively when analytics is actually configured, so an
-// unconfigured deploy keeps the tightest possible policy.
-const GA_MEASUREMENT_ID = /^G-[A-Z0-9]+$/i.test(process.env.GA_MEASUREMENT_ID || '')
-  ? process.env.GA_MEASUREMENT_ID.trim()
-  : '';
+// See server/analytics.js — Google's hosts are added to the CSP below
+// exclusively when analytics is actually configured.
 const analyticsScriptSrc = GA_MEASUREMENT_ID ? ['https://www.googletagmanager.com'] : [];
 const analyticsConnectSrc = GA_MEASUREMENT_ID
   ? ['https://www.google-analytics.com', 'https://*.google-analytics.com', 'https://*.analytics.google.com', 'https://www.googletagmanager.com']
@@ -219,6 +216,22 @@ app.get('/end-of-lease-cleaning-:slug', (req, res, next) => {
   // let the versioned assets it references be the long-lived part.
   res.set('Cache-Control', 'private, no-cache, must-revalidate');
   res.type('html').send(renderSuburbHtml(suburb, baseUrl, GA_MEASUREMENT_ID));
+});
+
+// Terms, privacy and cookies as real, linkable, indexable pages (the home
+// page still opens the same copy in a modal). ?lang=es for the Spanish
+// version; the path prefix matches no static file, so this is safe ahead
+// of express.static.
+app.get(Object.values(LEGAL_PAGES).map(p => p.path), (req, res, next) => {
+  const key = Object.keys(LEGAL_PAGES).find(k => LEGAL_PAGES[k].path === req.path);
+  const html = key && renderLegalHtml(key, {
+    baseUrl: resolveBaseUrl(req),
+    lang: req.query.lang === 'es' ? 'es' : 'en',
+    gaMeasurementId: GA_MEASUREMENT_ID,
+  });
+  if (!html) return next();
+  res.set('Cache-Control', 'public, max-age=3600, must-revalidate');
+  res.type('html').send(html);
 });
 
 app.use(seoRouter);

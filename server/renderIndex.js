@@ -121,7 +121,7 @@ export function renderIndexHtml(baseUrl, csrfToken = '', gaMeasurementId = '') {
       .map(item => `<li><span class="hero-trust-icon"></span><span>${escapeHtml(item.text)}</span></li>`)
       .join(''),
     '{{HERO_FOOTNOTE_HTML}}': business.guaranteeFootnote
-      ? `${escapeHtml(business.guaranteeFootnote)} <a href="#" data-modal="terms">Guarantee Terms</a>`
+      ? `${escapeHtml(business.guaranteeFootnote)} <a href="/terms" data-modal="terms">Guarantee Terms</a>`
       : '',
     // On mobile the quote card sits ABOVE the hero copy (.hero-visual has
     // order: -1), so filling it from JS pushed the whole hero down by ~185px

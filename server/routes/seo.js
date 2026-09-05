@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { listSuburbs } from '../suburbs.js';
 import { resolveBaseUrl } from '../baseUrl.js';
+import { LEGAL_PAGES } from '../legal.js';
 
 const router = Router();
 
@@ -38,6 +39,7 @@ router.get('/sitemap.xml', (req, res) => {
   const urls = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
     ...listSuburbs().map(s => ({ loc: `/end-of-lease-cleaning-${s.slug}`, priority: '0.8', changefreq: 'monthly' })),
+    ...Object.values(LEGAL_PAGES).map(p => ({ loc: p.path, priority: '0.3', changefreq: 'yearly' })),
   ];
   const body = urls
     .map(u => `  <url>\n    <loc>${baseUrl}${u.loc}</loc>\n    <lastmod>${LASTMOD}</lastmod>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`)

@@ -95,7 +95,7 @@ window.CGAnalytics = (() => {
           <h2 id="consentBannerTitle">Cookies on this site</h2>
           <p>We'd like to use analytics cookies to understand how visitors use the site so we can improve it.
           They're optional — the booking form works either way. See our
-          <a href="#" data-modal="cookies">cookie policy</a>.</p>
+          <a href="/cookies" data-modal="cookies">cookie policy</a>.</p>
         </div>
         <div class="consent-actions">
           <button type="button" class="btn btn-ghost btn-sm" id="consentReject">Reject</button>

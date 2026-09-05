@@ -136,6 +136,16 @@ input, select, textarea { font-family: inherit; }
   padding: 0 24px;
 }
 
+/* ---------- Skip link ----------
+   First focusable element on every page: invisible until it receives
+   keyboard focus, then drawn on top of the sticky header. */
+.skip-link {
+  position: absolute; left: 16px; top: -100px; z-index: 200;
+  padding: 12px 18px; border-radius: 999px; background: var(--color-primary); color: #fff;
+  font-weight: 700; box-shadow: var(--shadow-md); transition: top .15s;
+}
+.skip-link:focus { top: 12px; outline: 3px solid var(--color-accent); outline-offset: 2px; }
+
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-flex;
