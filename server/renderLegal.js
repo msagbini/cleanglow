@@ -60,6 +60,7 @@ export function renderLegalHtml(key, { baseUrl, lang = 'en', gaMeasurementId = '
     '{{BODY}}': entry.body,
     '{{OTHER_POLICIES}}': otherPolicies,
     '{{JSONLD}}': jsonLd,
+    '{{THEME_COLOR}}': escapeHtml(config.theme?.primary || '#0f7a6b'),
   };
   return Object.entries(replacements).reduce((html, [token, value]) => html.replaceAll(token, () => value), template);
 }

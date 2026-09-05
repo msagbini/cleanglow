@@ -14,7 +14,7 @@
   function renderError(message) {
     render(`
       <div class="result-icon">⚠️</div>
-      <h3>We couldn't confirm the payment</h3>
+      <h1>We couldn't confirm the payment</h1>
       <p>${message}</p>
       <a class="btn btn-primary" href="/index.html#booking">Try again</a>
     `);
@@ -60,7 +60,7 @@
 
       render(`
         <div class="result-icon">✅</div>
-        <h3>${isRecurring ? 'Your recurring clean is now active!' : 'Booking confirmed and paid!'}</h3>
+        <h1>${isRecurring ? 'Your recurring clean is now active!' : 'Booking confirmed and paid!'}</h1>
         <p>We've sent the details to <strong>${escapeHtml(data.email)}</strong>. We'll be in touch to confirm access.</p>
         <div class="result-summary">
           <div>${propertyLabel} · ${sizeLabel} · ${data.bathrooms} bathroom(s)</div>
@@ -95,7 +95,7 @@
     } else {
       render(`
         <div class="result-icon">⏳</div>
-        <h3>Your payment is processing</h3>
+        <h1>Your payment is processing</h1>
         <p>This can take a few seconds. We'll email you as soon as it's confirmed.</p>
         <p class="result-ref">Booking reference: <strong>${data.id}</strong></p>
         <a class="btn btn-ghost" href="/index.html">Back to home</a>

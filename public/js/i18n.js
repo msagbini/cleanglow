@@ -34,6 +34,7 @@ window.CGI18N = (() => {
     'nav.faq': 'Preguntas frecuentes',
     'nav.contact': 'Contacto',
     'nav.account': 'Mi cuenta',
+    'a11y.skipToContent': 'Saltar al contenido',
     'header.callUs': 'Llámanos',
     'header.bookNow': 'Reservar ahora',
 

@@ -89,8 +89,8 @@ function buildHeroCardRows({ business, booking }) {
   ].join('');
 }
 
-export function renderIndexHtml(baseUrl, csrfToken = '', gaMeasurementId = '') {
-  const { business } = config;
+export function renderIndexHtml(baseUrl, csrfToken = '', gaMeasurementId = '', searchConsoleToken = '') {
+  const { business, theme } = config;
   const iconHref = business.logoUrl || FALLBACK_ICON_HREF(business);
   const ogImage = business.ogImageUrl ? `${baseUrl}${business.ogImageUrl}` : '';
   const serviceAreasText = (business.serviceAreas || []).join(', ');
@@ -151,6 +151,13 @@ export function renderIndexHtml(baseUrl, csrfToken = '', gaMeasurementId = '') {
       ? `<meta name="ga-measurement-id" content="${escapeHtml(gaMeasurementId)}">`
       : '',
     '{{ANALYTICS_HTML_ATTRS}}': analyticsHtmlAttrs(gaMeasurementId),
+    '{{THEME_COLOR}}': escapeHtml(theme?.primary || '#0f7a6b'),
+    // Search Console ownership proof, on the home page only (that is where
+    // Google looks). Set SEARCH_CONSOLE_VERIFICATION to the token from
+    // "HTML tag" verification; absent, nothing is emitted.
+    '{{VERIFICATION_META}}': searchConsoleToken
+      ? `<meta name="google-site-verification" content="${escapeHtml(searchConsoleToken)}">`
+      : '',
   };
   return Object.entries(replacements).reduce(
     // The replacement is passed as a function, not a string: a string
@@ -178,20 +185,29 @@ export function analyticsHtmlAttrs(gaMeasurementId) {
     : '';
 }
 
-// success.html carries no business copy — only the two tokens every page
-// needs (the analytics meta tag and the asset-version cache buster). It used
-// to be served straight off disk by express.static, which would have shipped
-// the literal "{{ANALYTICS_META}}" text to the browser once tokens were
-// added to it.
+// success.html is rendered (not served off disk) so its tokens are filled:
+// the analytics meta, the cache-busting asset version, and — so the page is
+// a complete document even before success.js fills in the booking — the
+// contact details, canonical URL and business name.
 const successTemplate = fs.readFileSync(path.join(__dirname, '..', 'public', 'success.html'), 'utf8');
 
-export function renderSuccessHtml(gaMeasurementId = '') {
+export function renderSuccessHtml(baseUrl, gaMeasurementId = '') {
+  const { business, theme } = config;
   const replacements = {
     '{{ANALYTICS_META}}': gaMeasurementId
       ? `<meta name="ga-measurement-id" content="${escapeHtml(gaMeasurementId)}">`
       : '',
     '{{ANALYTICS_HTML_ATTRS}}': analyticsHtmlAttrs(gaMeasurementId),
     '{{ASSET_VERSION}}': ASSET_VERSION,
+    '{{SITE_URL}}': escapeHtml(baseUrl),
+    '{{SITE_NAME}}': escapeHtml(business.name),
+    '{{SITE_ICON_HREF}}': escapeHtml(business.logoUrl || FALLBACK_ICON_HREF(business)),
+    '{{SITE_OG_IMAGE}}': escapeHtml(business.ogImageUrl ? `${baseUrl}${business.ogImageUrl}` : ''),
+    '{{PHONE_HREF}}': escapeHtml(business.phone || ''),
+    '{{PHONE_DISPLAY}}': escapeHtml(business.phoneDisplay || business.phone || ''),
+    '{{EMAIL}}': escapeHtml(business.email || ''),
+    '{{ABN}}': escapeHtml(business.abn || ''),
+    '{{THEME_COLOR}}': escapeHtml(theme?.primary || '#0f7a6b'),
   };
   return Object.entries(replacements).reduce(
     (html, [token, value]) => html.replaceAll(token, () => value),

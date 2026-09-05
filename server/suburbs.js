@@ -97,6 +97,7 @@ export function renderSuburbHtml(suburb, baseUrl, gaMeasurementId = '') {
     '{{RECLEAN_WINDOW_DAYS}}': String(recleanDays),
     '{{OTHER_SUBURBS_LINKS}}': otherSuburbsHtml,
     '{{JSONLD}}': jsonLd,
+    '{{THEME_COLOR}}': escapeHtml(config.theme?.primary || '#0f7a6b'),
   };
   // Function replacement so "$&"/"$`"/"$'" in a value stay literal — see renderIndex.js.
   return Object.entries(replacements).reduce((html, [token, value]) => html.replaceAll(token, () => value), template);

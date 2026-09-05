@@ -22,6 +22,9 @@ import { getSuburbBySlug, renderSuburbHtml } from './suburbs.js';
 import { renderLegalHtml } from './renderLegal.js';
 import { LEGAL_PAGES } from './legal.js';
 import { GA_MEASUREMENT_ID } from './analytics.js';
+
+// Google Search Console "HTML tag" verification token (the content= value).
+const SEARCH_CONSOLE_VERIFICATION = (process.env.SEARCH_CONSOLE_VERIFICATION || '').trim().replace(/[^A-Za-z0-9_-]/g, '');
 import { startAbandonedLeadSweep } from './leadSweep.js';
 import { startBookingReminderSweep } from './bookingReminders.js';
 import { startBackupSweep } from './dbBackup.js';
@@ -186,7 +189,7 @@ app.get(['/', '/index.html'], (req, res) => {
   // `no-store`) still allows the back/forward cache, so returning to the
   // booking form keeps the form state the visitor already filled in.
   res.set('Cache-Control', 'private, no-cache, must-revalidate');
-  res.type('html').send(renderIndexHtml(baseUrl, csrfToken, GA_MEASUREMENT_ID));
+  res.type('html').send(renderIndexHtml(baseUrl, csrfToken, GA_MEASUREMENT_ID, SEARCH_CONSOLE_VERIFICATION));
 });
 
 // Lets the client recover from an expired token without losing the booking
@@ -202,7 +205,7 @@ app.get('/api/csrf', (req, res) => {
 // otherwise ship the raw template.
 app.get('/success.html', (req, res) => {
   res.set('Cache-Control', 'private, no-cache, must-revalidate');
-  res.type('html').send(renderSuccessHtml(GA_MEASUREMENT_ID));
+  res.type('html').send(renderSuccessHtml(resolveBaseUrl(req), GA_MEASUREMENT_ID));
 });
 
 // Suburb landing pages — one per configured service area, e.g.

@@ -16,7 +16,13 @@ const router = Router();
 
 export function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) return null;
-  return new Stripe(process.env.STRIPE_SECRET_KEY);
+  // STRIPE_API_HOST points the SDK at a local stand-in (stripe-mock, or the
+  // one in the test suite) so the whole checkout -> webhook -> confirmation
+  // path can be exercised without network access. Unset in production.
+  const options = process.env.STRIPE_API_HOST
+    ? { host: process.env.STRIPE_API_HOST, port: Number(process.env.STRIPE_API_PORT || 443), protocol: process.env.STRIPE_API_PROTOCOL || 'https' }
+    : undefined;
+  return new Stripe(process.env.STRIPE_SECRET_KEY, options);
 }
 
 async function markPaidOnce(booking, subscriptionId) {
