@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { ASSET_VERSION } from './assetVersion.js';
 import { buildLegalContent, LEGAL_PAGES } from './legal.js';
-import { addressText } from './structuredData.js';
+import { addressText, businessNode } from './structuredData.js';
 import { analyticsHtmlAttrs } from './renderIndex.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,14 +29,19 @@ export function renderLegalHtml(key, { baseUrl, lang = 'en', gaMeasurementId = '
     .join('');
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': canonicalUrl,
-    name: entry.title,
-    description: page.description,
-    url: canonicalUrl,
-    inLanguage: lang === 'es' ? 'es' : 'en-AU',
-    isPartOf: { '@type': 'WebSite', name: business.name, url: `${baseUrl}/` },
-    about: { '@id': `${baseUrl}/#business` },
+    '@graph': [
+      businessNode(baseUrl),
+      {
+        '@type': 'WebPage',
+        '@id': canonicalUrl,
+        name: entry.title,
+        description: page.description,
+        url: canonicalUrl,
+        inLanguage: lang === 'es' ? 'es' : 'en-AU',
+        isPartOf: { '@type': 'WebSite', name: business.name, url: `${baseUrl}/` },
+        about: { '@id': `${baseUrl}/#business` },
+      },
+    ],
   });
   const replacements = {
     '{{LANG}}': lang === 'es' ? 'es' : 'en-AU',

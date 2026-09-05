@@ -30,10 +30,12 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-700.woff2" crossorigin>
 <link rel="stylesheet" href="css/styles.css?v={{ASSET_VERSION}}">
 <link rel="stylesheet" href="css/success.css?v={{ASSET_VERSION}}">
+<script type="application/ld+json">{{JSONLD}}</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <main id="main" class="result-page">
+  <a href="/" class="logo result-logo"><span class="logo-mark"><img src="{{SITE_ICON_HREF}}" alt="" width="32" height="32" decoding="async"></span><span class="logo-text">{{SITE_NAME}}</span></a>
   <div class="result-card" id="resultCard">
     <div class="spinner"></div>
     <h1>Confirming your payment…</h1>
@@ -44,7 +46,7 @@
 </main>
 <footer class="result-footer">
   <div class="container footer-bottom">
-    <span>© {{SITE_NAME}} · ABN {{ABN}}</span>
+    <span>© {{SITE_NAME}} · ABN {{ABN}} · Business hours: {{HOURS_TEXT}} · Servicing {{ADDRESS_TEXT}}</span>
     <div class="footer-legal">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

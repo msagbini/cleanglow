@@ -207,7 +207,12 @@ export function renderSuccessHtml(baseUrl, gaMeasurementId = '') {
     '{{PHONE_DISPLAY}}': escapeHtml(business.phoneDisplay || business.phone || ''),
     '{{EMAIL}}': escapeHtml(business.email || ''),
     '{{ABN}}': escapeHtml(business.abn || ''),
+    '{{HOURS_TEXT}}': escapeHtml(business.hours || ''),
+    '{{ADDRESS_TEXT}}': escapeHtml(addressText(business)),
     '{{THEME_COLOR}}': escapeHtml(theme?.primary || '#0f7a6b'),
+    // The same business entity every page publishes, so this page too says
+    // who it belongs to (and to what phone/hours/area).
+    '{{JSONLD}}': JSON.stringify({ '@context': 'https://schema.org', '@graph': [businessNode(baseUrl)] }),
   };
   return Object.entries(replacements).reduce(
     (html, [token, value]) => html.replaceAll(token, () => value),
