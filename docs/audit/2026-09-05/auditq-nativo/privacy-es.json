@@ -1,0 +1,746 @@
+{
+  "schema_version": "1.2.0",
+  "severity_policy": "2026-09-05",
+  "site_profile": {
+    "tipo": "negocio_local",
+    "etiqueta": "Local business",
+    "confianza": 1.0,
+    "evidencia": [
+      "\"@type\":\"LocalBusiness\"",
+      "href=\"tel:",
+      "cleaners",
+      "Business hours"
+    ],
+    "puntuaciones": {
+      "negocio_local": 13.0,
+      "reservas": 2.5
+    },
+    "acciones": [],
+    "dimensiones": {
+      "entidad": {
+        "valor": "comercial",
+        "confianza": 1.0,
+        "evidencia": [
+          "ABN 4",
+          "pricing"
+        ],
+        "puntuaciones": {
+          "comercial": 3.5
+        },
+        "etiqueta": "Type of organisation",
+        "verificada": true
+      },
+      "industria": {
+        "valor": "hosteleria_turismo",
+        "confianza": 0.85,
+        "evidencia": [
+          "reserva"
+        ],
+        "puntuaciones": {
+          "hosteleria_turismo": 2.0
+        },
+        "etiqueta": "Industry",
+        "verificada": true
+      },
+      "audiencia": {
+        "valor": "local",
+        "confianza": 0.95,
+        "evidencia": [
+          "Servicing",
+          "Melbourne"
+        ],
+        "puntuaciones": {
+          "local": 4.5,
+          "internacional": 2.0
+        },
+        "etiqueta": "Audience",
+        "verificada": true
+      },
+      "jurisdiccion": {
+        "valor": "au",
+        "confianza": 1.0,
+        "evidencia": [
+          "ABN 4",
+          "AUD"
+        ],
+        "puntuaciones": {
+          "au": 4.0
+        },
+        "etiqueta": "Jurisdiction",
+        "verificada": true
+      },
+      "madurez": {
+        "valor": "basico",
+        "confianza": 0.5,
+        "evidencia": [
+          "no CMS, framework or build markers found"
+        ],
+        "puntuaciones": {},
+        "etiqueta": "Digital maturity",
+        "verificada": false
+      },
+      "stack": {
+        "valor": "estatico",
+        "confianza": 0.5,
+        "evidencia": [
+          "no CMS or framework markers found"
+        ],
+        "puntuaciones": {},
+        "etiqueta": "Technology",
+        "verificada": false
+      },
+      "objetivo": {
+        "valor": "",
+        "confianza": 0.0,
+        "evidencia": [],
+        "puntuaciones": {},
+        "etiqueta": "Primary goal",
+        "verificada": false
+      },
+      "modelo": {
+        "valor": "servicio_local",
+        "confianza": 1.0,
+        "evidencia": [
+          "site type: negocio_local"
+        ],
+        "puntuaciones": {},
+        "etiqueta": "Business model",
+        "verificada": true
+      },
+      "tamano": {
+        "valor": "pequeno",
+        "confianza": 0.5,
+        "evidencia": [
+          "3 distinct internal link(s) on this page"
+        ],
+        "puntuaciones": {},
+        "estimado": true,
+        "etiqueta": "Size",
+        "verificada": false
+      }
+    }
+  },
+  "generated_at": "2026-09-05T14:15:10.316983+00:00",
+  "mode": "single-process",
+  "target": {
+    "requested_url": "https://localhost:4443/privacy?lang=es",
+    "final_url": "https://localhost:4443/privacy?lang=es",
+    "http_status": 200,
+    "fetch_error": null,
+    "response_time_ms": 11,
+    "html_bytes": 7051,
+    "https": true
+  },
+  "tools": {
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "--no-lighthouse"
+    },
+    "render": null,
+    "html_parser": "python stdlib html.parser",
+    "http_client": "python stdlib urllib"
+  },
+  "metrics": {
+    "lighthouse_scores": null,
+    "core_web_vitals": null,
+    "lighthouse_opportunities": null,
+    "audit_duration_s": 0.07
+  },
+  "page_facts": {
+    "title": "Política de Privacidad | CleanGlow",
+    "lang": "es",
+    "meta_description": "What personal data CleanGlow collects when you book a clean, how it is used, and your rights.",
+    "canonical": "https://localhost:4443/privacy",
+    "h1_count": 1,
+    "image_count": 1,
+    "script_count": 3,
+    "anchor_count": 17,
+    "form_count": 0
+  },
+  "summary": {
+    "complete": true,
+    "global_score": 79,
+    "total_findings": 15,
+    "by_severity": {
+      "critical": 0,
+      "high": 1,
+      "medium": 0,
+      "low": 2,
+      "info": 12
+    },
+    "auto_fixable": 0,
+    "unverified": 9,
+    "perspectivas_rebajados": 2
+  },
+  "perspectivas": {
+    "criterio": "Each finding from the judgement specialists (conversion, content, local, commerce) is reviewed from 5 perspectives. With fewer than 3 affirmative votes it is lowered to info (weight 0); the specialist's severity is kept in severity_original and the votes in perspectivas. Nothing is deleted.",
+    "version": "2026-09-05",
+    "umbral": 3,
+    "perspectivas": [
+      {
+        "nombre": "Negocio",
+        "etiqueta": "Business",
+        "pregunta": "Does it cost this business customers or money, given what the site is, what the page does and the role of this page?"
+      },
+      {
+        "nombre": "Usuario/UX",
+        "etiqueta": "User & UX",
+        "pregunta": "Does a real visitor suffer it on this page as it is built?"
+      },
+      {
+        "nombre": "SEO",
+        "etiqueta": "SEO",
+        "pregunta": "Does it affect search visibility or rich results?"
+      },
+      {
+        "nombre": "Técnica/Seguridad",
+        "etiqueta": "Technical & Security",
+        "pregunta": "Is it a fact measured in the HTML or headers that is fixed in code?"
+      },
+      {
+        "nombre": "Legal",
+        "etiqueta": "Legal",
+        "pregunta": "Is there a legal obligation, by verified jurisdiction or by what the page does (payments, sign-in, email capture)?"
+      }
+    ],
+    "especialistas": [
+      "conversion",
+      "content",
+      "local",
+      "commerce"
+    ],
+    "evaluados": 2,
+    "rebajados": 2,
+    "sin_regla": []
+  },
+  "by_specialist": {
+    "seo": {
+      "label": "SEO & Content",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "seo.content.thin"
+      ]
+    },
+    "backend": {
+      "label": "Backend & Infrastructure",
+      "status": "ok",
+      "score": 97,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 1,
+        "info": 1
+      },
+      "finding_ids": [
+        "backend.protocol.no_h3",
+        "backend.compression.brotli_unverified"
+      ]
+    },
+    "frontend": {
+      "label": "Frontend & UX",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": []
+    },
+    "a11y": {
+      "label": "Accessibility (WCAG 2.2 / EN 301 549)",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "a11y.contrast.unverified"
+      ]
+    },
+    "conversion": {
+      "label": "Consumer Psychology & Conversion",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 3
+      },
+      "finding_ids": [
+        "conversion.cta.contrast_unverified",
+        "conversion.trust.no_social_proof",
+        "conversion.value.price_promised_not_shown"
+      ]
+    },
+    "design": {
+      "label": "Design & Identity",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 2
+      },
+      "finding_ids": [
+        "design.brand_consistency.unverified",
+        "design.dark_mode.not_applicable"
+      ]
+    },
+    "security": {
+      "label": "Security & Compliance",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "security.tls.expiry_unverified"
+      ]
+    },
+    "analytics": {
+      "label": "Analytics & Data",
+      "status": "ok",
+      "score": 81,
+      "counts": {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 1,
+        "info": 1
+      },
+      "finding_ids": [
+        "analytics.tracking.none",
+        "analytics.search_console.unverified",
+        "analytics.server_side.unverified"
+      ]
+    },
+    "content": {
+      "label": "Content & Veracity",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": []
+    },
+    "unicity": {
+      "label": "Design Originality",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0
+      },
+      "finding_ids": []
+    },
+    "local": {
+      "label": "Local Business",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "local.basics.ok"
+      ]
+    },
+    "commerce": {
+      "label": "Shop & Bookings",
+      "status": "ok",
+      "score": 100,
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 1
+      },
+      "finding_ids": [
+        "commerce.not_applicable"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "analytics.tracking.none",
+      "specialist": "analytics",
+      "category": "coverage",
+      "severity": "high",
+      "title": "No analytics tool was detected",
+      "evidence": "Patterns evaluated: 8; matches: 0.",
+      "recommendation": "Install at least one measurement tool (GA4, Plausible or Matomo).",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {
+        "detected": {
+          "Google Analytics 4": false,
+          "Google Tag Manager": false,
+          "Meta Pixel": false,
+          "Hotjar": false,
+          "Microsoft Clarity": false,
+          "Plausible": false,
+          "Matomo": false,
+          "Segment": false
+        }
+      },
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "analytics.search_console.unverified",
+      "specialist": "analytics",
+      "category": "coverage",
+      "severity": "low",
+      "title": "No Search Console / Bing verification meta",
+      "evidence": "There is no google-site-verification and no msvalidate.01.",
+      "recommendation": "Verify the property to get access to organic search data.",
+      "auto_fixable": false,
+      "risk_class": "safe",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.6,
+      "verified": true,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "backend.protocol.no_h3",
+      "specialist": "backend",
+      "category": "protocol",
+      "severity": "low",
+      "title": "HTTP/3 is not advertised",
+      "evidence": "Alt-Svc=''",
+      "recommendation": "Enable HTTP/3 at the CDN; it shortens the handshake on mobile networks.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.6,
+      "verified": false,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "a11y.contrast.unverified",
+      "specialist": "a11y",
+      "category": "coverage",
+      "severity": "info",
+      "title": "Colour contrast, focus order and alt-text quality have not been checked",
+      "evidence": "The analysis reads the served HTML: it neither computes styles nor navigates with a keyboard, so it cannot measure real contrast ratio (WCAG 1.4.3), focus order (2.4.3) or whether an alt text actually describes the image (1.1.1).",
+      "recommendation": "Complete this with a manual review and a browser tool (axe DevTools, Lighthouse). This section covers the criteria that leave a trace in the markup, not full conformance with EN 301 549.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "analytics.server_side.unverified",
+      "specialist": "analytics",
+      "category": "architecture",
+      "severity": "info",
+      "title": "Server-side measurement cannot be verified from the HTML",
+      "evidence": "Static analysis cannot see runtime requests.",
+      "recommendation": "Run the Playwright worker with network capture to list the real measurement calls.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "backend.compression.brotli_unverified",
+      "specialist": "backend",
+      "category": "performance",
+      "severity": "info",
+      "title": "Could not check whether the server offers Brotli",
+      "evidence": "La sonda HEAD con Accept-Encoding: br devolvio 200 sin Content-Encoding (many servers do not compress bodyless responses)",
+      "recommendation": "Check by hand with: curl -sI -H 'Accept-Encoding: br' <url>",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "commerce.not_applicable",
+      "specialist": "commerce",
+      "category": "coverage",
+      "severity": "info",
+      "title": "Shop and booking checks were not applied",
+      "evidence": "Detected site type: Local business.",
+      "recommendation": "These checks (Product markup, shipping and returns policy, booking engine, menu) only make sense for a site that sells or takes bookings. Nothing here counts against the score.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "conversion.cta.contrast_unverified",
+      "specialist": "conversion",
+      "category": "cta",
+      "severity": "info",
+      "title": "Call-to-action contrast and visibility not checked in this pass",
+      "evidence": "Static analysis does not compute rendered contrast.",
+      "recommendation": "Run the Playwright + axe-core worker to measure real call-to-action contrast.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "conversion.trust.no_social_proof",
+      "specialist": "conversion",
+      "category": "trust",
+      "severity": "info",
+      "title": "No detectable social-proof signals",
+      "evidence": "No terms for testimonials, reviews, guarantees or certifications were found.",
+      "recommendation": "Lowered to information: 0 of 5 perspectives consider it a real problem on this page. Add verifiable testimonials, client logos or ratings with Review schema.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.5,
+      "verified": false,
+      "data": {},
+      "severity_original": "medium",
+      "perspectivas": [
+        {
+          "perspectiva": "Negocio",
+          "etiqueta": "Business",
+          "voto": "no",
+          "motivo": "This is a policy, receipt or account page, not a persuasion page: the visitor did not come here to be convinced."
+        },
+        {
+          "perspectiva": "Usuario/UX",
+          "etiqueta": "User & UX",
+          "voto": "no",
+          "motivo": "This is a policy, receipt or account page, not a persuasion page: the visitor did not come here to be convinced."
+        },
+        {
+          "perspectiva": "SEO",
+          "etiqueta": "SEO",
+          "voto": "no",
+          "motivo": "Reviews on this page would not change the search result."
+        },
+        {
+          "perspectiva": "Técnica/Seguridad",
+          "etiqueta": "Technical & Security",
+          "voto": "no",
+          "motivo": "A static heuristic with low confidence, not a measurement."
+        },
+        {
+          "perspectiva": "Legal",
+          "etiqueta": "Legal",
+          "voto": "no",
+          "motivo": "No legal obligation involved."
+        }
+      ]
+    },
+    {
+      "id": "conversion.value.price_promised_not_shown",
+      "specialist": "conversion",
+      "category": "value_prop",
+      "severity": "info",
+      "title": "The page talks about price and never gives one",
+      "evidence": "The page says 'Pricing', and there is no amount anywhere on the page.",
+      "recommendation": "Lowered to information: 1 of 5 perspectives consider it a real problem on this page. Either show the figure — a number, a range, a 'from' price — or change the heading to what the block actually delivers. A heading that promises a price and answers with a phone number reads as hidden pricing, which costs more trust than having said nothing.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.6,
+      "verified": false,
+      "data": {},
+      "severity_original": "medium",
+      "perspectivas": [
+        {
+          "perspectiva": "Negocio",
+          "etiqueta": "Business",
+          "voto": "no",
+          "motivo": "Policies talk about price (cancellations, fees) without having to repeat the tariff."
+        },
+        {
+          "perspectiva": "Usuario/UX",
+          "etiqueta": "User & UX",
+          "voto": "no",
+          "motivo": "This is a policy, receipt or account page, not a persuasion page: the visitor did not come here to be convinced."
+        },
+        {
+          "perspectiva": "SEO",
+          "etiqueta": "SEO",
+          "voto": "no",
+          "motivo": "Not a ranking or rich-result factor."
+        },
+        {
+          "perspectiva": "Técnica/Seguridad",
+          "etiqueta": "Technical & Security",
+          "voto": "sí",
+          "motivo": "Measured: the wording is in the HTML and no amount is."
+        },
+        {
+          "perspectiva": "Legal",
+          "etiqueta": "Legal",
+          "voto": "no",
+          "motivo": "No legal obligation involved."
+        }
+      ]
+    },
+    {
+      "id": "design.brand_consistency.unverified",
+      "specialist": "design",
+      "category": "identity",
+      "severity": "info",
+      "title": "Brand consistency across pages not checked",
+      "evidence": "This pass analyses a single URL.",
+      "recommendation": "Run the multi-page crawler and compare tokens, logo and tone across templates.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "design.dark_mode.not_applicable",
+      "specialist": "design",
+      "category": "system",
+      "severity": "info",
+      "title": "Dark mode is not expected for this audience",
+      "evidence": "No prefers-color-scheme and none needed: detected site type: Local business.",
+      "recommendation": "Not a fault. A trade site is read outdoors, in daylight, on a phone at full brightness: dark text on a light background wins there. Nothing to change.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "local.basics.ok",
+      "specialist": "local",
+      "category": "coverage",
+      "severity": "info",
+      "title": "The local-business basics are covered",
+      "evidence": "Tappable phone, address, opening hours and LocalBusiness markup are all present.",
+      "recommendation": "Keep the details identical to your Google Business Profile: Google compares them.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 1.0,
+      "verified": true,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "security.tls.expiry_unverified",
+      "specialist": "security",
+      "category": "transport",
+      "severity": "info",
+      "title": "TLS certificate expiry and chain not checked in this pass",
+      "evidence": "The capture uses the system CA store; it inspects neither dates nor chain.",
+      "recommendation": "Run the TLS worker (sslyze or `openssl s_client`) for expiry date, protocol version and cipher suites.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.0,
+      "verified": false,
+      "data": {},
+      "severity_original": null,
+      "perspectivas": []
+    },
+    {
+      "id": "seo.content.thin",
+      "specialist": "seo",
+      "category": "content",
+      "severity": "info",
+      "title": "Thin content: ~178 visible words",
+      "evidence": "178 words after stripping markup.",
+      "recommendation": "Detected site type: Local business. A local business page is meant to be short: the visitor wants the phone number, not an essay. Counted as information, not a fault.",
+      "auto_fixable": false,
+      "risk_class": "review",
+      "target": "https://localhost:4443/privacy?lang=es",
+      "confidence": 0.6,
+      "verified": false,
+      "data": {
+        "word_count": 178
+      },
+      "severity_original": null,
+      "perspectivas": []
+    }
+  ],
+  "context": {
+    "robots_txt_status": 200,
+    "sitemap_status": 200,
+    "http_redirect": {
+      "status": 301,
+      "location": "https://localhost:4443/",
+      "upgrades": true,
+      "permanent": true,
+      "error": null
+    },
+    "not_found_probe": {
+      "url": "https://localhost:4443/__auditagent_probe_1788617710",
+      "status": 404
+    },
+    "exposed_paths": null
+  }
+}
