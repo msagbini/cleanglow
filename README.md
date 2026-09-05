@@ -84,6 +84,26 @@ Eventos que se envían (sólo con consentimiento): `booking_step` en cada paso d
 formulario, `booking_created`, `begin_checkout` y `purchase` en la página de
 confirmación.
 
+### Search Console
+
+Para verificar la propiedad en Google Search Console con el método «etiqueta
+HTML», copia el valor `content=` de la etiqueta que te da Google en la variable
+`SEARCH_CONSOLE_VERIFICATION`. La página de inicio emitirá
+`<meta name="google-site-verification">`; sin la variable no se emite nada.
+
+## Páginas legales
+
+Los términos, la política de privacidad y la de cookies viven en
+`server/legal.js` (inglés y español) y se sirven de dos formas desde esa única
+fuente:
+
+- como páginas reales en `/terms`, `/privacy` y `/cookies` (`?lang=es` para la
+  versión en español), con URL canónica y presentes en el sitemap — es la URL
+  que piden Stripe y Google para una política pública;
+- dentro de `/api/config` (`legal`), que es lo que abre el modal de la página
+  de inicio. Los enlaces del pie apuntan a las páginas reales y el JS los
+  intercepta para abrir el modal; sin JS, la página real se abre igual.
+
 ## Reseñas
 
 `config/business.json` incluye `business.reviews`, vacío de fábrica. Mientras esté
@@ -124,6 +144,19 @@ Tras editar el JSON, reinicia el servidor; no requiere build ni redeploy de asse
 ⚠️ **Los testimonios y las estadísticas de la franja de confianza son contenido de ejemplo.**
 Reemplázalos por datos reales antes de publicar el sitio — mostrar reseñas o cifras de
 actividad inventadas puede constituir publicidad engañosa bajo la Australian Consumer Law.
+
+### Dirección, horario y FAQ
+
+- `business.address` (`addressLocality`, `addressRegion`, `addressCountry` y,
+  solo si el perfil de Google Business muestra una calle, `streetAddress` y
+  `postalCode`) alimenta el `PostalAddress` del JSON-LD y la línea «Servicing …»
+  del pie. Un negocio que va al cliente publica localidad y estado, no una calle.
+- `business.openingHours` es la versión estructurada de `business.hours`
+  (`OpeningHoursSpecification`); mantén las dos en sincronía.
+- `faq` es la lista de preguntas: de ella salen el acordeón y el marcado
+  `FAQPage`, así que no pueden discrepar. `{recleanWindow}` y `{gstNote}` se
+  sustituyen por la ventana de re-limpieza y por la nota de GST (solo si
+  `gstRegistered` es `true`).
 
 ## GST, ABN y moneda
 
@@ -195,6 +228,14 @@ en vez de quedar abierto con credenciales por defecto.
 4. Tras pagar, Stripe te redirige a `/success.html`, que confirma el pago y muestra la
    referencia de la reserva. El webhook actualiza la reserva en la base de datos aunque
    el cliente cierre la pestaña antes de volver.
+
+### Probar el flujo completo sin red (stand-in de Stripe)
+
+`STRIPE_API_HOST`, `STRIPE_API_PORT` y `STRIPE_API_PROTOCOL` apuntan el SDK de
+Stripe a un servidor local (por ejemplo [stripe-mock](https://github.com/stripe/stripe-mock)),
+lo que permite recorrer reserva → sesión de Checkout → webhook firmado →
+página de confirmación sin salir de la máquina. Déjalas sin definir en
+producción.
 
 ## Notificaciones por email (opcional)
 

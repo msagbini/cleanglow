@@ -1,0 +1,43 @@
+{
+  "posts": [
+    "/api/bookings 201",
+    "/api/checkout-session 200",
+    "http://localhost:4599/pay/cs_test_k8gjfpcipt/confirm 303"
+  ],
+  "checkoutRequest": {
+    "mode": "payment",
+    "payment_method_types": [
+      "card"
+    ],
+    "customer_email": "jane@example.com",
+    "line_items": [
+      {
+        "price_data": {
+          "currency": "aud",
+          "unit_amount": "34000",
+          "product_data": {
+            "name": "End of Lease Clean — Booking CG-STVYGC",
+            "description": "2026-09-14 · 08:00 slot"
+          }
+        },
+        "quantity": "1"
+      }
+    ],
+    "metadata": {
+      "bookingId": "CG-STVYGC",
+      "frequency": "once"
+    },
+    "success_url": "http://localhost:4242/success.html?session_id={CHECKOUT_SESSION_ID}",
+    "cancel_url": "http://localhost:4242/index.html?resume=CG-STVYGC#booking"
+  },
+  "webhook": {
+    "status": 200,
+    "text": "{\"received\":true}"
+  },
+  "webhookDuplicate": {
+    "status": 200,
+    "text": "{\"received\":true,\"duplicate\":true}"
+  },
+  "successH1": "Booking confirmed and paid!",
+  "reference": "CG-4LJDW2"
+}
