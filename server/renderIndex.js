@@ -150,6 +150,7 @@ export function renderIndexHtml(baseUrl, csrfToken = '', gaMeasurementId = '') {
     '{{ANALYTICS_META}}': gaMeasurementId
       ? `<meta name="ga-measurement-id" content="${escapeHtml(gaMeasurementId)}">`
       : '',
+    '{{ANALYTICS_HTML_ATTRS}}': analyticsHtmlAttrs(gaMeasurementId),
   };
   return Object.entries(replacements).reduce(
     // The replacement is passed as a function, not a string: a string
@@ -165,6 +166,18 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 }
 
+// Consent-gated analytics is invisible in the served HTML by design (no
+// gtag.js until the visitor accepts), which an auditor can't tell apart
+// from "no analytics at all". These two static attributes on <html> declare
+// what is going on — the measurement id, and that a consent step gates it —
+// for anything reading the markup. Both are omitted when analytics is off:
+// a consent marker without an id would claim a banner that never appears.
+export function analyticsHtmlAttrs(gaMeasurementId) {
+  return gaMeasurementId
+    ? ` data-ga-id="${escapeHtml(gaMeasurementId)}" data-consent="analytics"`
+    : '';
+}
+
 // success.html carries no business copy — only the two tokens every page
 // needs (the analytics meta tag and the asset-version cache buster). It used
 // to be served straight off disk by express.static, which would have shipped
@@ -177,6 +190,7 @@ export function renderSuccessHtml(gaMeasurementId = '') {
     '{{ANALYTICS_META}}': gaMeasurementId
       ? `<meta name="ga-measurement-id" content="${escapeHtml(gaMeasurementId)}">`
       : '',
+    '{{ANALYTICS_HTML_ATTRS}}': analyticsHtmlAttrs(gaMeasurementId),
     '{{ASSET_VERSION}}': ASSET_VERSION,
   };
   return Object.entries(replacements).reduce(

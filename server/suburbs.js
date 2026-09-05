@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { ASSET_VERSION } from './assetVersion.js';
 import { businessNode, serviceNode, addressText, lowestPrice } from './structuredData.js';
+import { analyticsHtmlAttrs } from './renderIndex.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const template = fs.readFileSync(path.join(__dirname, '..', 'public', 'suburb.html'), 'utf8');
@@ -83,6 +84,7 @@ export function renderSuburbHtml(suburb, baseUrl, gaMeasurementId = '') {
     '{{ANALYTICS_META}}': gaMeasurementId
       ? `<meta name="ga-measurement-id" content="${escapeHtml(gaMeasurementId)}">`
       : '',
+    '{{ANALYTICS_HTML_ATTRS}}': analyticsHtmlAttrs(gaMeasurementId),
     '{{SITE_NAME}}': escapeHtml(business.name),
     '{{SITE_ICON_HREF}}': escapeHtml(business.logoUrl || '/img/logo-mark.svg'),
     '{{SITE_OG_IMAGE}}': escapeHtml(ogImage),

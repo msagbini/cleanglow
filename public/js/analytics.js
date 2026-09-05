@@ -23,7 +23,8 @@
 // that visiting the site and declining leaves no cookie behind at all.
 window.CGAnalytics = (() => {
   const STORAGE_KEY = 'cg_consent';
-  const measurementId = document.querySelector('meta[name="ga-measurement-id"]')?.content || '';
+  const measurementId = document.querySelector('meta[name="ga-measurement-id"]')?.content
+    || document.documentElement.dataset.gaId || '';
   const configured = /^G-[A-Z0-9]+$/i.test(measurementId);
 
   let loaded = false;
