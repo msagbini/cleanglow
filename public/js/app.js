@@ -403,12 +403,12 @@
     const { booking } = cfg;
 
     document.getElementById('frequencyPills').innerHTML = (booking.frequencyOptions || []).map((f, i) => `
-      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${f.value}">${f.label}${f.discount ? ` (save ${Math.round(f.discount * 100)}%)` : ''}</button>
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" aria-pressed="${i === 0}" data-value="${f.value}">${f.label}${f.discount ? ` (save ${Math.round(f.discount * 100)}%)` : ''}</button>
     `).join('');
     state.frequency = booking.frequencyOptions?.[0]?.value || 'once';
 
     document.getElementById('propertyTypePills').innerHTML = booking.serviceTypes.map((t, i) => `
-      <button type="button" class="pill${i === 0 ? ' active' : ''}" data-value="${t.value}"><span class="inline-icon">${ICONS[t.icon] || ''}</span>${t.label}</button>
+      <button type="button" class="pill${i === 0 ? ' active' : ''}" aria-pressed="${i === 0}" data-value="${t.value}"><span class="inline-icon">${ICONS[t.icon] || ''}</span>${t.label}</button>
     `).join('');
     state.propertyType = booking.serviceTypes[0].value;
 
@@ -427,7 +427,8 @@
         <div class="extra-qty">
           <button type="button" class="extra-qty-btn" data-qty-delta="-1" data-qty-for="${e.key}" aria-label="${CGI18N.tf('extras.fewer', l => `Fewer ${l}`, e.label)}">−</button>
           <input type="number" name="extras" min="0" max="${e.maxQuantity ?? 12}" step="1" value="0"
-                 data-key="${e.key}" data-price="${e.price}" data-label="${e.label}" id="extraQty_${e.key}">
+                 data-key="${e.key}" data-price="${e.price}" data-label="${e.label}" id="extraQty_${e.key}"
+                 aria-label="${CGI18N.tf('extras.quantity', l => `Number of ${l.toLowerCase()}`, e.label)}">
           <button type="button" class="extra-qty-btn" data-qty-delta="1" data-qty-for="${e.key}" aria-label="${CGI18N.tf('extras.more', l => `More ${l}`, e.label)}">+</button>
         </div>
       </div>
@@ -536,8 +537,9 @@
       group.addEventListener('click', e => {
         const btn = e.target.closest('.pill');
         if (!btn) return;
-        group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        group.querySelectorAll('.pill').forEach(p => { p.classList.remove('active'); p.setAttribute('aria-pressed', 'false'); });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         if (name === 'propertyType') {
           state.propertyType = btn.dataset.value;
           const serviceType = state.config.booking.serviceTypes.find(t => t.value === btn.dataset.value);
@@ -772,6 +774,10 @@
     } else {
       btnNext.hidden = false;
       btnSubmit.hidden = true;
+      // The button says what the next step is, not a bare "Next": a visitor
+      // (or a screen reader) reading only the button knows what happens.
+      const nextLabels = ['Choose extras →', 'Pick a date →', 'Add your details →', 'Review booking →'];
+      btnNext.textContent = CGI18N.t(`form.next.${n}`, nextLabels[n - 1] || 'Continue →');
     }
     const advanced = n > state.currentStep;
     state.currentStep = n;
@@ -986,32 +992,35 @@
     const postcode = escapeHtml(document.getElementById('postcode').value);
 
     const editLabel = CGI18N.t('review.edit', 'Edit');
+    // Each "Edit" button names what it edits: four identical accessible names
+    // are indistinguishable in a screen reader's element list.
+    const editBtn = (step, what) => `<button type="button" class="summary-edit" data-goto="${step}" aria-label="${editLabel}: ${what}">${editLabel}</button>`;
     const termsLink = `<a href="#" data-modal="terms">${CGI18N.t('review.terms', 'terms')}</a>`;
-    document.getElementById('reviewBox').innerHTML = `
-      <div class="review-section">
-        <button type="button" class="review-edit" data-goto="1">${editLabel}</button>
+    document.getElementById('bookingSummary').innerHTML = `
+      <div class="summary-section">
+        ${editBtn(1, CGI18N.t('review.property', 'Property'))}
         <h4>${CGI18N.t('review.property', 'Property')}</h4>
         <p>${serviceType.label} · ${sizeOptionDisplayLabel(serviceType, sizeOption)} · ${secondaryOption ? secondaryOption.label : ''}</p>
       </div>
-      <div class="review-section">
-        <button type="button" class="review-edit" data-goto="2">${editLabel}</button>
+      <div class="summary-section">
+        ${editBtn(2, CGI18N.t('review.extras', 'Extras'))}
         <h4>${CGI18N.t('review.extras', 'Extras')}</h4>
         <p>${extrasLabel}</p>
       </div>
-      <div class="review-section">
-        <button type="button" class="review-edit" data-goto="3">${editLabel}</button>
+      <div class="summary-section">
+        ${editBtn(3, CGI18N.t('review.dateTime', 'Date & time'))}
         <h4>${CGI18N.t('review.dateTime', 'Date & time')}</h4>
         <p>${dateFormatted} · ${timeVal} ${CGI18N.t('review.slot', 'slot')} · ${CGI18N.t('review.urgency', 'urgency')}: ${urgencyOption ? urgencyOption.label : state.urgency}</p>
       </div>
-      <div class="review-section">
-        <button type="button" class="review-edit" data-goto="4">${editLabel}</button>
+      <div class="summary-section">
+        ${editBtn(4, CGI18N.t('review.contact', 'Contact details'))}
         <h4>${CGI18N.t('review.contact', 'Contact details')}</h4>
         <p>${name}<br>${email} · ${phone}<br>${address}, ${postcode}</p>
       </div>
-      <div class="review-section">
+      <div class="summary-section">
         <h4>${CGI18N.t('review.frequency', 'Cleaning frequency')}</h4>
         <p>${frequencyOption.label}${isRecurring ? CGI18N.t('review.billedAuto', ' — billed automatically each cycle') : ''}</p>
-        ${isRecurring ? `<p class="review-cancellation-note">${
+        ${isRecurring ? `<p class="summary-cancellation-note">${
           CGI18N.tf(
             'review.cancellationNote',
             (n, terms) => `Cancelling before your ${n}${getOrdinalSuffix(n)} clean incurs a one-off early-cancellation fee equal to one visit at your discounted rate — see ${terms}.`,
@@ -1019,14 +1028,14 @@
           )
         }</p>` : ''}
       </div>
-      <div class="review-section">
+      <div class="summary-section">
         <h4>${isRecurring ? CGI18N.t('review.totalPerVisit', 'Total per visit') : CGI18N.t('review.totalToPay', 'Total to pay')}</h4>
-        <p class="review-total-price">${currencySymbol}${total.toFixed(0)}${isRecurring ? ` <span class="review-discount-tag">/ ${frequencyOption.label.toLowerCase()}</span>` : ''} ${discount > 0 ? `<span class="review-discount-tag">${CGI18N.t('review.discountApplied', '(discount applied)')}</span>` : ''}</p>
-        ${computeGstComponent(total) > 0 ? `<p class="review-gst-note">${CGI18N.tf('review.includesGst', a => `Includes ${a} GST`, `${currencySymbol}${computeGstComponent(total).toFixed(2)}`)}</p>` : ''}
+        <p class="summary-total-price">${currencySymbol}${total.toFixed(0)}${isRecurring ? ` <span class="summary-discount-tag">/ ${frequencyOption.label.toLowerCase()}</span>` : ''} ${discount > 0 ? `<span class="summary-discount-tag">${CGI18N.t('review.discountApplied', '(discount applied)')}</span>` : ''}</p>
+        ${computeGstComponent(total) > 0 ? `<p class="summary-gst-note">${CGI18N.tf('review.includesGst', a => `Includes ${a} GST`, `${currencySymbol}${computeGstComponent(total).toFixed(2)}`)}</p>` : ''}
       </div>
     `;
 
-    document.querySelectorAll('.review-edit').forEach(btn => {
+    document.querySelectorAll('.summary-edit').forEach(btn => {
       btn.addEventListener('click', () => showStep(Number(btn.dataset.goto)));
     });
   }

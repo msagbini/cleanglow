@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-<script src="js/reload-scroll-fix.js?v={{ASSET_VERSION}}"></script>
 <meta charset="UTF-8">
+<script src="js/reload-scroll-fix.js?v={{ASSET_VERSION}}" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 {{ANALYTICS_META}}
 <title>{{SITE_TITLE}}</title>
@@ -185,11 +185,11 @@
           <fieldset class="form-step active" data-step="1">
             <legend data-i18n="form.step1.legend">Tell us about the property</legend>
 
-            <label class="field-label" data-i18n="form.howOften">How often?</label>
-            <div class="pill-group" data-name="frequency" id="frequencyPills"></div>
+            <span class="field-label" id="frequencyLabel" data-i18n="form.howOften">How often?</span>
+            <div class="pill-group" data-name="frequency" id="frequencyPills" role="group" aria-labelledby="frequencyLabel"></div>
 
-            <label class="field-label" data-i18n="form.propertyType">Property type</label>
-            <div class="pill-group" data-name="propertyType" id="propertyTypePills"></div>
+            <span class="field-label" id="propertyTypeLabel" data-i18n="form.propertyType">Property type</span>
+            <div class="pill-group" data-name="propertyType" id="propertyTypePills" role="group" aria-labelledby="propertyTypeLabel"></div>
 
             <div class="field-row">
               <div class="field">
@@ -260,7 +260,7 @@
               </div>
             </div>
 
-            <label class="field-label" data-i18n="form.speed">Cleaning speed</label>
+            <span class="field-label" data-i18n="form.speed">Cleaning speed</span>
             <p class="urgency-badge" id="urgencyBadge" data-i18n="form.urgencyDefault">Pick a date to see if a speed surcharge applies</p>
 
             <div class="checkbox-row">
@@ -327,14 +327,14 @@
           <!-- STEP 5: REVIEW -->
           <fieldset class="form-step" data-step="5">
             <legend data-i18n="form.step5.legend">Review and confirm your booking</legend>
-            <div class="review-box" id="reviewBox">
+            <div class="booking-summary" id="bookingSummary">
               <!-- filled dynamically -->
             </div>
           </fieldset>
 
           <div class="form-nav">
             <button type="button" class="btn btn-ghost" id="btnBack" disabled data-i18n="form.back">← Back</button>
-            <button type="button" class="btn btn-primary" id="btnNext" data-i18n="form.next">Next →</button>
+            <button type="button" class="btn btn-primary" id="btnNext">Choose extras →</button>
             <button type="submit" class="btn btn-success" id="btnSubmit" hidden data-i18n="form.confirmPay">Confirm and pay →</button>
           </div>
         </form>

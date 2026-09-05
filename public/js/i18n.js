@@ -141,6 +141,10 @@ window.CGI18N = (() => {
     // Nav buttons
     'form.back': '← Atrás',
     'form.next': 'Siguiente →',
+    'form.next.1': 'Elegir extras →',
+    'form.next.2': 'Elegir fecha →',
+    'form.next.3': 'Añadir mis datos →',
+    'form.next.4': 'Revisar reserva →',
     'form.confirmPay': 'Confirmar y pagar →',
     'form.redirectingPayment': 'Redirigiendo al pago seguro…',
 
@@ -167,6 +171,7 @@ window.CGI18N = (() => {
     'form.fullyBooked': 'Completo',
     'extras.fewer': (label) => `Menos ${label}`,
     'extras.more': (label) => `Más ${label}`,
+    'extras.quantity': (label) => `Cantidad de ${label.toLowerCase()}`,
     'photo.remove': (name) => `Eliminar ${name}`,
     'toast.slotReassigned': 'Tu horario seleccionado ya está completo — elegimos el siguiente disponible',
     'toast.genericError': 'Algo salió mal. Por favor intenta de nuevo.',

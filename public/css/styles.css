@@ -475,17 +475,19 @@ input[type=file]:focus { outline: none; border-color: var(--color-primary); }
 
 .form-nav { display: flex; justify-content: space-between; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-border); }
 
-/* review box */
-.review-box { display: flex; flex-direction: column; gap: 14px; }
-.review-section { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 16px 18px; }
-.review-section h4 { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: var(--color-muted); margin: 0 0 8px; }
-.review-section p { margin: 0; font-size: .93rem; color: var(--color-ink); }
-.review-edit { font-size: .84rem; color: var(--color-primary-text); font-weight: 700; float: right; text-decoration: underline; }
-.review-total-price { font-size: 1.3rem; font-weight: 800; color: var(--color-primary-text); }
-.review-discount-tag { font-size: .85rem; color: var(--color-success); font-weight: 600; }
-.review-gst-note { font-size: .84rem; color: var(--color-muted); margin-top: 4px; }
-.review-cancellation-note { font-size: .84rem; color: var(--color-muted); margin-top: 6px; }
-.review-cancellation-note a { color: var(--color-primary-text); font-weight: 600; text-decoration: underline; }
+/* booking summary (step 5). Named for what it is: the class must not
+   contain "review" — a testimonial detector reads any class with that word
+   as a customer quote. */
+.booking-summary { display: flex; flex-direction: column; gap: 14px; }
+.summary-section { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 16px 18px; }
+.summary-section h4 { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: var(--color-muted); margin: 0 0 8px; }
+.summary-section p { margin: 0; font-size: .93rem; color: var(--color-ink); }
+.summary-edit { font-size: .84rem; color: var(--color-primary-text); font-weight: 700; float: right; text-decoration: underline; }
+.summary-total-price { font-size: 1.3rem; font-weight: 800; color: var(--color-primary-text); }
+.summary-discount-tag { font-size: .85rem; color: var(--color-success); font-weight: 600; }
+.summary-gst-note { font-size: .84rem; color: var(--color-muted); margin-top: 4px; }
+.summary-cancellation-note { font-size: .84rem; color: var(--color-muted); margin-top: 6px; }
+.summary-cancellation-note a { color: var(--color-primary-text); font-weight: 600; text-decoration: underline; }
 
 /* ---------- Price summary sidebar ---------- */
 .price-summary {
